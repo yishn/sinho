@@ -2,15 +2,17 @@ const signalSym = Symbol("signal");
 const effectSym = Symbol("effect");
 const subscopeSym = Symbol("subscope");
 
-export interface ReadSignal<T> {
-  (): T;
-  peek(): T;
-  track(): void;
-
+interface SignalInner<T> {
   [signalSym]: {
     value: T;
     listeners: Effect[];
   };
+}
+
+export interface ReadSignal<T> extends SignalInner<T> {
+  (): T;
+  peek(): T;
+  track(): void;
 }
 
 export interface SignalSetOptions {
@@ -25,13 +27,15 @@ export interface Signal<T> extends ReadSignal<T> {
   set(update: (value: T) => T, opts: SignalSetOptions): void;
 }
 
-interface Effect {
-  (): void;
-
+interface EffectInner {
   [effectSym]: {
     clean: SubscopeDestructor;
     dependencies: Signal<any>[];
   };
+}
+
+interface Effect extends EffectInner {
+  (): void;
 }
 
 export interface EffectOptions {
@@ -50,19 +54,21 @@ export interface SubscopeOptions {
   leaked?: boolean;
 }
 
-export interface SubscopeDestructor {
-  (): void;
-
+interface SubscopeDestructorInner {
   [subscopeSym]?: {
     subscope: Subscope;
   };
 }
 
+export interface SubscopeDestructor extends SubscopeDestructorInner {
+  (): void;
+}
+
 export class Scope {
-  protected currentSubscope: Subscope = new Subscope();
-  protected currentUntracked: boolean = false;
-  protected currentEffect?: Effect;
-  protected currentBatch?: {
+  private currentSubscope: Subscope = new Subscope();
+  private currentUntracked: boolean = false;
+  private currentEffect?: Effect;
+  private currentBatch?: {
     signals: [signal: Signal<any>, value: any][];
     effects: Effect[];
   };
@@ -208,7 +214,7 @@ export class Scope {
     );
   }
 
-  protected _cleanEffect(effect: Effect): void {
+  private _cleanEffect(effect: Effect): void {
     for (const signal of effect[effectSym].dependencies) {
       const index = signal[signalSym].listeners.indexOf(effect);
       if (index >= 0) {
@@ -217,7 +223,7 @@ export class Scope {
     }
   }
 
-  protected _cleanSubscope(subscope: Subscope): void {
+  private _cleanSubscope(subscope: Subscope): void {
     if (subscope.parent != null) {
       const index = subscope.parent.subscopes.indexOf(subscope);
       if (index >= 0) {
