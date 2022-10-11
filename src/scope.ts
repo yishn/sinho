@@ -2,14 +2,14 @@ const signalSym = Symbol("signal");
 const effectSym = Symbol("effect");
 const subscopeSym = Symbol("subscope");
 
-interface SignalInner<T> {
+interface SignalInner<out T> {
   [signalSym]: {
     value: T;
     listeners: Effect[];
   };
 }
 
-export interface ReadSignal<T> extends SignalInner<T> {
+export interface ReadSignal<out T> extends SignalInner<T> {
   (): T;
   peek(): T;
   track(): void;
@@ -20,7 +20,7 @@ export interface SignalSetOptions {
   silent?: boolean;
 }
 
-export interface Signal<T> extends ReadSignal<T> {
+export interface Signal<in out T> extends ReadSignal<T> {
   set(value: T): void;
   set(value: T, opts: SignalSetOptions): void;
   set(update: (value: T) => T): void;
@@ -42,11 +42,15 @@ export interface EffectOptions {
   untracked?: boolean;
 }
 
+interface Cleanup {
+  (): void;
+}
+
 class Subscope {
   parent?: Subscope;
   signals: Signal<any>[] = [];
   effects: Effect[] = [];
-  cleanups: (() => void)[] = [];
+  cleanups: Cleanup[] = [];
   subscopes: Subscope[] = [];
 }
 
@@ -88,8 +92,13 @@ export class Scope {
         },
         track: () => {
           if (this.currentEffect != null) {
-            signal[signalSym].listeners.push(this.currentEffect);
-            this.currentEffect[effectSym].dependencies.push(signal);
+            if (!signal[signalSym].listeners.includes(this.currentEffect)) {
+              signal[signalSym].listeners.push(this.currentEffect);
+            }
+
+            if (!this.currentEffect[effectSym].dependencies.includes(signal)) {
+              this.currentEffect[effectSym].dependencies.push(signal);
+            }
           }
         },
         set: (arg: T | ((value: T) => T), opts?: SignalSetOptions) => {
