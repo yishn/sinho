@@ -1,94 +1,13 @@
 import {
-  Component,
-  fragment,
-  Fragment,
-  getProp,
-  Prop,
   Renderer,
   RendererScope,
   Rendering,
+  Component,
+  fragment,
+  Fragment,
 } from "./renderer.ts";
-
-/*
- * The following functions are lifted from Preact <https://preactjs.com/> and
- * modified.
- *
- * The MIT License (MIT)
- *
- * Copyright (c) 2015-present Jason Miller
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-const IS_NON_DIMENSIONAL =
-  /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
-
-function setStyle(
-  node: ElementCSSInlineStyle,
-  key: any,
-  value: string | number | null | undefined
-): void {
-  if (key[0] === "-") {
-    node.style.setProperty(key, `${value}`);
-  } else if (value == null) {
-    node.style[key] = "";
-  } else if (typeof value !== "number" || IS_NON_DIMENSIONAL.test(key)) {
-    node.style[key] = `${value}`;
-  } else {
-    node.style[key] = `${value}px`;
-  }
-}
-
-function setAttr(node: any, name: string, value: unknown): void {
-  if (name !== "innerHTML") {
-    if (
-      name !== "href" &&
-      name !== "list" &&
-      name !== "form" &&
-      // Default value in browsers is `-1` and an empty string is
-      // cast to `0` instead
-      name !== "tabIndex" &&
-      name !== "download" &&
-      name in node
-    ) {
-      try {
-        node[name] = value == null ? "" : value;
-        return;
-      } catch (e) {}
-    }
-
-    // ARIA-attributes have a different notion of boolean values.
-    // The value `false` is different from the attribute not
-    // existing on the DOM, so we can't remove it. For non-boolean
-    // ARIA-attributes we could treat false as a removal, but the
-    // amount of exceptions would cost us too many bytes. On top of
-    // that other VDOM frameworks also always stringify `false`.
-
-    if (typeof value === "function") {
-      // never serialize functions as attribute values
-    } else if (value != null && (value !== false || name.indexOf("-") != -1)) {
-      node.setAttribute(name, value);
-    } else {
-      node.removeAttribute(name);
-    }
-  }
-}
+import { setAttr, setStyle } from "./html/dom.ts";
+import { SignalLike } from "./scope.ts";
 
 /*
  * Preact code end
@@ -145,9 +64,9 @@ export type Style = {
     | "getPropertyPriority"
     | typeof Symbol.iterator
     | number
-  >]?: Prop<string | number | null | undefined>;
+  >]?: SignalLike<string | number | null | undefined>;
 } & {
-  [key: string]: Prop<string | number | null | undefined>;
+  [key: string]: SignalLike<string | number | null | undefined>;
 };
 
 type EventMap = ElementEventMap &
@@ -157,32 +76,41 @@ type EventMap = ElementEventMap &
   };
 
 export interface DangerousHtml {
-  __html: string;
+  __html: SignalLike<string>;
 }
 
-export type TagProps<T extends string> = {
+type TagProps<T extends string> = {
   tagName: T;
-  style?: Style;
-  attrs?: Record<string, Prop<unknown>>;
-  events?: Record<
+  style: Style;
+  attrs: Record<string, SignalLike<unknown>>;
+  events: Record<
     string | number,
     [listener: (evt: any) => void, opts?: AddEventListenerOptions]
   >;
-  children?: Fragment<HtmlRenderer> | DangerousHtml;
+  children: Fragment<HtmlRenderer> | DangerousHtml;
 };
 
 export class Tag<T extends string> extends Component<
   HtmlRenderer,
   TagProps<T>
 > {
+  constructor(tagName: T) {
+    super({
+      tagName,
+      style: {},
+      attrs: {},
+      events: {},
+      children: fragment(),
+    });
+  }
+
   style(style: Style): this {
     this.props.style = style;
     return this;
   }
 
-  attr(key: string, value: Prop<unknown>): this {
-    if (this.props.attrs == null) this.props.attrs = {};
-    this.props.attrs[key] = value;
+  attrs(attrs: Record<string, SignalLike<unknown>>): this {
+    this.props.attrs = attrs;
     return this;
   }
 
@@ -191,26 +119,24 @@ export class Tag<T extends string> extends Component<
     listener: (this: Element, evt: EventMap[K]) => void,
     opts?: AddEventListenerOptions
   ): this {
-    if (this.props.events == null) this.props.events = {};
     this.props.events[name] = [listener, opts];
     return this;
   }
 
-  children(children: Component<HtmlRenderer>[] | DangerousHtml): this {
-    this.props.children = "__html" in children ? children : fragment(children);
+  children(...children: Component<HtmlRenderer>[]): this;
+  children(html: DangerousHtml): this;
+  children(...children: (Component<HtmlRenderer> | DangerousHtml)[]): this {
+    this.props.children =
+      children[0] != null && "__html" in children[0]
+        ? children[0]
+        : fragment(...(children as Component<HtmlRenderer>[]));
     return this;
   }
 
   render(s: RendererScope<HtmlRenderer>): Rendering<HtmlRenderer> {
-    const {
-      tagName,
-      style = {},
-      attrs = {},
-      events = {},
-      children = fragment([]),
-    } = this.props;
-
+    const { tagName, style, attrs, events, children } = this.props;
     const prevIsSvg = s.renderer.isSvg;
+
     if (tagName === "svg") {
       s.renderer.isSvg = true;
     }
@@ -221,13 +147,13 @@ export class Tag<T extends string> extends Component<
 
     for (const [name, prop] of Object.entries(style)) {
       s.effect(() => {
-        setStyle(node, name, getProp(prop));
+        setStyle(node, name, prop());
       });
     }
 
     for (const [name, value] of Object.entries(attrs)) {
       s.effect(() => {
-        setAttr(node, name, getProp(value));
+        setAttr(node, name, value());
       });
     }
 
@@ -236,9 +162,15 @@ export class Tag<T extends string> extends Component<
     }
 
     if ("__html" in children) {
-      node.innerHTML = children.__html;
+      s.effect(() => {
+        const html = children.__html();
+
+        if (node.innerHTML !== html) {
+          node.innerHTML = html;
+        }
+      });
     } else {
-      for (const child of children.renderNormalized(s) ?? []) {
+      for (const child of children.renderNormalized(s)) {
         s.renderer.appendNode(node, child);
       }
     }
@@ -250,15 +182,15 @@ export class Tag<T extends string> extends Component<
 }
 
 export function h<T extends string>(tagName: T): Tag<T> {
-  return new Tag({ tagName });
+  return new Tag(tagName);
 }
 
-export class Text extends Component<HtmlRenderer, Prop<string>> {
+export class Text extends Component<HtmlRenderer, SignalLike<string>> {
   render(s: RendererScope<HtmlRenderer>): Rendering<HtmlRenderer> {
     const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
 
     s.effect(() => {
-      let text = getProp(this.props);
+      let text = this.props();
 
       if (node.textContent !== text) {
         node.textContent = text;
@@ -269,6 +201,6 @@ export class Text extends Component<HtmlRenderer, Prop<string>> {
   }
 }
 
-export function text(value: Prop<string>): Text {
+export function text(value: SignalLike<string>): Text {
   return new Text(value);
 }

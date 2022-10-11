@@ -9,8 +9,11 @@ interface SignalInner<out T> {
   };
 }
 
-export interface Signal<out T> extends SignalInner<T> {
+export interface SignalLike<out T> {
   (): T;
+}
+
+export interface Signal<out T> extends SignalLike<T>, SignalInner<T> {
   peek(): T;
   track(): void;
 }

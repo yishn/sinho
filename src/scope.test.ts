@@ -5,7 +5,7 @@ Deno.test("Scope test", () => {
   const s = new Scope();
   const logs: string[] = [];
 
-  const [greeting, setGreeting] = s.signal("Greetigns!");
+  const [greeting, setGreeting] = s.signal("Greetings!");
   const [firstName, setFirstName] = s.signal("Yichuan");
   const [lastName, setLastName] = s.signal("Shen");
   const fullName = s.memo(() => `${firstName()} ${lastName()}`);
@@ -28,7 +28,7 @@ Deno.test("Scope test", () => {
   });
 
   assertEquals(logs, [
-    "Greetigns!",
+    "Greetings!",
     "Hello World, Yichuan Shen",
     "Hiya!",
     "Bye, Yichuan Shen!",
