@@ -27,7 +27,7 @@ export interface SignalSetter<in out T> {
 
 interface EffectInner {
   [effectSym]: {
-    clean: SubscopeDestructor;
+    clean: Destructor;
     dependencies: Signal<any>[];
   };
 }
@@ -56,13 +56,13 @@ export interface SubscopeOptions {
   leaked?: boolean;
 }
 
-interface SubscopeDestructorInner {
+interface DestructorInner {
   [subscopeSym]?: {
     subscope: Subscope;
   };
 }
 
-export interface SubscopeDestructor extends SubscopeDestructorInner {
+export interface Destructor extends DestructorInner {
   (): void;
 }
 
@@ -197,7 +197,7 @@ export class Scope {
     });
   }
 
-  subscope(f: () => void, opts?: SubscopeOptions): SubscopeDestructor {
+  subscope(f: () => void, opts?: SubscopeOptions): Destructor {
     const subscope = new Subscope();
     const prevSubscope = this.currentSubscope;
     this.currentSubscope = subscope;
