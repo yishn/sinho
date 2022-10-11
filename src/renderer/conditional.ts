@@ -1,5 +1,10 @@
 import type { SignalLike } from "../scope.ts";
-import type { Renderer, RendererScope, Rendering } from "./renderer.ts";
+import type {
+  Renderer,
+  RendererNode,
+  RendererScope,
+  Rendering,
+} from "./renderer.ts";
 import { Component } from "./component.ts";
 import { fragment } from "./fragment.ts";
 
@@ -27,6 +32,7 @@ export class Conditional<R extends Renderer> extends Component<
 
   render(s: RendererScope<R>): Rendering<R> {
     let firstTime = true;
+    let rendering: RendererNode<R>[] = [];
 
     const marker = s.renderer.createMarkerNode();
 
@@ -35,15 +41,16 @@ export class Conditional<R extends Renderer> extends Component<
         const memoizedCondition = s.memo(() => condition());
 
         if (memoizedCondition()) {
-          return render().renderWithDestructor(s);
+          return render();
         }
       }
 
-      return fragment().renderWithDestructor(s);
+      return fragment();
     });
 
     s.effect(() => {
-      const [rendering, destructor] = result();
+      const component = result();
+      rendering = component.renderWithDestructor(s)[0];
 
       if (firstTime) {
         firstTime = false;
@@ -52,11 +59,9 @@ export class Conditional<R extends Renderer> extends Component<
           s.renderer.insertNode(node, marker);
         }
       }
-
-      s.cleanup(() => destructor());
     });
 
-    return [result()[0], marker];
+    return [rendering, marker];
   }
 }
 

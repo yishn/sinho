@@ -50,7 +50,11 @@ export class HtmlRenderer extends Renderer<CreateNodeArg, Node> {
   }
 
   removeNode(node: Node): void {
-    node.parentNode!.removeChild(node);
+    try {
+      node.parentNode!.removeChild(node);
+    } catch (err) {
+      // ignore
+    }
   }
 }
 
