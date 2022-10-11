@@ -9,7 +9,7 @@ interface SignalInner<out T> {
   };
 }
 
-export interface ReadSignal<out T> extends SignalInner<T> {
+export interface Signal<out T> extends SignalInner<T> {
   (): T;
   peek(): T;
   track(): void;
@@ -20,11 +20,9 @@ export interface SignalSetOptions {
   silent?: boolean;
 }
 
-export interface Signal<in out T> extends ReadSignal<T> {
-  set(value: T): void;
-  set(value: T, opts: SignalSetOptions): void;
-  set(update: (value: T) => T): void;
-  set(update: (value: T) => T, opts: SignalSetOptions): void;
+export interface SignalSetter<in out T> {
+  (value: T, opts?: SignalSetOptions): void;
+  (update: (value: T) => T, opts?: SignalSetOptions): void;
 }
 
 interface EffectInner {
@@ -77,7 +75,7 @@ export class Scope {
     effects: Effect[];
   };
 
-  signal<T>(value: T): Signal<T> {
+  signal<T>(value: T): [Signal<T>, SignalSetter<T>] {
     const signal: Signal<T> = Object.assign(
       (): T => {
         if (!this.currentUntracked) {
@@ -101,28 +99,6 @@ export class Scope {
             }
           }
         },
-        set: (arg: T | ((value: T) => T), opts?: SignalSetOptions) => {
-          if (this.currentBatch != null) {
-            const newValue =
-              typeof arg === "function"
-                ? (arg as (value: T) => T)(signal.peek())
-                : arg;
-
-            if (!!opts?.force || newValue !== signal.peek()) {
-              this.currentBatch.signals.push([signal, newValue]);
-
-              if (!opts?.silent) {
-                for (const effect of signal[signalSym].listeners) {
-                  if (!this.currentBatch.effects.includes(effect)) {
-                    this.currentBatch.effects.push(effect);
-                  }
-                }
-              }
-            }
-          } else {
-            this.batch(() => signal.set(arg as any));
-          }
-        },
         [signalSym]: {
           value,
           listeners: [],
@@ -131,7 +107,31 @@ export class Scope {
     );
 
     this.currentSubscope.signals.push(signal);
-    return signal;
+
+    const setter = (arg: T | ((value: T) => T), opts?: SignalSetOptions) => {
+      if (this.currentBatch != null) {
+        const newValue =
+          typeof arg === "function"
+            ? (arg as (value: T) => T)(signal.peek())
+            : arg;
+
+        if (!!opts?.force || newValue !== signal.peek()) {
+          this.currentBatch.signals.push([signal, newValue]);
+
+          if (!opts?.silent) {
+            for (const effect of signal[signalSym].listeners) {
+              if (!this.currentBatch.effects.includes(effect)) {
+                this.currentBatch.effects.push(effect);
+              }
+            }
+          }
+        }
+      } else {
+        this.batch(() => setter(arg as any));
+      }
+    };
+
+    return [signal, setter];
   }
 
   effect(f: () => void, opts?: EffectOptions): void {
@@ -317,10 +317,10 @@ export class Scope {
     return result;
   }
 
-  memo<T>(f: () => T): ReadSignal<T> {
-    const signal = this.signal<T>(undefined as T);
+  memo<T>(f: () => T): Signal<T> {
+    const [signal, setSignal] = this.signal<T>(undefined as T);
 
-    this.effect(() => signal.set(f()));
+    this.effect(() => setSignal(f()));
 
     return signal;
   }
