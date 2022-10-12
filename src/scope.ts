@@ -320,10 +320,10 @@ export class Scope {
     return result;
   }
 
-  memo<T>(f: () => T): Signal<T> {
+  memo<T>(f: () => T, opts?: SignalSetOptions): Signal<T> {
     const [signal, setSignal] = this.signal<T>(undefined as T);
 
-    this.effect(() => setSignal(f()));
+    this.effect(() => setSignal(f(), opts));
 
     return signal;
   }

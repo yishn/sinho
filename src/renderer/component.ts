@@ -4,48 +4,38 @@ import {
   RendererScope,
   Rendering,
 } from "./renderer.ts";
-import type { Destructor } from "../scope.ts";
+import type { Destructor, Signal } from "../scope.ts";
 
-export function isComponent(value: any): value is Component<Renderer> {
-  return typeof value.renderWithDestructor === "function";
+export function flattenRendering<R extends Renderer>(
+  rendering: Rendering<R>
+): RendererNode<R>[] {
+  if (rendering == null) {
+    return [];
+  } else if (!Array.isArray(rendering)) {
+    return [rendering];
+  }
+
+  return rendering.flatMap((value) => flattenRendering(value));
 }
 
 export abstract class Component<R extends Renderer, out P = unknown> {
   constructor(protected props: P) {}
 
-  abstract render(s: RendererScope<R>): Rendering<R>;
+  abstract render(s: RendererScope<R>): Signal<Rendering<R>>;
 
-  renderNormalized(s: RendererScope<R>): RendererNode<R>[] {
-    function normalize(rendering: Rendering<R>): RendererNode<R>[] {
-      if (rendering == null) {
-        return [];
-      } else if (!Array.isArray(rendering)) {
-        if (isComponent(rendering)) {
-          return normalize(rendering.render(s));
-        } else {
-          return [rendering];
-        }
-      }
-
-      return rendering.flatMap((value) => normalize(value));
-    }
-
-    return normalize(this.render(s));
-  }
-
-  renderWithDestructor(s: RendererScope<R>): [RendererNode<R>[], Destructor] {
-    let rendering: RendererNode<R>[] = [];
+  renderWithDestructor(
+    s: RendererScope<R>
+  ): [Signal<Rendering<R>>, Destructor] {
+    let rendering: Signal<Rendering<R>>;
 
     const destructor = s.subscope(() => {
-      rendering = this.renderNormalized(s);
+      rendering = this.render(s);
 
       s.cleanup(() => {
-        for (const node of rendering) {
-          s.renderer.removeNode(node);
-        }
+        s.renderer.removeRendering(rendering());
       });
     });
 
-    return [rendering, destructor];
+    return [rendering!, destructor];
   }
 }

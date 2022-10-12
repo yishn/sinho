@@ -88,28 +88,31 @@ interface StateEntry<R extends Renderer, T> {
   index: Signal<number>;
   setIndex: SignalSetter<number>;
   marker: RendererNode<R>;
-  rendering: RendererNode<R>[];
   destructor: Destructor;
 }
 
-interface ListProps<R extends Renderer, T> {
+interface ListProps<R extends Renderer, T, K> {
   source: SignalLike<T[]>;
-  keyFn: (value: T, index: number) => unknown;
+  keyFn: (value: T, index: number) => K;
   eachFn: (value: Signal<T>, index: Signal<number>) => Component<R>;
 }
 
-export class List<R extends Renderer, T> extends Component<R, ListProps<R, T>> {
+export class List<R extends Renderer, T, K> extends Component<
+  R,
+  ListProps<R, T, K>
+> {
   constructor(source: SignalLike<T[]>) {
     super({
       source,
-      keyFn: (_, i) => i,
+      keyFn: (_, i) => i as K,
       eachFn: (_, __) => fragment(),
     });
   }
 
-  key<K>(keyFn: (value: T, index: number) => K): this {
-    this.props.keyFn = keyFn;
-    return this;
+  key<K>(keyFn: (value: T, index: number) => K): List<R, T, K> {
+    const self = this as unknown as List<R, T, K>;
+    self.props.keyFn = keyFn;
+    return self;
   }
 
   each(
@@ -119,12 +122,16 @@ export class List<R extends Renderer, T> extends Component<R, ListProps<R, T>> {
     return this;
   }
 
-  render(s: RendererScope<R>): Rendering<R> {
+  render(s: RendererScope<R>): Signal<Rendering<R>> {
     let firstTime = true;
 
     const endMarker: RendererNode<R> = s.renderer.createMarkerNode();
-    const state = new Map<unknown, StateEntry<R, T>>();
-    let keys: unknown[] = [];
+    const [rendering, setRendering] = s.signal<
+      [list: Rendering<R>[], marker: RendererNode<R>]
+    >([[], endMarker]);
+
+    const state = new Map<K, StateEntry<R, T>>();
+    let keys: K[] = [];
 
     s.effect(() => {
       const newKeys = this.props
@@ -142,21 +149,37 @@ export class List<R extends Renderer, T> extends Component<R, ListProps<R, T>> {
             () => {
               const [index, setIndex] = s.signal(j);
               const value = s.memo(() => this.props.source()[index()]);
+              const marker = s.renderer.createMarkerNode();
               const rendering = this.props
                 .eachFn(value, index)
                 .renderWithDestructor(s)[0];
 
-              if (rendering.length === 0) {
-                rendering.push(s.renderer.createMarkerNode());
-                s.cleanup(() => s.renderer.removeNode(rendering[0]));
-              }
+              s.cleanup(() => s.renderer.removeNode(marker));
 
               Object.assign(entry, {
                 index,
                 setIndex,
                 value,
                 rendering,
-                marker: rendering[0],
+                marker,
+              });
+
+              setRendering(
+                (value) => {
+                  value[0].splice(j, 0, rendering.peek());
+                  return value;
+                },
+                { force: true }
+              );
+
+              s.effect(() => {
+                setRendering(
+                  (value) => {
+                    value[0][index.peek()] = rendering();
+                    return value;
+                  },
+                  { force: true }
+                );
               });
 
               if (!firstTime) {
@@ -171,9 +194,7 @@ export class List<R extends Renderer, T> extends Component<R, ListProps<R, T>> {
                     ? endMarker
                     : state.get(beforeKey)?.marker ?? endMarker;
 
-                for (const node of rendering) {
-                  s.renderer.insertNode(node, beforeMarker);
-                }
+                s.renderer.insertRendering(rendering.peek(), beforeMarker);
               }
             },
             { leaked: true }
@@ -181,14 +202,22 @@ export class List<R extends Renderer, T> extends Component<R, ListProps<R, T>> {
 
           state.set(key, entry as StateEntry<R, T>);
         } else if (op[0] === ArrayOpType.Removed) {
-          const key = keys[op[1]];
-          const destructor = state.get(key)?.destructor;
+          const i = op[1];
+          const key = keys[i];
+          const entry = state.get(key)!;
 
-          destructor?.();
+          setRendering(
+            (value) => {
+              value[0].splice(i, 1);
+              return value;
+            },
+            { force: true }
+          );
 
+          entry.destructor();
           state.delete(key);
         } else if (op[0] === ArrayOpType.Move) {
-          const [j, needsMoving] = [op[2], op[3]];
+          const [, i, j, needsMoving] = op;
           const key = newKeys[j];
           const entry = state.get(key)!;
 
@@ -199,9 +228,16 @@ export class List<R extends Renderer, T> extends Component<R, ListProps<R, T>> {
                 ? endMarker
                 : state.get(beforeKey)?.marker ?? endMarker;
 
-            for (const node of entry.rendering) {
-              s.renderer.insertNode(node, beforeMarker);
-            }
+            setRendering(
+              (value) => {
+                const [rendering] = value[0].splice(i, 1);
+                value[0].splice(j, 0, rendering);
+                return value;
+              },
+              { force: true }
+            );
+
+            s.renderer.insertRendering(rendering.peek()[0][j], beforeMarker);
           }
 
           entry.setIndex(j);
@@ -218,12 +254,12 @@ export class List<R extends Renderer, T> extends Component<R, ListProps<R, T>> {
       }
     });
 
-    return [keys.flatMap((key) => state.get(key)?.rendering ?? []), endMarker];
+    return rendering;
   }
 }
 
 export function list<R extends Renderer, T>(
   source: SignalLike<T[]>
-): List<R, T> {
+): List<R, T, number> {
   return new List(source);
 }
