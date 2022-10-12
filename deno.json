@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "dom.asynciterable", "deno.ns"]
+  },
+  "tasks": {
+    "build": "deno bundle ./src/mod.ts ./dist/shingo.js"
   }
 }
