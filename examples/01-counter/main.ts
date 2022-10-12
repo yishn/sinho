@@ -1,9 +1,10 @@
-import { h, HtmlRenderer, text } from "../../src/html/mod.ts";
+import { h, HtmlRenderer } from "../../src/html/mod.ts";
 import {
   Component,
   Renderer,
   RendererScope,
   Rendering,
+  text,
 } from "../../src/renderer/mod.ts";
 
 class App extends Component<void> {

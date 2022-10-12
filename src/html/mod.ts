@@ -1,19 +1,14 @@
 import {
   Renderer,
-  RendererScope,
-  Rendering,
   Component,
   fragment,
   Fragment,
   SpecificComponent,
   implRender,
+  Text,
 } from "../renderer/mod.ts";
 import { setAttr, setStyle } from "./dom.ts";
 import { SignalLike } from "../scope.ts";
-
-/*
- * Preact code end
- */
 
 export enum HtmlNodeType {
   Element,
@@ -186,12 +181,6 @@ export function h<T extends string>(tagName: T): Tag<T> {
   return new Tag(tagName);
 }
 
-interface ToString {
-  toString(): string;
-}
-
-export class Text extends SpecificComponent<SignalLike<ToString>> {}
-
 implRender(Text, HtmlRenderer, (s, props) => {
   const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
 
@@ -205,9 +194,3 @@ implRender(Text, HtmlRenderer, (s, props) => {
 
   return [node];
 });
-
-export function text(
-  value: string | number | SignalLike<string | number>
-): Text {
-  return new Text(typeof value === "function" ? value : () => value);
-}
