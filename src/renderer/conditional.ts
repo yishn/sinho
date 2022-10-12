@@ -59,9 +59,7 @@ export class Conditional<R extends Renderer> extends Component<
       if (firstTime) {
         firstTime = false;
       } else {
-        for (const node of rendering.peek()) {
-          s.renderer.insertNode(node, marker);
-        }
+        s.renderer.insertRendering(rendering.peek(), marker);
       }
     });
 

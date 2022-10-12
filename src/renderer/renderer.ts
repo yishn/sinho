@@ -1,5 +1,5 @@
 import { Component, flattenRendering } from "./component.ts";
-import { Scope, Destructor, Signal } from "../scope.ts";
+import { Scope, Destructor } from "../scope.ts";
 
 export abstract class Renderer<
   in P = any,

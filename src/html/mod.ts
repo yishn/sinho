@@ -5,10 +5,9 @@ import {
   Component,
   fragment,
   Fragment,
-  normalizeRendering,
-} from "./renderer.ts";
-import { setAttr, setStyle } from "./html/dom.ts";
-import { Signal, SignalLike } from "./scope.ts";
+} from "../renderer/mod.ts";
+import { setAttr, setStyle } from "./dom.ts";
+import { Signal, SignalLike } from "../scope.ts";
 
 /*
  * Preact code end
