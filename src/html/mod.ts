@@ -114,7 +114,7 @@ export class Tag<T extends string> extends Component<
   }
 
   attrs(attrs: Record<string, SignalLike<unknown>>): this {
-    this.props.attrs = attrs;
+    Object.assign(this.props.attrs, attrs);
     return this;
   }
 
@@ -187,12 +187,16 @@ export function h<T extends string>(tagName: T): Tag<T> {
   return new Tag(tagName);
 }
 
-export class Text extends Component<HtmlRenderer, SignalLike<string>> {
+interface ToString {
+  toString(): string;
+}
+
+export class Text extends Component<HtmlRenderer, SignalLike<ToString>> {
   render(s: RendererScope<HtmlRenderer>): Signal<Rendering<HtmlRenderer>> {
     const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
 
     s.effect(() => {
-      let text = this.props();
+      let text = this.props().toString();
 
       if (node.textContent !== text) {
         node.textContent = text;
@@ -203,6 +207,8 @@ export class Text extends Component<HtmlRenderer, SignalLike<string>> {
   }
 }
 
-export function text(value: SignalLike<string>): Text {
-  return new Text(value);
+export function text(
+  value: string | number | SignalLike<string | number>
+): Text {
+  return new Text(typeof value === "function" ? value : () => value);
 }
