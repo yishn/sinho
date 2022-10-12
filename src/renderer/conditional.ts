@@ -8,29 +8,26 @@ import type {
 import { Component } from "./component.ts";
 import { fragment } from "./fragment.ts";
 
-interface ConditionalProps<R extends Renderer> {
-  cases: [condition: SignalLike<boolean>, render: () => Component<R>][];
+interface ConditionalProps {
+  cases: [condition: SignalLike<boolean>, render: () => Component][];
 }
 
-export class Conditional<R extends Renderer> extends Component<
-  R,
-  ConditionalProps<R>
-> {
+export class Conditional extends Component<ConditionalProps> {
   constructor() {
     super({ cases: [] });
   }
 
-  when(condition: SignalLike<boolean>, render: () => Component<R>): this {
+  when(condition: SignalLike<boolean>, render: () => Component): this {
     this.props.cases.push([condition, render]);
     return this;
   }
 
-  otherwise(render: () => Component<R>): this {
+  otherwise(render: () => Component): this {
     this.props.cases.push([() => true, render]);
     return this;
   }
 
-  render(s: RendererScope<R>): Rendering<R> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
     let firstTime = true;
 
     const marker = s.renderer.createMarkerNode();
@@ -64,6 +61,6 @@ export class Conditional<R extends Renderer> extends Component<
   }
 }
 
-export function conditional<R extends Renderer>(): Conditional<R> {
+export function conditional(): Conditional {
   return new Conditional();
 }

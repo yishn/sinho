@@ -5,6 +5,8 @@ import {
   Component,
   fragment,
   Fragment,
+  SpecificComponent,
+  implRender,
 } from "../renderer/mod.ts";
 import { setAttr, setStyle } from "./dom.ts";
 import { SignalLike } from "../scope.ts";
@@ -91,13 +93,10 @@ type TagProps<T extends string> = {
     string | number,
     [listener: (evt: any) => void, opts?: AddEventListenerOptions]
   >;
-  children: Fragment<HtmlRenderer> | DangerousHtml;
+  children: Fragment | DangerousHtml;
 };
 
-export class Tag<T extends string> extends Component<
-  HtmlRenderer,
-  TagProps<T>
-> {
+export class Tag<T extends string> extends SpecificComponent<TagProps<T>> {
   constructor(tagName: T) {
     super({
       tagName,
@@ -127,61 +126,61 @@ export class Tag<T extends string> extends Component<
     return this;
   }
 
-  children(...children: Component<HtmlRenderer>[]): this;
+  children(...children: Component[]): this;
   children(html: DangerousHtml): this;
-  children(...children: (Component<HtmlRenderer> | DangerousHtml)[]): this {
+  children(...children: (Component | DangerousHtml)[]): this {
     this.props.children =
       children[0] != null && "__html" in children[0]
         ? children[0]
-        : fragment(...(children as Component<HtmlRenderer>[]));
+        : fragment(...(children as Component[]));
     return this;
   }
-
-  render(s: RendererScope<HtmlRenderer>): Rendering<HtmlRenderer> {
-    const { tagName, style, attrs, events, children } = this.props;
-    const prevIsSvg = s.renderer.isSvg;
-
-    if (tagName === "svg") {
-      s.renderer.isSvg = true;
-    }
-
-    const node = s.renderer.createNode([HtmlNodeType.Element, tagName]) as
-      | HTMLElement
-      | SVGElement;
-
-    for (const [name, prop] of Object.entries(style)) {
-      s.effect(() => {
-        setStyle(node, name, prop());
-      });
-    }
-
-    for (const [name, value] of Object.entries(attrs)) {
-      s.effect(() => {
-        setAttr(node, name, value());
-      });
-    }
-
-    for (const [name, [listener, opts]] of Object.entries(events)) {
-      node.addEventListener(name, listener, opts);
-    }
-
-    if ("__html" in children) {
-      s.effect(() => {
-        const html = children.__html();
-
-        if (node.innerHTML !== html) {
-          node.innerHTML = html;
-        }
-      });
-    } else {
-      s.renderer.appendRendering(node, children.render(s));
-    }
-
-    s.renderer.isSvg = prevIsSvg;
-
-    return [node];
-  }
 }
+
+implRender(Tag<string>, HtmlRenderer, (s, props) => {
+  const { tagName, style, attrs, events, children } = props;
+  const prevIsSvg = s.renderer.isSvg;
+
+  if (tagName === "svg") {
+    s.renderer.isSvg = true;
+  }
+
+  const node = s.renderer.createNode([HtmlNodeType.Element, tagName]) as
+    | HTMLElement
+    | SVGElement;
+
+  for (const [name, prop] of Object.entries(style)) {
+    s.effect(() => {
+      setStyle(node, name, prop());
+    });
+  }
+
+  for (const [name, value] of Object.entries(attrs)) {
+    s.effect(() => {
+      setAttr(node, name, value());
+    });
+  }
+
+  for (const [name, [listener, opts]] of Object.entries(events)) {
+    node.addEventListener(name, listener, opts);
+  }
+
+  if ("__html" in children) {
+    s.effect(() => {
+      const html = children.__html();
+
+      if (node.innerHTML !== html) {
+        node.innerHTML = html;
+      }
+    });
+  } else {
+    s.renderer.appendRendering(node, children.render(s));
+  }
+
+  s.renderer.isSvg = prevIsSvg;
+
+  return [node];
+});
 
 export function h<T extends string>(tagName: T): Tag<T> {
   return new Tag(tagName);
@@ -191,21 +190,21 @@ interface ToString {
   toString(): string;
 }
 
-export class Text extends Component<HtmlRenderer, SignalLike<ToString>> {
-  render(s: RendererScope<HtmlRenderer>): Rendering<HtmlRenderer> {
-    const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
+export class Text extends SpecificComponent<SignalLike<ToString>> {}
 
-    s.effect(() => {
-      let text = this.props().toString();
+implRender(Text, HtmlRenderer, (s, props) => {
+  const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
 
-      if (node.textContent !== text) {
-        node.textContent = text;
-      }
-    });
+  s.effect(() => {
+    let text = props().toString();
 
-    return [node];
-  }
-}
+    if (node.textContent !== text) {
+      node.textContent = text;
+    }
+  });
+
+  return [node];
+});
 
 export function text(
   value: string | number | SignalLike<string | number>

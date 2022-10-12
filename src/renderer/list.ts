@@ -91,16 +91,13 @@ interface StateEntry<R extends Renderer, T> {
   destructor: Destructor;
 }
 
-interface ListProps<R extends Renderer, T, K> {
+interface ListProps<T, K> {
   source: SignalLike<T[]>;
   keyFn: (value: T, index: number) => K;
-  eachFn: (value: Signal<T>, index: Signal<number>) => Component<R>;
+  eachFn: (value: Signal<T>, index: Signal<number>) => Component;
 }
 
-export class List<R extends Renderer, T, K> extends Component<
-  R,
-  ListProps<R, T, K>
-> {
+export class List<T, K> extends Component<ListProps<T, K>> {
   constructor(source: SignalLike<T[]>) {
     super({
       source,
@@ -109,20 +106,18 @@ export class List<R extends Renderer, T, K> extends Component<
     });
   }
 
-  key<K>(keyFn: (value: T, index: number) => K): List<R, T, K> {
-    const self = this as unknown as List<R, T, K>;
+  key<K>(keyFn: (value: T, index: number) => K): List<T, K> {
+    const self = this as unknown as List<T, K>;
     self.props.keyFn = keyFn;
     return self;
   }
 
-  each(
-    eachFn: (value: Signal<T>, index: Signal<number>) => Component<R>
-  ): this {
+  each(eachFn: (value: Signal<T>, index: Signal<number>) => Component): this {
     this.props.eachFn = eachFn;
     return this;
   }
 
-  render(s: RendererScope<R>): Rendering<R> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
     let firstTime = true;
 
     const endMarker: RendererNode<R> = s.renderer.createMarkerNode();
@@ -229,8 +224,6 @@ export class List<R extends Renderer, T, K> extends Component<
   }
 }
 
-export function list<R extends Renderer, T>(
-  source: SignalLike<T[]>
-): List<R, T, number> {
+export function list<T>(source: SignalLike<T[]>): List<T, number> {
   return new List(source);
 }

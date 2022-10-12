@@ -1,8 +1,13 @@
 import { h, HtmlRenderer, text } from "../../src/html/mod.ts";
-import { Component, RendererScope, Rendering } from "../../src/renderer/mod.ts";
+import {
+  Component,
+  Renderer,
+  RendererScope,
+  Rendering,
+} from "../../src/renderer/mod.ts";
 
-class App extends Component<HtmlRenderer, void> {
-  render(s: RendererScope<HtmlRenderer>): Rendering<HtmlRenderer> {
+class App extends Component<void> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
     const [counter, setCounter] = s.signal(0);
     const illegal = s.memo(() => counter() < 0 || counter() > 10);
 
@@ -32,7 +37,7 @@ class App extends Component<HtmlRenderer, void> {
             //
             text(" Counter: "),
             text(counter),
-            text(() => (illegal() ? "⚠️" : "")),
+            text(() => (illegal() ? "⚠️" : ""))
           )
       )
       .render(s);

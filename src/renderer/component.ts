@@ -14,12 +14,14 @@ export function flattenRendering<R extends Renderer>(
   );
 }
 
-export abstract class Component<R extends Renderer, out P = unknown> {
+export abstract class Component<out P = unknown> {
   constructor(protected props: P) {}
 
-  abstract render(s: RendererScope<R>): Rendering<R>;
+  abstract render<R extends Renderer>(s: RendererScope<R>): Rendering<R>;
 
-  renderWithDestructor(s: RendererScope<R>): [Rendering<R>, Destructor] {
+  renderWithDestructor<R extends Renderer>(
+    s: RendererScope<R>
+  ): [Rendering<R>, Destructor] {
     let rendering: Rendering<R>;
 
     const destructor = s.subscope(() => {
@@ -32,4 +34,42 @@ export abstract class Component<R extends Renderer, out P = unknown> {
 
     return [rendering!, destructor];
   }
+}
+
+export type ComponentProps<C extends Component> = C extends Component<infer P>
+  ? P
+  : never;
+
+const renderImplsSym = Symbol("renderImpls");
+
+export abstract class SpecificComponent<out P = unknown> extends Component<P> {
+  static [renderImplsSym]?: WeakMap<
+    new (...args: any) => Renderer,
+    (s: RendererScope<any>, props: any) => Rendering<Renderer>
+  >;
+
+  constructor(props: P) {
+    super(props);
+  }
+
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
+    const render = (this.constructor as typeof SpecificComponent)[
+      renderImplsSym
+    ]?.get(s.renderer.constructor as new (...args: any) => Renderer);
+
+    if (render == null) {
+      throw new Error("Unsupported renderer");
+    }
+
+    return render(s, this.props);
+  }
+}
+
+export function implRender<C extends SpecificComponent, R extends Renderer>(
+  Component: new (...args: any) => C,
+  Renderer: new (...args: any) => R,
+  render: (s: RendererScope<R>, props: ComponentProps<C>) => Rendering<R>
+): void {
+  ((Component as typeof SpecificComponent)[renderImplsSym] ??=
+    new WeakMap()).set(Renderer, render);
 }

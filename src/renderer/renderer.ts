@@ -30,7 +30,7 @@ export abstract class Renderer<
     }
   }
 
-  mount(component: Component<this>, parent: N): Destructor {
+  mount(component: Component, parent: N): Destructor {
     const s = new RendererScope(this);
     const [rendering, destructor] = component.renderWithDestructor(s);
 
