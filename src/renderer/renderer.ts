@@ -34,7 +34,7 @@ export abstract class Renderer<
     const s = new RendererScope(this);
     const [rendering, destructor] = component.renderWithDestructor(s);
 
-    s.renderer.appendRendering(parent, rendering());
+    s.renderer.appendRendering(parent, rendering);
 
     return destructor;
   }
@@ -55,8 +55,4 @@ export class RendererScope<R extends Renderer> extends Scope {
 
 export type Rendering<R extends Renderer> = RenderingWithNode<RendererNode<R>>;
 
-export type RenderingWithNode<N> =
-  | undefined
-  | null
-  | N
-  | RenderingWithNode<N>[];
+export type RenderingWithNode<N> = (N | RenderingWithNode<N>)[];

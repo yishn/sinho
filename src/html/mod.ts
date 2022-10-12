@@ -7,7 +7,7 @@ import {
   Fragment,
 } from "../renderer/mod.ts";
 import { setAttr, setStyle } from "./dom.ts";
-import { Signal, SignalLike } from "../scope.ts";
+import { SignalLike } from "../scope.ts";
 
 /*
  * Preact code end
@@ -137,7 +137,7 @@ export class Tag<T extends string> extends Component<
     return this;
   }
 
-  render(s: RendererScope<HtmlRenderer>): Signal<Rendering<HtmlRenderer>> {
+  render(s: RendererScope<HtmlRenderer>): Rendering<HtmlRenderer> {
     const { tagName, style, attrs, events, children } = this.props;
     const prevIsSvg = s.renderer.isSvg;
 
@@ -174,12 +174,12 @@ export class Tag<T extends string> extends Component<
         }
       });
     } else {
-      s.renderer.appendRendering(node, children.render(s).peek());
+      s.renderer.appendRendering(node, children.render(s));
     }
 
     s.renderer.isSvg = prevIsSvg;
 
-    return s.signal(node)[0];
+    return [node];
   }
 }
 
@@ -192,7 +192,7 @@ interface ToString {
 }
 
 export class Text extends Component<HtmlRenderer, SignalLike<ToString>> {
-  render(s: RendererScope<HtmlRenderer>): Signal<Rendering<HtmlRenderer>> {
+  render(s: RendererScope<HtmlRenderer>): Rendering<HtmlRenderer> {
     const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
 
     s.effect(() => {
@@ -203,7 +203,7 @@ export class Text extends Component<HtmlRenderer, SignalLike<ToString>> {
       }
     });
 
-    return s.signal(node)[0];
+    return [node];
   }
 }
 

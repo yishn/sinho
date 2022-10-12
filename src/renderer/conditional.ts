@@ -1,4 +1,4 @@
-import type { Signal, SignalLike } from "../scope.ts";
+import type { SignalLike } from "../scope.ts";
 import type {
   Renderer,
   RendererNode,
@@ -30,11 +30,11 @@ export class Conditional<R extends Renderer> extends Component<
     return this;
   }
 
-  render(s: RendererScope<R>): Signal<Rendering<R>> {
+  render(s: RendererScope<R>): Rendering<R> {
     let firstTime = true;
 
     const marker = s.renderer.createMarkerNode();
-    const [rendering, setRendering] = s.signal<Rendering<R>[]>([null, marker]);
+    const rendering: [Rendering<R>, RendererNode<R>] = [[], marker];
 
     const result = s.memo(() => {
       for (const [condition, render] of this.props.cases) {
@@ -50,16 +50,13 @@ export class Conditional<R extends Renderer> extends Component<
 
     s.effect(() => {
       const component = result();
-      const rendering = component.renderWithDestructor(s)[0];
 
-      s.effect(() => {
-        setRendering((value) => [rendering(), value[1]]);
-      });
+      rendering[0] = component.renderWithDestructor(s)[0];
 
       if (firstTime) {
         firstTime = false;
       } else {
-        s.renderer.insertRendering(rendering.peek(), marker);
+        s.renderer.insertRendering(rendering[0], marker);
       }
     });
 

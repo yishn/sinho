@@ -100,6 +100,8 @@ export class Scope {
             if (!this.currentEffect[effectSym].dependencies.includes(signal)) {
               this.currentEffect[effectSym].dependencies.push(signal);
             }
+          } else {
+            console.warn("Trying to track a signal outside an effect");
           }
         },
         [signalSym]: {

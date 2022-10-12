@@ -122,13 +122,14 @@ export class List<R extends Renderer, T, K> extends Component<
     return this;
   }
 
-  render(s: RendererScope<R>): Signal<Rendering<R>> {
+  render(s: RendererScope<R>): Rendering<R> {
     let firstTime = true;
 
     const endMarker: RendererNode<R> = s.renderer.createMarkerNode();
-    const [rendering, setRendering] = s.signal<
-      [list: Rendering<R>[], marker: RendererNode<R>]
-    >([[], endMarker]);
+    const rendering: [list: Rendering<R>[], marker: RendererNode<R>] = [
+      [],
+      endMarker,
+    ];
 
     const state = new Map<K, StateEntry<R, T>>();
     let keys: K[] = [];
@@ -150,7 +151,7 @@ export class List<R extends Renderer, T, K> extends Component<
               const [index, setIndex] = s.signal(j);
               const value = s.memo(() => this.props.source()[index()]);
               const marker = s.renderer.createMarkerNode();
-              const rendering = this.props
+              const eachRendering = this.props
                 .eachFn(value, index)
                 .renderWithDestructor(s)[0];
 
@@ -160,27 +161,10 @@ export class List<R extends Renderer, T, K> extends Component<
                 index,
                 setIndex,
                 value,
-                rendering,
                 marker,
               });
 
-              setRendering(
-                (value) => {
-                  value[0].splice(j, 0, rendering.peek());
-                  return value;
-                },
-                { force: true }
-              );
-
-              s.effect(() => {
-                setRendering(
-                  (value) => {
-                    value[0][index.peek()] = rendering();
-                    return value;
-                  },
-                  { force: true }
-                );
-              });
+              rendering[0].splice(j, 0, eachRendering);
 
               if (!firstTime) {
                 // Insert rendering
@@ -194,7 +178,7 @@ export class List<R extends Renderer, T, K> extends Component<
                     ? endMarker
                     : state.get(beforeKey)?.marker ?? endMarker;
 
-                s.renderer.insertRendering(rendering.peek(), beforeMarker);
+                s.renderer.insertRendering(eachRendering, beforeMarker);
               }
             },
             { leaked: true }
@@ -206,14 +190,7 @@ export class List<R extends Renderer, T, K> extends Component<
           const key = keys[i];
           const entry = state.get(key)!;
 
-          setRendering(
-            (value) => {
-              value[0].splice(i, 1);
-              return value;
-            },
-            { force: true }
-          );
-
+          rendering[0].splice(i, 1);
           entry.destructor();
           state.delete(key);
         } else if (op[0] === ArrayOpType.Move) {
@@ -228,16 +205,10 @@ export class List<R extends Renderer, T, K> extends Component<
                 ? endMarker
                 : state.get(beforeKey)?.marker ?? endMarker;
 
-            setRendering(
-              (value) => {
-                const [rendering] = value[0].splice(i, 1);
-                value[0].splice(j, 0, rendering);
-                return value;
-              },
-              { force: true }
-            );
+            const [eachRendering] = rendering[0].splice(i, 1);
+            rendering[0].splice(j, 0, eachRendering);
 
-            s.renderer.insertRendering(rendering.peek()[0][j], beforeMarker);
+            s.renderer.insertRendering(eachRendering, beforeMarker);
           }
 
           entry.setIndex(j);
