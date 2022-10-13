@@ -6,6 +6,7 @@ interface SignalInner<out T> {
   [signalSym]: {
     value: T;
     listeners: Effect[];
+    deleted: boolean;
   };
 }
 
@@ -32,6 +33,7 @@ interface EffectInner {
   [effectSym]: {
     clean: Destructor;
     dependencies: Signal<any>[];
+    deleted: boolean;
   };
 }
 
@@ -100,13 +102,12 @@ export class Scope {
             if (!this.currentEffect[effectSym].dependencies.includes(signal)) {
               this.currentEffect[effectSym].dependencies.push(signal);
             }
-          } else {
-            console.warn("Trying to track a signal outside an effect");
           }
         },
         [signalSym]: {
           value,
           listeners: [],
+          deleted: false,
         },
       }
     );
@@ -114,6 +115,8 @@ export class Scope {
     this.currentSubscope.signals.push(signal);
 
     const setter = (arg: T | ((value: T) => T), opts?: SignalSetOptions) => {
+      if (signal[signalSym].deleted) return;
+
       if (this.currentBatch != null) {
         const newValue =
           typeof arg === "function"
@@ -132,7 +135,7 @@ export class Scope {
           }
         }
       } else {
-        this.batch(() => setter(arg as any));
+        this.batch(() => setter(arg as any, opts));
       }
     };
 
@@ -143,6 +146,7 @@ export class Scope {
     const effect: Effect = Object.assign(
       () => {
         let effectData = effect[effectSym];
+        if (effectData.deleted) return;
 
         // Clean up dependencies and listeners
 
@@ -175,6 +179,7 @@ export class Scope {
         [effectSym]: {
           clean: () => {},
           dependencies: [],
+          deleted: false,
         },
       }
     );
@@ -229,6 +234,8 @@ export class Scope {
   }
 
   private _cleanEffect(effect: Effect): void {
+    effect[effectSym].deleted = true;
+
     for (const signal of effect[effectSym].dependencies) {
       const index = signal[signalSym].listeners.indexOf(effect);
       if (index >= 0) {
@@ -254,6 +261,10 @@ export class Scope {
     subscope.cleanups.length = 0;
 
     // Clean signals
+
+    for (const signal of subscope.signals) {
+      signal[signalSym].deleted = true;
+    }
 
     subscope.signals.length = 0;
 

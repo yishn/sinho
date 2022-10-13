@@ -144,7 +144,11 @@ export class ListComponent<T, K> extends Component<ListProps<T, K>> {
           entry.destructor = s.subscope(
             () => {
               const [index, setIndex] = s.signal(j);
-              const value = s.memo(() => this.props.source()[index()]);
+              const value: Signal<T> = s.memo(() =>
+                index() < this.props.source().length && index() >= 0
+                  ? this.props.source()[index()]
+                  : value.peek()
+              );
               const marker = s.renderer.createMarkerNode();
               const eachRendering = this.props
                 .eachFn(value, index)

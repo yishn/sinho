@@ -3,6 +3,7 @@
     "lib": ["dom", "dom.iterable", "dom.asynciterable", "deno.ns"]
   },
   "tasks": {
-    "build": "deno bundle ./src/mod.ts ./dist/shingo.js"
+    "build": "deno bundle ./src/mod.ts ./dist/shingo.js",
+    "build-examples": "deno bundle ./examples/01-counter/main.ts ./examples/01-counter/main.js && deno bundle ./examples/02-todo/main.ts ./examples/02-todo/main.js"
   }
 }

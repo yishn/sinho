@@ -160,7 +160,7 @@ implRender(TagComponent<string>, HtmlRenderer, (s, props) => {
   }
 
   for (const [name, [listener, opts]] of Object.entries(events)) {
-    node.addEventListener(name, listener, opts);
+    node.addEventListener(name, (evt) => s.batch(() => listener(evt)), opts);
   }
 
   if (props.dangerouslySetInnerHTML != null) {
