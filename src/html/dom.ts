@@ -292,8 +292,6 @@ interface HtmlAttributes {
   data?: SignalLike<string>;
   dateTime?: SignalLike<string>;
   default?: SignalLike<boolean>;
-  defaultChecked?: SignalLike<boolean>;
-  defaultValue?: SignalLike<string>;
   defer?: SignalLike<boolean>;
   dir?: SignalLike<"auto" | "rtl" | "ltr">;
   disabled?: SignalLike<boolean>;
@@ -319,7 +317,6 @@ interface HtmlAttributes {
   href?: SignalLike<string>;
   hrefLang?: SignalLike<string>;
   for?: SignalLike<string>;
-  htmlFor?: SignalLike<string>;
   httpEquiv?: SignalLike<string>;
   icon?: SignalLike<string>;
   id?: SignalLike<string>;

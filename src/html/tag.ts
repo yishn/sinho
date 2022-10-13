@@ -5,7 +5,7 @@ import {
 } from "../renderer/component.ts";
 import { Fragment, FragmentComponent } from "../renderer/fragment.ts";
 import type { SignalLike } from "../scope.ts";
-import { HtmlNodeType, HtmlRenderer } from "./mod.ts";
+import { HtmlNodeType, DomRenderer } from "./mod.ts";
 import { ElementMap, setAttr, setStyle } from "./dom.ts";
 
 export type Style = {
@@ -101,7 +101,7 @@ export class TagComponent<T extends string> extends SpecificComponent<
   }
 }
 
-implRender(TagComponent<string>, HtmlRenderer, (s, props) => {
+implRender(TagComponent<string>, DomRenderer, (s, props) => {
   const { tagName, style, attrs, events, children } = props;
   const prevIsSvg = s.renderer.isSvg;
 

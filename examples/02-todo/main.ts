@@ -1,4 +1,4 @@
-import { h, HtmlRenderer } from "../../src/html/mod.ts";
+import { h, DomRenderer } from "../../src/html/mod.ts";
 import {
   Component,
   Conditional,
@@ -134,4 +134,4 @@ class App extends Component<void> {
   }
 }
 
-new HtmlRenderer().mount(new App(), document.getElementById("root")!);
+new DomRenderer().mount(new App(), document.getElementById("root")!);
