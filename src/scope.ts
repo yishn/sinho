@@ -323,9 +323,17 @@ export class Scope {
   }
 
   memo<T>(f: () => T, opts?: SignalSetOptions): Signal<T> {
+    let firstTime = true;
     const [signal, setSignal] = this.signal<T>(undefined as T);
 
-    this.effect(() => setSignal(f(), opts));
+    this.effect(() => {
+      if (firstTime) {
+        signal[signalSym].value = f();
+        firstTime = false;
+      } else {
+        setSignal(f(), opts);
+      }
+    });
 
     return signal;
   }

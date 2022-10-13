@@ -43,7 +43,7 @@ export class HtmlRenderer extends Renderer<CreateNodeArg, Node> {
   }
 
   insertNode(node: Node, before: Node): void {
-    node.parentNode!.insertBefore(node, before);
+    before.parentNode!.insertBefore(node, before);
   }
 
   removeNode(node: Node): void {
