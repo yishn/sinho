@@ -74,7 +74,7 @@ class App extends Component<void> {
                 .attrs({
                   type: () => "submit",
                 })
-                .children(text("Add"))
+                .children(text("+"))
             )
           ),
 
