@@ -5,6 +5,7 @@ import {
   Rendering,
 } from "./renderer.ts";
 import type { Destructor } from "../scope.ts";
+import { Fragment } from "./fragment.ts";
 
 export function flattenRendering<R extends Renderer>(
   rendering: Rendering<R>
@@ -58,7 +59,11 @@ export abstract class SpecificComponent<out P = unknown> extends Component<P> {
     ]?.get(s.renderer.constructor as new (...args: any) => Renderer);
 
     if (render == null) {
-      throw new Error("Unsupported renderer");
+      console.warn(
+        `\`${this.constructor.name}\` does not support \`${s.renderer.constructor.name}\` renderer`
+      );
+
+      return [];
     }
 
     return render(s, this.props);

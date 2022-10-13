@@ -19,6 +19,7 @@ class App extends Component<void> {
       })
       .children(
         h("h1").children(text("Hello World!")),
+        //
         h("p")
           .style({
             color: () => (illegal() ? "red" : undefined),
@@ -41,6 +42,7 @@ class App extends Component<void> {
             text(counter),
             text(() => (illegal() ? "⚠️" : ""))
           ),
+        //
         Conditional()
           .when(illegal, () =>
             h("h3").children(text("Counter must be between 0 and 10!"))

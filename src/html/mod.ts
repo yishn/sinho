@@ -65,9 +65,9 @@ export type Style = {
     | "getPropertyPriority"
     | typeof Symbol.iterator
     | number
-  >]?: SignalLike<string | number | null | undefined>;
+  >]?: SignalLike<string | number | null | undefined> | undefined;
 } & {
-  [key: string]: SignalLike<string | number | null | undefined>;
+  [key: string]: SignalLike<string | number | null | undefined> | undefined;
 };
 
 type EventMap = ElementEventMap &
@@ -83,7 +83,7 @@ export interface DangerousHtml {
 type TagProps<T extends string> = {
   tagName: T;
   style: Style;
-  attrs: Record<string, SignalLike<unknown>>;
+  attrs: Record<string, SignalLike<unknown> | undefined>;
   events: Record<
     string | number,
     [listener: (evt: any) => void, opts?: AddEventListenerOptions]
@@ -149,13 +149,13 @@ implRender(TagComponent<string>, HtmlRenderer, (s, props) => {
 
   for (const [name, prop] of Object.entries(style)) {
     s.effect(() => {
-      setStyle(node, name, prop());
+      setStyle(node, name, prop?.());
     });
   }
 
   for (const [name, value] of Object.entries(attrs)) {
     s.effect(() => {
-      setAttr(node, name, value());
+      setAttr(node, name, value?.());
     });
   }
 
