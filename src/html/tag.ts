@@ -4,9 +4,9 @@ import {
   SpecificComponent,
 } from "../renderer/component.ts";
 import { Fragment, FragmentComponent } from "../renderer/fragment.ts";
-import { SignalLike } from "../scope.ts";
+import type { SignalLike } from "../scope.ts";
 import { HtmlNodeType, HtmlRenderer } from "./mod.ts";
-import { setAttr, setStyle } from "./dom.ts";
+import { ElementMap, setAttr, setStyle } from "./dom.ts";
 
 export type Style = {
   [K in Exclude<
@@ -25,9 +25,13 @@ export type Style = {
 
 type EventMap = ElementEventMap &
   DocumentAndElementEventHandlersEventMap &
-  GlobalEventHandlersEventMap & {
-    [key: string]: (evt: any) => void;
+  GlobalEventHandlersEventMap;
+
+type EventMapWithTarget<E> = {
+  [K in keyof EventMap]: Omit<EventMap[K], "currentTarget"> & {
+    currentTarget: E;
   };
+};
 
 export interface DangerousHtml {
   __html: SignalLike<string>;
@@ -63,14 +67,23 @@ export class TagComponent<T extends string> extends SpecificComponent<
     return this;
   }
 
-  attrs(attrs: Record<string, SignalLike<unknown>>): this {
+  attrs(
+    attrs: T extends keyof ElementMap
+      ? ElementMap[T][0]
+      : Record<string, SignalLike<unknown>>
+  ): this {
     Object.assign(this.props.attrs, attrs);
     return this;
   }
 
   on<K extends keyof EventMap>(
     name: K,
-    listener: (this: Element, evt: EventMap[K]) => void,
+    listener: (
+      this: Element,
+      evt: EventMapWithTarget<
+        T extends keyof ElementMap ? ElementMap[T][1] : Element
+      >[K]
+    ) => void,
     opts?: AddEventListenerOptions
   ): this {
     this.props.events[name] = [listener, opts];

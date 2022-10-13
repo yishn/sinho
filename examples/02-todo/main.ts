@@ -67,7 +67,7 @@ class App extends Component<void> {
                   value: newTaskText,
                 })
                 .on("input", (evt) => {
-                  setNewTaskText((evt.currentTarget as HTMLInputElement).value);
+                  setNewTaskText(evt.currentTarget.value);
                 }),
               text(" "),
               h("button")
