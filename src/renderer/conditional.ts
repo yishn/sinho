@@ -6,13 +6,13 @@ import type {
   Rendering,
 } from "./renderer.ts";
 import { Component } from "./component.ts";
-import { fragment } from "./fragment.ts";
+import { Fragment } from "./fragment.ts";
 
 interface ConditionalProps {
   cases: [condition: SignalLike<boolean>, render: () => Component][];
 }
 
-export class Conditional extends Component<ConditionalProps> {
+export class ConditionalComponent extends Component<ConditionalProps> {
   constructor() {
     super({ cases: [] });
   }
@@ -42,7 +42,7 @@ export class Conditional extends Component<ConditionalProps> {
         }
       }
 
-      return fragment();
+      return Fragment();
     });
 
     s.effect(() => {
@@ -61,6 +61,6 @@ export class Conditional extends Component<ConditionalProps> {
   }
 }
 
-export function conditional(): Conditional {
-  return new Conditional();
+export function Conditional(): ConditionalComponent {
+  return new ConditionalComponent();
 }

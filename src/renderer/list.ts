@@ -1,6 +1,6 @@
 import { Destructor, Signal, SignalLike, SignalSetter } from "../scope.ts";
 import { Component } from "./component.ts";
-import { fragment } from "./fragment.ts";
+import { Fragment } from "./fragment.ts";
 import {
   Renderer,
   RendererNode,
@@ -97,17 +97,17 @@ interface ListProps<T, K> {
   eachFn: (value: Signal<T>, index: Signal<number>) => Component;
 }
 
-export class List<T, K> extends Component<ListProps<T, K>> {
+export class ListComponent<T, K> extends Component<ListProps<T, K>> {
   constructor(source: SignalLike<T[]>) {
     super({
       source,
       keyFn: (_, i) => i as K,
-      eachFn: (_, __) => fragment(),
+      eachFn: (_, __) => Fragment(),
     });
   }
 
-  key<K>(keyFn: (value: T, index: number) => K): List<T, K> {
-    const self = this as unknown as List<T, K>;
+  key<K>(keyFn: (value: T, index: number) => K): ListComponent<T, K> {
+    const self = this as unknown as ListComponent<T, K>;
     self.props.keyFn = keyFn;
     return self;
   }
@@ -224,6 +224,6 @@ export class List<T, K> extends Component<ListProps<T, K>> {
   }
 }
 
-export function list<T>(source: SignalLike<T[]>): List<T, number> {
-  return new List(source);
+export function List<T>(source: SignalLike<T[]>): ListComponent<T, number> {
+  return new ListComponent(source);
 }

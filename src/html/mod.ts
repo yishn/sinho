@@ -1,11 +1,11 @@
 import {
   Renderer,
   Component,
-  fragment,
   Fragment,
+  FragmentComponent,
   SpecificComponent,
   implRender,
-  Text,
+  TextComponent,
 } from "../renderer/mod.ts";
 import { setAttr, setStyle } from "./dom.ts";
 import { SignalLike } from "../scope.ts";
@@ -88,22 +88,25 @@ type TagProps<T extends string> = {
     string | number,
     [listener: (evt: any) => void, opts?: AddEventListenerOptions]
   >;
-  children: Fragment | DangerousHtml;
+  children: FragmentComponent;
+  dangerouslySetInnerHTML?: DangerousHtml;
 };
 
-export class Tag<T extends string> extends SpecificComponent<TagProps<T>> {
+export class TagComponent<T extends string> extends SpecificComponent<
+  TagProps<T>
+> {
   constructor(tagName: T) {
     super({
       tagName,
       style: {},
       attrs: {},
       events: {},
-      children: fragment(),
+      children: Fragment(),
     });
   }
 
   style(style: Style): this {
-    this.props.style = style;
+    Object.assign(this.props.style, style);
     return this;
   }
 
@@ -121,18 +124,18 @@ export class Tag<T extends string> extends SpecificComponent<TagProps<T>> {
     return this;
   }
 
-  children(...children: Component[]): this;
-  children(html: DangerousHtml): this;
-  children(...children: (Component | DangerousHtml)[]): this {
-    this.props.children =
-      children[0] != null && "__html" in children[0]
-        ? children[0]
-        : fragment(...(children as Component[]));
+  children(...children: Component[]): this {
+    this.props.children = Fragment(this.props.children, ...children);
+    return this;
+  }
+
+  dangerouslySetInnerHTML(html: DangerousHtml): this {
+    this.props.dangerouslySetInnerHTML = html;
     return this;
   }
 }
 
-implRender(Tag<string>, HtmlRenderer, (s, props) => {
+implRender(TagComponent<string>, HtmlRenderer, (s, props) => {
   const { tagName, style, attrs, events, children } = props;
   const prevIsSvg = s.renderer.isSvg;
 
@@ -160,9 +163,9 @@ implRender(Tag<string>, HtmlRenderer, (s, props) => {
     node.addEventListener(name, listener, opts);
   }
 
-  if ("__html" in children) {
+  if (props.dangerouslySetInnerHTML != null) {
     s.effect(() => {
-      const html = children.__html();
+      const html = props.dangerouslySetInnerHTML!.__html();
 
       if (node.innerHTML !== html) {
         node.innerHTML = html;
@@ -177,11 +180,11 @@ implRender(Tag<string>, HtmlRenderer, (s, props) => {
   return [node];
 });
 
-export function h<T extends string>(tagName: T): Tag<T> {
-  return new Tag(tagName);
+export function h<T extends string>(tagName: T): TagComponent<T> {
+  return new TagComponent(tagName);
 }
 
-implRender(Text, HtmlRenderer, (s, props) => {
+implRender(TextComponent, HtmlRenderer, (s, props) => {
   const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
 
   s.effect(() => {
