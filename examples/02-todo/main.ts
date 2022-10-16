@@ -2,7 +2,7 @@ import { h, DomRenderer } from "../../src/html/mod.ts";
 import {
   Component,
   Conditional,
-  List,
+  For,
   Renderer,
   RendererScope,
   Rendering,
@@ -79,7 +79,7 @@ class App extends Component<void> {
           ),
 
         h("ul").children(
-          List(tasks)
+          For(tasks)
             .key((task) => task.id)
             .each((task, i) =>
               h("li").children(

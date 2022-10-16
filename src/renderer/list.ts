@@ -97,7 +97,7 @@ interface ListProps<T, K> {
   eachFn: (value: Signal<T>, index: Signal<number>) => Component;
 }
 
-export class ListComponent<T, K> extends Component<ListProps<T, K>> {
+export class ForComponent<T, K> extends Component<ListProps<T, K>> {
   constructor(source: SignalLike<T[]>) {
     super({
       source,
@@ -106,8 +106,8 @@ export class ListComponent<T, K> extends Component<ListProps<T, K>> {
     });
   }
 
-  key<K>(keyFn: (value: T, index: number) => K): ListComponent<T, K> {
-    const self = this as unknown as ListComponent<T, K>;
+  key<K>(keyFn: (value: T, index: number) => K): ForComponent<T, K> {
+    const self = this as unknown as ForComponent<T, K>;
     self.props.keyFn = keyFn;
     return self;
   }
@@ -228,6 +228,6 @@ export class ListComponent<T, K> extends Component<ListProps<T, K>> {
   }
 }
 
-export function List<T>(source: SignalLike<T[]>): ListComponent<T, number> {
-  return new ListComponent(source);
+export function For<T>(source: SignalLike<T[]>): ForComponent<T, number> {
+  return new ForComponent(source);
 }
