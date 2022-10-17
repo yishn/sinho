@@ -1,7 +1,7 @@
 import { h, DomRenderer } from "../../src/html/mod.ts";
 import {
   Component,
-  Conditional,
+  Switch,
   For,
   Renderer,
   RendererScope,
@@ -119,7 +119,7 @@ class App extends Component<void> {
                       );
                     }),
 
-                  Conditional()
+                  Switch()
                     .when(
                       () => task().done,
                       () => h("del").children(text(() => task().text))

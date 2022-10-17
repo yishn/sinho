@@ -1,7 +1,7 @@
 import { h, DomRenderer } from "../../src/html/mod.ts";
 import {
   Component,
-  Conditional,
+  Switch,
   Renderer,
   RendererScope,
   Rendering,
@@ -43,7 +43,7 @@ class App extends Component<void> {
             text(() => (illegal() ? "⚠️" : ""))
           ),
 
-        Conditional()
+        Switch()
           .when(illegal, () =>
             h("h3").children(text("Counter must be between 0 and 10!"))
           )

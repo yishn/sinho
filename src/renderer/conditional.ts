@@ -12,7 +12,7 @@ interface ConditionalProps {
   cases: [condition: SignalLike<boolean>, render: () => Component][];
 }
 
-export class ConditionalComponent extends Component<ConditionalProps> {
+export class SwitchComponent extends Component<ConditionalProps> {
   constructor() {
     super({ cases: [] });
   }
@@ -61,6 +61,6 @@ export class ConditionalComponent extends Component<ConditionalProps> {
   }
 }
 
-export function Conditional(): ConditionalComponent {
-  return new ConditionalComponent();
+export function Switch(): SwitchComponent {
+  return new SwitchComponent();
 }
