@@ -3,7 +3,6 @@ import {
   RendererScope,
   Rendering,
   Fragment,
-  FragmentComponent,
 } from "../renderer/mod.ts";
 import type { SignalLike } from "../scope.ts";
 import { HtmlNodeType, DomRenderer } from "./mod.ts";
@@ -46,7 +45,7 @@ type TagProps<T extends string> = {
     string | number,
     [listener: (evt: any) => void, opts?: AddEventListenerOptions]
   >;
-  children: FragmentComponent;
+  children: Fragment;
   dangerouslySetInnerHTML?: DangerousHtml;
 };
 
@@ -60,7 +59,7 @@ export class TagComponent<T extends string> extends Component<
       style: {},
       attrs: {},
       events: {},
-      children: Fragment(),
+      children: new Fragment({}),
     });
   }
 
@@ -93,7 +92,10 @@ export class TagComponent<T extends string> extends Component<
   }
 
   children(...children: Component[]): this {
-    this.props.children = Fragment(this.props.children, ...children);
+    this.props.children = new Fragment({
+      children: [this.props.children, ...children],
+    });
+
     return this;
   }
 

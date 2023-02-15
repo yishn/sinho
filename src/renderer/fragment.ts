@@ -1,12 +1,15 @@
 import { Component } from "./component.ts";
 import { Renderer, RendererScope, Rendering } from "./renderer.ts";
 
-export class FragmentComponent extends Component<Component[]> {
-  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
-    return this.props.map((component) => component.render(s));
-  }
+interface FragmentProps {
+  children?: Component[];
 }
 
-export function Fragment(...components: Component[]): FragmentComponent {
-  return new FragmentComponent(components);
+export class Fragment extends Component<FragmentProps> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
+    return (
+      this.props.children?.map((component) => component.createRendering(s)) ??
+      []
+    );
+  }
 }

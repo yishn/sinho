@@ -20,13 +20,21 @@ export abstract class Component<
 > {
   constructor(protected props: P) {}
 
-  abstract render(s: RendererScope<R>): Rendering<R>;
+  abstract render(s: RendererScope<R>): Component<any, R> | Rendering<R>;
 
-  renderWithDestructor(s: RendererScope<R>): [Rendering<R>, Destructor] {
+  createRendering(s: RendererScope<R>): Rendering<R> {
+    const result = this.render(s);
+
+    return result instanceof Component ? result.createRendering(s) : result;
+  }
+
+  createRenderingWithDestructor(
+    s: RendererScope<R>
+  ): [Rendering<R>, Destructor] {
     let rendering: Rendering<R>;
 
     const destructor = s.subscope(() => {
-      rendering = this.render(s);
+      rendering = this.createRendering(s);
 
       s.cleanup(() => {
         s.renderer.removeRendering(rendering);

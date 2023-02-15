@@ -4,7 +4,6 @@ import {
   Switch,
   For,
   RendererScope,
-  Rendering,
 } from "../../src/renderer/mod.ts";
 
 interface Task {
@@ -14,7 +13,7 @@ interface Task {
 }
 
 class App extends Component<void, DomRenderer> {
-  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
+  render(s: RendererScope<DomRenderer>) {
     const [id, setId] = s.signal(2);
     const [newTaskText, setNewTaskText] = s.signal("");
     const [tasks, setTasks] = s.signal<Task[]>([
@@ -127,8 +126,7 @@ class App extends Component<void, DomRenderer> {
               )
             )
         )
-      )
-      .render(s);
+      );
   }
 }
 

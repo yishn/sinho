@@ -7,7 +7,7 @@ import {
 } from "../../src/renderer/mod.ts";
 
 class App extends Component<void, DomRenderer> {
-  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
+  render(s: RendererScope<DomRenderer>) {
     const [counter, setCounter] = s.signal(0);
     const illegal = s.memo(() => counter() < 0 || counter() > 10);
 
@@ -46,8 +46,7 @@ class App extends Component<void, DomRenderer> {
             h("h3").children(text("Counter must be between 0 and 10!"))
           )
           .otherwise(() => h("p").children(text("Everything ok!")))
-      )
-      .render(s);
+      );
   }
 }
 

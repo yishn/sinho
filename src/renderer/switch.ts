@@ -42,13 +42,13 @@ export class SwitchComponent extends Component<SwitchProps> {
         }
       }
 
-      return Fragment();
+      return new Fragment({});
     });
 
     s.effect(() => {
       const component = result();
 
-      rendering[0] = component.renderWithDestructor(s)[0];
+      rendering[0] = component.createRenderingWithDestructor(s)[0];
 
       if (firstTime) {
         firstTime = false;

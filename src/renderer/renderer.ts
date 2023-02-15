@@ -1,10 +1,7 @@
 import { Component, flattenRendering } from "./component.ts";
 import { Scope, Destructor } from "../scope.ts";
 
-export abstract class Renderer<
-  in P = any,
-  in out N extends object = any
-> {
+export abstract class Renderer<in P = any, in out N extends object = any> {
   abstract createNode(arg: P): N;
   abstract createMarkerNode(): N;
 
@@ -30,9 +27,9 @@ export abstract class Renderer<
     }
   }
 
-  mount(component: Component, parent: N): Destructor {
+  mount(component: Component<any>, parent: N): Destructor {
     const s = new RendererScope(this);
-    const [rendering, destructor] = component.renderWithDestructor(s);
+    const [rendering, destructor] = component.createRenderingWithDestructor(s);
 
     s.renderer.appendRendering(parent, rendering);
 
