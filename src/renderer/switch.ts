@@ -8,11 +8,11 @@ import type {
 import { Component } from "./component.ts";
 import { Fragment } from "./fragment.ts";
 
-interface ConditionalProps {
+interface SwitchProps {
   cases: [condition: SignalLike<boolean>, render: () => Component][];
 }
 
-export class SwitchComponent extends Component<ConditionalProps> {
+export class SwitchComponent extends Component<SwitchProps> {
   constructor() {
     super({ cases: [] });
   }

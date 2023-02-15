@@ -51,7 +51,7 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
   }
 }
 
-export interface TextComponentProps {
+interface TextComponentProps {
   value: SignalLike<string | number>;
 }
 

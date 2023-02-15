@@ -104,17 +104,17 @@ class App extends Component<void, DomRenderer> {
                       checked: () => task().done,
                     })
                     .on("click", () => {
-                      setTasks(
-                        (tasks) => {
-                          const task = tasks[i()];
-                          tasks[i()] = {
-                            ...task,
-                            done: !task.done,
-                          };
-                          return tasks;
-                        },
-                        { force: true }
-                      );
+                      setTasks((tasks) => {
+                        const task = tasks[i()];
+                        const newTasks = [...tasks];
+
+                        newTasks[i()] = {
+                          ...task,
+                          done: !task.done,
+                        };
+
+                        return newTasks;
+                      });
                     }),
 
                   Switch()

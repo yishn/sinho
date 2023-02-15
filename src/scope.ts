@@ -2,19 +2,17 @@ const signalSym = Symbol("signal");
 const effectSym = Symbol("effect");
 const subscopeSym = Symbol("subscope");
 
-interface SignalInner<out T> {
+export interface SignalLike<out T> {
+  (): T;
+}
+
+export interface Signal<out T> extends SignalLike<T> {
   [signalSym]: {
     value: T;
     listeners: Effect[];
     deleted: boolean;
   };
-}
 
-export interface SignalLike<out T> {
-  (): T;
-}
-
-export interface Signal<out T> extends SignalLike<T>, SignalInner<T> {
   peek(): T;
   track(): void;
 }
@@ -29,15 +27,13 @@ export interface SignalSetter<in out T> {
   (update: (value: T) => T, opts?: SignalSetOptions): void;
 }
 
-interface EffectInner {
+interface Effect {
   [effectSym]: {
     clean: Destructor;
     dependencies: Signal<any>[];
     deleted: boolean;
   };
-}
 
-interface Effect extends EffectInner {
   (): void;
 }
 
@@ -90,9 +86,7 @@ export class Scope {
         return signal.peek();
       },
       {
-        peek: () => {
-          return signal[signalSym].value;
-        },
+        peek: () => signal[signalSym].value,
         track: () => {
           if (this.currentEffect != null) {
             if (!signal[signalSym].listeners.includes(this.currentEffect)) {
@@ -135,7 +129,7 @@ export class Scope {
           }
         }
       } else {
-        this.batch(() => setter(arg as any, opts));
+        this.batch(() => setter(arg, opts));
       }
     };
 

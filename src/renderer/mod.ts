@@ -1,5 +1,5 @@
 export * from "./component.ts";
-export * from "./conditional.ts";
+export * from "./switch.ts";
 export * from "./fragment.ts";
-export * from "./list.ts";
+export * from "./for.ts";
 export * from "./renderer.ts";
