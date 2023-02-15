@@ -71,7 +71,25 @@ class App extends Component<void, DomRenderer> {
                 .attrs({
                   type: () => "submit",
                 })
-                .children(text("+"))
+                .children(text("+")),
+              text(" "),
+              h("button")
+                .on("click", (evt) => {
+                  evt.preventDefault();
+
+                  setTasks((tasks) => {
+                    const result = [...tasks];
+                    result.sort((x, y) =>
+                      x.text.toLowerCase() < y.text.toLowerCase()
+                        ? -1
+                        : x.text.toLowerCase() > y.text.toLowerCase()
+                        ? 1
+                        : 0
+                    );
+                    return result;
+                  });
+                })
+                .children(text("Sort"))
             )
           ),
 

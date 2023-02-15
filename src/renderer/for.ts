@@ -17,18 +17,14 @@ enum ArrayOpType {
 type ArrayOp =
   | [type: ArrayOpType.Added, toIndex: number]
   | [type: ArrayOpType.Removed, fromIndex: number]
-  | [
-      type: ArrayOpType.Move,
-      fromIndex: number,
-      toIndex: number,
-      moveNeeded: boolean
-    ];
+  | [type: ArrayOpType.Move, tempIndex: number, toIndex: number];
 
 function diff<K>(
   from: K[],
   to: K[]
 ): [ops: ArrayOp[], valueOps: Map<K, ArrayOp>] {
   const valueOps = new Map<K, ArrayOp>();
+  const temp = [...from];
 
   for (let i = 0; i < from.length; i++) {
     valueOps.set(from[i], [ArrayOpType.Removed, i]);
@@ -38,45 +34,41 @@ function diff<K>(
     const oldEntry = valueOps.get(to[j]);
 
     if (oldEntry != null) {
-      valueOps.set(to[j], [ArrayOpType.Move, oldEntry[1], j, false]);
+      valueOps.set(to[j], [ArrayOpType.Move, oldEntry[1], j]);
     } else {
       valueOps.set(to[j], [ArrayOpType.Added, j]);
     }
   }
 
-  const removedIndices: number[] = [];
   const ops: ArrayOp[] = [];
 
   for (let i = from.length - 1; i >= 0; i--) {
     const entry = valueOps.get(from[i]);
 
     if (entry?.[0] === ArrayOpType.Removed) {
-      removedIndices.push(i);
+      temp.splice(i, 1);
       ops.push(entry);
     }
   }
-
-  let added = 0;
 
   for (let j = 0; j < to.length; j++) {
     const entry = valueOps.get(to[j]);
 
     if (entry?.[0] === ArrayOpType.Added) {
-      added++;
+      temp.splice(j, 0, to[j]);
       ops.push(entry);
     } else if (entry?.[0] === ArrayOpType.Move) {
-      const [i, j] = [entry[1], entry[2]];
-      const removed =
-        removedIndices.length - removedIndices.findLastIndex((j) => j > i) - 1;
-      const iTransformed = i + added - removed;
-      const moveNeeded = iTransformed !== j;
+      const [, i, j] = entry;
+      const tempIndex = temp.indexOf(to[j]);
 
-      if (moveNeeded || i !== j) {
-        const newOp: ArrayOp = [ArrayOpType.Move, i, j, moveNeeded];
+      if (tempIndex !== j) {
+        // Move needed
 
-        ops.push(newOp);
-        valueOps.set(to[j], newOp);
+        temp.splice(tempIndex, 1);
+        temp.splice(j, 0, to[j]);
       }
+
+      ops.push([ArrayOpType.Move, tempIndex, j]);
     }
   }
 
@@ -121,10 +113,10 @@ export class ForComponent<T, K> extends Component<ForProps<T, K>> {
     let firstTime = true;
 
     const endMarker: RendererNode<R> = s.renderer.createMarkerNode();
-    const rendering: [list: Rendering<R>[], marker: RendererNode<R>] = [
-      [],
-      endMarker,
-    ];
+    const rendering: [
+      list: [marker: RendererNode<R>, rendering: Rendering<R>][],
+      marker: RendererNode<R>
+    ] = [[], endMarker];
 
     const state = new Map<K, StateEntry<R, T>>();
     let keys: K[] = [];
@@ -133,7 +125,7 @@ export class ForComponent<T, K> extends Component<ForProps<T, K>> {
       const newKeys = this.props
         .source()
         .map((value, i) => this.props.keyFn(value, i));
-      const [ops, keyOps] = diff(keys, newKeys);
+      const [ops] = diff(keys, newKeys);
 
       for (const op of ops) {
         if (op[0] === ArrayOpType.Added) {
@@ -149,10 +141,16 @@ export class ForComponent<T, K> extends Component<ForProps<T, K>> {
                   ? this.props.source()[index()]
                   : value.peek()
               );
-              const marker = s.renderer.createMarkerNode();
-              const [eachRendering] = this.props
-                .eachFn(value, index)
-                .createRenderingWithDestructor(s);
+              const marker: RendererNode<R> = s.renderer.createMarkerNode();
+              const eachRendering: [
+                marker: RendererNode<R>,
+                rendering: Rendering<R>
+              ] = [
+                marker,
+                this.props
+                  .eachFn(value, index)
+                  .createRenderingWithDestructor(s)[0],
+              ];
 
               s.cleanup(() => s.renderer.removeNode(marker));
 
@@ -163,22 +161,14 @@ export class ForComponent<T, K> extends Component<ForProps<T, K>> {
                 marker,
               });
 
-              rendering[0].splice(j, 0, [marker, eachRendering]);
-
               if (!firstTime) {
                 // Insert rendering
 
-                const beforeKey = keys.find(
-                  (key, i) =>
-                    i >= j && keyOps.get(key)?.[0] !== ArrayOpType.Removed
-                );
-                const beforeMarker =
-                  beforeKey == null
-                    ? endMarker
-                    : state.get(beforeKey)?.marker ?? endMarker;
-
-                s.renderer.insertRendering([marker, eachRendering], beforeMarker);
+                const beforeMarker = rendering[0][j]?.[0] ?? endMarker;
+                s.renderer.insertRendering(eachRendering, beforeMarker);
               }
+
+              rendering[0].splice(j, 0, eachRendering);
             },
             { leaked: true }
           );
@@ -193,21 +183,16 @@ export class ForComponent<T, K> extends Component<ForProps<T, K>> {
           entry.destructor();
           state.delete(key);
         } else if (op[0] === ArrayOpType.Move) {
-          const [, i, j, needsMoving] = op;
+          const [, tempIndex, j] = op;
           const key = newKeys[j];
           const entry = state.get(key)!;
 
-          if (needsMoving) {
-            const beforeKey = keys[j];
-            const beforeMarker =
-              beforeKey == null
-                ? endMarker
-                : state.get(beforeKey)?.marker ?? endMarker;
-
-            const [eachRendering] = rendering[0].splice(i, 1);
-            rendering[0].splice(j, 0, eachRendering);
+          if (tempIndex !== j) {
+            const beforeMarker = rendering[0][j]?.[0] ?? endMarker;
+            const [eachRendering] = rendering[0].splice(tempIndex, 1);
 
             s.renderer.insertRendering(eachRendering, beforeMarker);
+            rendering[0].splice(j, 0, eachRendering);
           }
 
           entry.setIndex(j);
