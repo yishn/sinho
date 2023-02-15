@@ -134,7 +134,7 @@ class App extends Component<void, DomRenderer> {
                       });
                     }),
 
-                  Switch()
+                  new Switch()
                     .when(
                       () => task().done,
                       () => h("del").children(text(() => task().text))

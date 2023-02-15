@@ -85,13 +85,16 @@ interface StateEntry<R extends Renderer, T> {
   destructor: Destructor;
 }
 
-interface ForProps<T, K> {
+interface ForProps<T, K, R extends Renderer> {
   source: SignalLike<T[]>;
   key: (value: T, index: number) => K;
-  each: (value: Signal<T>, index: Signal<number>) => Component;
+  each: (value: Signal<T>, index: Signal<number>) => Component<any, R>;
 }
 
-export class ForComponent<T, K> extends Component<ForProps<T, K>> {
+export class ForComponent<T, K, R extends Renderer> extends Component<
+  ForProps<T, K, R>,
+  R
+> {
   constructor(source: SignalLike<T[]>) {
     super({
       source,
@@ -100,18 +103,20 @@ export class ForComponent<T, K> extends Component<ForProps<T, K>> {
     });
   }
 
-  key<K>(keyFn: (value: T, index: number) => K): ForComponent<T, K> {
-    const self = this as unknown as ForComponent<T, K>;
+  key<K>(keyFn: (value: T, index: number) => K): ForComponent<T, K, R> {
+    const self = this as unknown as ForComponent<T, K, R>;
     self.props.key = keyFn;
     return self;
   }
 
-  each(eachFn: (value: Signal<T>, index: Signal<number>) => Component): this {
+  each(
+    eachFn: (value: Signal<T>, index: Signal<number>) => Component<any, R>
+  ): this {
     this.props.each = eachFn;
     return this;
   }
 
-  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
+  render(s: RendererScope<R>): Rendering<R> {
     let firstTime = true;
 
     const endMarker: RendererNode<R> = s.renderer.createMarkerNode();
@@ -212,6 +217,8 @@ export class ForComponent<T, K> extends Component<ForProps<T, K>> {
   }
 }
 
-export function For<T>(source: SignalLike<T[]>): ForComponent<T, number> {
+export function For<T, R extends Renderer>(
+  source: SignalLike<T[]>
+): ForComponent<T, number, R> {
   return new ForComponent(source);
 }

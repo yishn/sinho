@@ -3,7 +3,6 @@ import {
   Component,
   Switch,
   RendererScope,
-  Rendering,
 } from "../../src/renderer/mod.ts";
 
 class App extends Component<void, DomRenderer> {
@@ -41,7 +40,7 @@ class App extends Component<void, DomRenderer> {
             text(() => (illegal() ? "⚠️" : ""))
           ),
 
-        Switch()
+        new Switch()
           .when(illegal, () =>
             h("h3").children(text("Counter must be between 0 and 10!"))
           )

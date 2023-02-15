@@ -16,7 +16,7 @@ export type CreateNodeArg =
   | [type: HtmlNodeType.Text, content: string];
 
 export class DomRenderer extends Renderer<CreateNodeArg, Node> {
-  isSvg: boolean = false;
+  isSvg = false;
 
   createNode([type, arg]: CreateNodeArg): Node {
     if (type === HtmlNodeType.Element) {
@@ -45,7 +45,7 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
   removeNode(node: Node): void {
     try {
       node.parentNode!.removeChild(node);
-    } catch (err) {
+    } catch (_) {
       // ignore
     }
   }
@@ -60,7 +60,7 @@ export class TextComponent extends Component<TextComponentProps, DomRenderer> {
     const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
 
     s.effect(() => {
-      let text = this.props.value().toString();
+      const text = this.props.value().toString();
 
       if (node.textContent !== text) {
         node.textContent = text;

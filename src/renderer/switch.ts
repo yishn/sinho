@@ -8,26 +8,26 @@ import type {
 import { Component } from "./component.ts";
 import { Fragment } from "./fragment.ts";
 
-interface SwitchProps {
-  cases: [condition: SignalLike<boolean>, render: () => Component][];
+interface SwitchProps<R extends Renderer> {
+  cases: [condition: SignalLike<boolean>, render: () => Component<any, R>][];
 }
 
-export class SwitchComponent extends Component<SwitchProps> {
+export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
   constructor() {
     super({ cases: [] });
   }
 
-  when(condition: SignalLike<boolean>, render: () => Component): this {
+  when(condition: SignalLike<boolean>, render: () => Component<any, R>): this {
     this.props.cases.push([condition, render]);
     return this;
   }
 
-  otherwise(render: () => Component): this {
+  otherwise(render: () => Component<any, R>): this {
     this.props.cases.push([() => true, render]);
     return this;
   }
 
-  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
+  render(s: RendererScope<R>): Rendering<R> {
     let firstTime = true;
 
     const marker = s.renderer.createMarkerNode();
@@ -59,8 +59,4 @@ export class SwitchComponent extends Component<SwitchProps> {
 
     return rendering;
   }
-}
-
-export function Switch(): SwitchComponent {
-  return new SwitchComponent();
 }

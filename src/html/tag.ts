@@ -45,7 +45,7 @@ type TagProps<T extends string> = {
     string | number,
     [listener: (evt: any) => void, opts?: AddEventListenerOptions]
   >;
-  children: Fragment;
+  children: Fragment<DomRenderer>;
   dangerouslySetInnerHTML?: DangerousHtml;
 };
 
@@ -91,7 +91,7 @@ export class TagComponent<T extends string> extends Component<
     return this;
   }
 
-  children(...children: Component[]): this {
+  children(...children: Component<any, DomRenderer>[]): this {
     this.props.children = new Fragment({
       children: [this.props.children, ...children],
     });
