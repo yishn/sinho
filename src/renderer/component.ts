@@ -5,7 +5,6 @@ import {
   Rendering,
 } from "./renderer.ts";
 import type { Destructor } from "../scope.ts";
-import { Fragment } from "./fragment.ts";
 
 export function flattenRendering<R extends Renderer>(
   rendering: Rendering<R>
@@ -15,14 +14,15 @@ export function flattenRendering<R extends Renderer>(
   );
 }
 
-export abstract class Component<out P = unknown> {
+export abstract class Component<
+  out P = unknown,
+  in out R extends Renderer = Renderer
+> {
   constructor(protected props: P) {}
 
-  abstract render<R extends Renderer>(s: RendererScope<R>): Rendering<R>;
+  abstract render(s: RendererScope<R>): Rendering<R>;
 
-  renderWithDestructor<R extends Renderer>(
-    s: RendererScope<R>
-  ): [Rendering<R>, Destructor] {
+  renderWithDestructor(s: RendererScope<R>): [Rendering<R>, Destructor] {
     let rendering: Rendering<R>;
 
     const destructor = s.subscope(() => {
@@ -37,44 +37,16 @@ export abstract class Component<out P = unknown> {
   }
 }
 
-export type ComponentProps<C extends Component> = C extends Component<infer P>
+export type ComponentProps<C extends Component> = C extends Component<
+  infer P,
+  infer _
+>
   ? P
   : never;
 
-const renderImplsSym = Symbol("renderImpls");
-
-export abstract class SpecificComponent<out P = unknown> extends Component<P> {
-  static [renderImplsSym]?: WeakMap<
-    new (...args: any) => Renderer,
-    (s: RendererScope<any>, props: any) => Rendering<Renderer>
-  >;
-
-  constructor(props: P) {
-    super(props);
-  }
-
-  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
-    const render = (this.constructor as typeof SpecificComponent)[
-      renderImplsSym
-    ]?.get(s.renderer.constructor as new (...args: any) => Renderer);
-
-    if (render == null) {
-      console.warn(
-        `\`${this.constructor.name}\` does not support \`${s.renderer.constructor.name}\` renderer`
-      );
-
-      return [];
-    }
-
-    return render(s, this.props);
-  }
-}
-
-export function implRender<C extends SpecificComponent, R extends Renderer>(
-  Component: new (...args: any) => C,
-  Renderer: new (...args: any) => R,
-  render: (s: RendererScope<R>, props: ComponentProps<C>) => Rendering<R>
-): void {
-  ((Component as typeof SpecificComponent)[renderImplsSym] ??=
-    new WeakMap()).set(Renderer, render);
-}
+export type ComponentRenderer<C extends Component> = C extends Component<
+  infer _,
+  infer R
+>
+  ? R
+  : never;

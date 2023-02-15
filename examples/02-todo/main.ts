@@ -1,12 +1,10 @@
-import { h, DomRenderer } from "../../src/html/mod.ts";
+import { h, DomRenderer, text } from "../../src/html/mod.ts";
 import {
   Component,
   Switch,
   For,
-  Renderer,
   RendererScope,
   Rendering,
-  text,
 } from "../../src/renderer/mod.ts";
 
 interface Task {
@@ -15,8 +13,8 @@ interface Task {
   text: string;
 }
 
-class App extends Component<void> {
-  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
+class App extends Component<void, DomRenderer> {
+  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
     const [id, setId] = s.signal(2);
     const [newTaskText, setNewTaskText] = s.signal("");
     const [tasks, setTasks] = s.signal<Task[]>([

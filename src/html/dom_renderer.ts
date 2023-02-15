@@ -1,4 +1,10 @@
-import { Renderer, implRender, TextComponent } from "../renderer/mod.ts";
+import {
+  Component,
+  Renderer,
+  RendererScope,
+  Rendering,
+} from "../renderer/mod.ts";
+import { SignalLike } from "../scope.ts";
 
 export enum HtmlNodeType {
   Element,
@@ -45,16 +51,30 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
   }
 }
 
-implRender(TextComponent, DomRenderer, (s, props) => {
-  const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
+export interface TextComponentProps {
+  value: SignalLike<string | number>;
+}
 
-  s.effect(() => {
-    let text = props().toString();
+export class TextComponent extends Component<TextComponentProps, DomRenderer> {
+  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
+    const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
 
-    if (node.textContent !== text) {
-      node.textContent = text;
-    }
+    s.effect(() => {
+      let text = this.props.value().toString();
+
+      if (node.textContent !== text) {
+        node.textContent = text;
+      }
+    });
+
+    return [node];
+  }
+}
+
+export function text(
+  value: string | number | SignalLike<string | number>
+): TextComponent {
+  return new TextComponent({
+    value: typeof value === "function" ? value : () => value,
   });
-
-  return [node];
-});
+}

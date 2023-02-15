@@ -1,9 +1,10 @@
 import {
   Component,
-  implRender,
-  SpecificComponent,
-} from "../renderer/component.ts";
-import { Fragment, FragmentComponent } from "../renderer/fragment.ts";
+  RendererScope,
+  Rendering,
+  Fragment,
+  FragmentComponent,
+} from "../renderer/mod.ts";
 import type { SignalLike } from "../scope.ts";
 import { HtmlNodeType, DomRenderer } from "./mod.ts";
 import { ElementMap, setAttr, setStyle } from "./dom.ts";
@@ -33,9 +34,9 @@ type EventMapWithTarget<E> = {
   };
 };
 
-export interface DangerousHtml {
-  __html: SignalLike<string>;
-}
+export type DangerousHtml = SignalLike<{
+  __html: string;
+}>;
 
 type TagProps<T extends string> = {
   tagName: T;
@@ -49,8 +50,9 @@ type TagProps<T extends string> = {
   dangerouslySetInnerHTML?: DangerousHtml;
 };
 
-export class TagComponent<T extends string> extends SpecificComponent<
-  TagProps<T>
+export class TagComponent<T extends string> extends Component<
+  TagProps<T>,
+  DomRenderer
 > {
   constructor(tagName: T) {
     super({
@@ -99,52 +101,52 @@ export class TagComponent<T extends string> extends SpecificComponent<
     this.props.dangerouslySetInnerHTML = html;
     return this;
   }
+
+  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
+    const { tagName, style, attrs, events, children } = this.props;
+    const prevIsSvg = s.renderer.isSvg;
+
+    if (tagName === "svg") {
+      s.renderer.isSvg = true;
+    }
+
+    const node = s.renderer.createNode([HtmlNodeType.Element, tagName]) as
+      | HTMLElement
+      | SVGElement;
+
+    for (const [name, prop] of Object.entries(style)) {
+      s.effect(() => {
+        setStyle(node, name, prop?.());
+      });
+    }
+
+    for (const [name, value] of Object.entries(attrs)) {
+      s.effect(() => {
+        setAttr(node, name, value?.());
+      });
+    }
+
+    for (const [name, [listener, opts]] of Object.entries(events)) {
+      node.addEventListener(name, (evt) => s.batch(() => listener(evt)), opts);
+    }
+
+    if (this.props.dangerouslySetInnerHTML != null) {
+      s.effect(() => {
+        const html = this.props.dangerouslySetInnerHTML!().__html;
+
+        if (node.innerHTML !== html) {
+          node.innerHTML = html;
+        }
+      });
+    } else {
+      s.renderer.appendRendering(node, children.render(s));
+    }
+
+    s.renderer.isSvg = prevIsSvg;
+
+    return [node];
+  }
 }
-
-implRender(TagComponent<string>, DomRenderer, (s, props) => {
-  const { tagName, style, attrs, events, children } = props;
-  const prevIsSvg = s.renderer.isSvg;
-
-  if (tagName === "svg") {
-    s.renderer.isSvg = true;
-  }
-
-  const node = s.renderer.createNode([HtmlNodeType.Element, tagName]) as
-    | HTMLElement
-    | SVGElement;
-
-  for (const [name, prop] of Object.entries(style)) {
-    s.effect(() => {
-      setStyle(node, name, prop?.());
-    });
-  }
-
-  for (const [name, value] of Object.entries(attrs)) {
-    s.effect(() => {
-      setAttr(node, name, value?.());
-    });
-  }
-
-  for (const [name, [listener, opts]] of Object.entries(events)) {
-    node.addEventListener(name, (evt) => s.batch(() => listener(evt)), opts);
-  }
-
-  if (props.dangerouslySetInnerHTML != null) {
-    s.effect(() => {
-      const html = props.dangerouslySetInnerHTML!.__html();
-
-      if (node.innerHTML !== html) {
-        node.innerHTML = html;
-      }
-    });
-  } else {
-    s.renderer.appendRendering(node, children.render(s));
-  }
-
-  s.renderer.isSvg = prevIsSvg;
-
-  return [node];
-});
 
 export function h<T extends string>(tagName: T): TagComponent<T> {
   return new TagComponent(tagName);

@@ -1,15 +1,13 @@
-import { h, DomRenderer } from "../../src/html/mod.ts";
+import { h, DomRenderer, text } from "../../src/html/mod.ts";
 import {
   Component,
   Switch,
-  Renderer,
   RendererScope,
   Rendering,
-  text,
 } from "../../src/renderer/mod.ts";
 
-class App extends Component<void> {
-  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
+class App extends Component<void, DomRenderer> {
+  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
     const [counter, setCounter] = s.signal(0);
     const illegal = s.memo(() => counter() < 0 || counter() > 10);
 

@@ -3,7 +3,7 @@ import { Scope, Destructor } from "../scope.ts";
 
 export abstract class Renderer<
   in P = any,
-  in out N extends NonNullable<object> = any
+  in out N extends object = any
 > {
   abstract createNode(arg: P): N;
   abstract createMarkerNode(): N;
