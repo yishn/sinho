@@ -91,18 +91,18 @@ interface StateEntry<R extends Renderer, T> {
   destructor: Destructor;
 }
 
-interface ListProps<T, K> {
+interface ForProps<T, K> {
   source: SignalLike<T[]>;
   keyFn: (value: T, index: number) => K;
   eachFn: (value: Signal<T>, index: Signal<number>) => Component;
 }
 
-export class ForComponent<T, K> extends Component<ListProps<T, K>> {
+export class ForComponent<T, K> extends Component<ForProps<T, K>> {
   constructor(source: SignalLike<T[]>) {
     super({
       source,
       keyFn: (_, i) => i as K,
-      eachFn: (_, __) => Fragment(),
+      eachFn: (_, __) => new Fragment({}),
     });
   }
 
@@ -150,9 +150,9 @@ export class ForComponent<T, K> extends Component<ListProps<T, K>> {
                   : value.peek()
               );
               const marker = s.renderer.createMarkerNode();
-              const eachRendering = this.props
+              const [eachRendering] = this.props
                 .eachFn(value, index)
-                .renderWithDestructor(s)[0];
+                .createRenderingWithDestructor(s);
 
               s.cleanup(() => s.renderer.removeNode(marker));
 
@@ -163,7 +163,7 @@ export class ForComponent<T, K> extends Component<ListProps<T, K>> {
                 marker,
               });
 
-              rendering[0].splice(j, 0, eachRendering);
+              rendering[0].splice(j, 0, [marker, eachRendering]);
 
               if (!firstTime) {
                 // Insert rendering
@@ -177,7 +177,7 @@ export class ForComponent<T, K> extends Component<ListProps<T, K>> {
                     ? endMarker
                     : state.get(beforeKey)?.marker ?? endMarker;
 
-                s.renderer.insertRendering(eachRendering, beforeMarker);
+                s.renderer.insertRendering([marker, eachRendering], beforeMarker);
               }
             },
             { leaked: true }
