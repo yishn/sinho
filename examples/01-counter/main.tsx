@@ -14,9 +14,13 @@ class App extends Component<void, DomRenderer> {
     const illegal = s.memo(() => counter() < 0 || counter() > 10);
     const okParagraphRef = s.renderer.nodeRef<HTMLParagraphElement>(s);
 
-    s.effect(() => {
-      console.log(okParagraphRef());
-      console.log(okParagraphRef() == null ? "Dismounted" : "Mounted");
+    s.onMount(() => {
+      console.log("App mounted");
+
+      s.effect(() => {
+        console.log(okParagraphRef());
+        console.log(okParagraphRef() == null ? "Paragraph dismounted" : "Paragraph mounted");
+      });
     });
 
     return (

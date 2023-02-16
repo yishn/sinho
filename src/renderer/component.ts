@@ -1,18 +1,5 @@
-import {
-  Renderer,
-  RendererNode,
-  RendererScope,
-  Rendering,
-} from "./renderer.ts";
+import { Renderer, RendererScope, Rendering } from "./renderer.ts";
 import type { Destructor } from "../scope.ts";
-
-export function flattenRendering<R extends Renderer>(
-  rendering: Rendering<R>
-): RendererNode<R>[] {
-  return rendering.flatMap((value) =>
-    Array.isArray(value) ? flattenRendering(value) : value
-  );
-}
 
 export abstract class Component<
   out P = any,
@@ -29,6 +16,9 @@ export abstract class Component<
   createRenderingWithDestructor(
     s: RendererScope<R>
   ): [Rendering<R>, Destructor] {
+    const lastComponent = s._currentComponent;
+    s._currentComponent = this;
+
     let rendering: Rendering<R>;
 
     const destructor = s.subscope(() => {
@@ -38,6 +28,9 @@ export abstract class Component<
         s.renderer.removeRendering(rendering);
       });
     });
+
+    s.renderer._renderingComponents.set(rendering!, this);
+    s._currentComponent = lastComponent;
 
     return [rendering!, destructor];
   }
