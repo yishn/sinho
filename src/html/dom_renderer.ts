@@ -1,5 +1,6 @@
 import { ComponentProps } from "../renderer/component.ts";
 import { Component, Renderer } from "../renderer/mod.ts";
+import { Scope, Signal, SignalSetter } from "../scope.ts";
 import { TagComponent } from "./tag.ts";
 
 export enum HtmlNodeType {
@@ -13,6 +14,14 @@ export type CreateNodeArg =
 
 export class DomRenderer extends Renderer<CreateNodeArg, Node> {
   isSvg = false;
+  private nodeRefsBySignal = new WeakMap<
+    Signal<Element | null>,
+    SignalSetter<Element | null>
+  >();
+  private nodeRefsByElement = new WeakMap<
+    Element,
+    SignalSetter<Element | null>
+  >();
 
   createNode([type, arg]: CreateNodeArg): Node {
     if (type === HtmlNodeType.Element) {
@@ -32,17 +41,39 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
 
   appendNode(parent: Node, node: Node): void {
     parent.appendChild(node);
+
+    this.nodeRefsByElement.get(node as Element)?.(node as Element);
   }
 
   insertNode(node: Node, before: Node): void {
     before.parentNode!.insertBefore(node, before);
+
+    this.nodeRefsByElement.get(node as Element)?.(node as Element);
   }
 
   removeNode(node: Node): void {
     try {
       node.parentNode!.removeChild(node);
+
+      this.nodeRefsByElement.get(node as Element)?.(null);
     } catch (_) {
       // ignore
+    }
+  }
+
+  nodeRef<E extends Element>(s: Scope): Signal<E | null> {
+    const [signal, setSignal] = s.signal<Element | null>(null);
+
+    this.nodeRefsBySignal.set(signal, setSignal);
+
+    return signal as Signal<E | null>;
+  }
+
+  linkNodeRef(element: Element, signal: Signal<Element | null>): void {
+    const setter = this.nodeRefsBySignal.get(signal);
+
+    if (setter != null) {
+      this.nodeRefsByElement.set(element, setter);
     }
   }
 }

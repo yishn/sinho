@@ -17,7 +17,7 @@ export class TagComponent<T extends string> extends Component<
   DomRenderer
 > {
   render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
-    const { tagName, style, children, dangerouslySetInnerHTML, ...attrs } =
+    const { tagName, ref, style, children, dangerouslySetInnerHTML, ...attrs } =
       this.props;
     const prevIsSvg = s.renderer.isSvg;
 
@@ -29,6 +29,10 @@ export class TagComponent<T extends string> extends Component<
       | HTMLElement
       | SVGElement;
 
+    if (ref != null) {
+      s.renderer.linkNodeRef(node, ref);
+    }
+
     for (const [name, prop] of Object.entries(style ?? {})) {
       s.effect(() => {
         setStyle(node, name, typeof prop === "function" ? prop() : prop);
@@ -37,12 +41,12 @@ export class TagComponent<T extends string> extends Component<
 
     for (const [name, value] of Object.entries(attrs)) {
       if (name.startsWith("on") && name.length > 2) {
-        node.addEventListener(name.slice(2).toLowerCase(), (evt) =>
+        node.addEventListener(name.slice(2), (evt) =>
           s.batch(() => value(evt))
         );
       } else {
         s.effect(() => {
-          setAttr(node, name, value?.());
+          setAttr(node, name, typeof value === "function" ? value() : value);
         });
       }
     }

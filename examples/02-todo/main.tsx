@@ -36,7 +36,7 @@ class App extends Component<void, DomRenderer> {
         <h1>Todo!</h1>
 
         <form
-          onSubmit={(evt) => {
+          onsubmit={(evt) => {
             evt.preventDefault();
 
             if (newTaskText().trim() !== "") {
@@ -56,13 +56,13 @@ class App extends Component<void, DomRenderer> {
             <input
               placeholder={() => "New task..."}
               value={newTaskText}
-              onInput={(evt) => {
+              oninput={(evt) => {
                 setNewTaskText(evt.currentTarget.value);
               }}
             />{" "}
             <button type={() => "submit"}>+</button>{" "}
             <button
-              onClick={(evt) => {
+              onclick={(evt) => {
                 evt.preventDefault();
 
                 setTasks((tasks) => {
@@ -89,7 +89,7 @@ class App extends Component<void, DomRenderer> {
               <li>
                 <button
                   title={() => "Remove"}
-                  onClick={() => {
+                  onclick={() => {
                     setTasks((tasks) => tasks.filter((_, j) => j !== i()));
                   }}
                 >
@@ -99,7 +99,7 @@ class App extends Component<void, DomRenderer> {
                   <input
                     type={() => "checkbox"}
                     checked={() => task().done}
-                    onClick={() => {
+                    onclick={() => {
                       setTasks((tasks) => {
                         const task = tasks[i()];
                         const newTasks = [...tasks];
