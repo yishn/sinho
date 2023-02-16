@@ -54,11 +54,6 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
   }
 }
 
-export function h2<T extends string>(tagName: T): TagComponent<T> {
-  // @ts-ignore
-  return new TagComponent({ tagName });
-}
-
 export function h<T extends string>(
   type: T,
   props: Omit<TagProps<T>, "tagName">,

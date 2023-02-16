@@ -85,40 +85,19 @@ interface StateEntry<R extends Renderer, T> {
   destructor: Destructor;
 }
 
-interface ForProps<T, K, R extends Renderer> {
-  source: SignalLike<T[]>;
-  key: (value: T, index: number) => K;
-  each: (value: Signal<T>, index: Signal<number>) => Component<any, R>;
+interface ForProps<T, R extends Renderer> {
+  source?: SignalLike<T[]>;
+  key?: (value: T, index: number) => string | number;
+  children?: (value: Signal<T>, index: Signal<number>) => Component<any, R>;
 }
 
-export class ForComponent<T, K, R extends Renderer> extends Component<
-  ForProps<T, K, R>,
-  R
-> {
-  constructor(source: SignalLike<T[]>) {
-    super({
-      source,
-      key: (_, i) => i as K,
-      each: (_, __) => new Fragment({}),
-    });
-  }
-
-  key<K>(keyFn: (value: T, index: number) => K): ForComponent<T, K, R> {
-    const self = this as unknown as ForComponent<T, K, R>;
-    self.props.key = keyFn;
-    return self;
-  }
-
-  each(
-    eachFn: (value: Signal<T>, index: Signal<number>) => Component<any, R>
-  ): this {
-    this.props.each = eachFn;
-    return this;
-  }
-
+export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
   render(s: RendererScope<R>): Rendering<R> {
+    type K = string | number;
+
     let firstTime = true;
 
+    const { source = () => [], key = (_, i) => i } = this.props;
     const endMarker: RendererNode<R> = s.renderer.createMarkerNode();
     const rendering: [marker: RendererNode<R>, rendering: Rendering<R>][] = [];
 
@@ -126,9 +105,7 @@ export class ForComponent<T, K, R extends Renderer> extends Component<
     let keys: K[] = [];
 
     s.effect(() => {
-      const newKeys = this.props
-        .source()
-        .map((value, i) => this.props.key(value, i));
+      const newKeys = source().map((value, i) => key(value, i) ?? i);
       const [ops] = diff(keys, newKeys);
 
       for (const op of ops) {
@@ -141,19 +118,16 @@ export class ForComponent<T, K, R extends Renderer> extends Component<
             () => {
               const [index, setIndex] = s.signal(j);
               const value: Signal<T> = s.memo(() =>
-                index() < this.props.source().length && index() >= 0
-                  ? this.props.source()[index()]
+                index() < source().length && index() >= 0
+                  ? source()[index()]
                   : value.peek()
               );
               const marker: RendererNode<R> = s.renderer.createMarkerNode();
-              const eachRendering: [
-                marker: RendererNode<R>,
-                rendering: Rendering<R>
-              ] = [
+              const eachRendering: [RendererNode<R>, Rendering<R>] = [
                 marker,
                 this.props
-                  .each(value, index)
-                  .createRenderingWithDestructor(s)[0],
+                  .children?.(value, index)
+                  .createRenderingWithDestructor(s)[0] ?? [],
               ];
 
               s.cleanup(() => s.renderer.removeNode(marker));
@@ -215,10 +189,4 @@ export class ForComponent<T, K, R extends Renderer> extends Component<
 
     return [rendering, endMarker];
   }
-}
-
-export function For<T, R extends Renderer>(
-  source: SignalLike<T[]>
-): ForComponent<T, number, R> {
-  return new ForComponent(source);
 }

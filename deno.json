@@ -5,6 +5,6 @@
   "tasks": {
     "build": "deno bundle ./src/mod.ts ./dist/shingo.js",
     "start-examples": "cd examples && deno run -A https://deno.land/x/denoliver/mod.ts",
-    "build-examples": "deno bundle ./examples/01-counter/main.ts ./examples/01-counter/main.js && deno bundle ./examples/02-todo/main.ts ./examples/02-todo/main.js"
+    "build-examples": "deno bundle ./examples/01-counter/main.tsx ./examples/01-counter/main.js && deno bundle ./examples/02-todo/main.tsx ./examples/02-todo/main.js"
   }
 }
