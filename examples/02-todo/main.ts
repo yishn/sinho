@@ -1,9 +1,10 @@
-import { h, DomRenderer, text } from "../../src/html/mod.ts";
+import { h, h2, DomRenderer, text } from "../../src/html/mod.ts";
 import {
   Component,
   Switch,
   For,
   RendererScope,
+  mount,
 } from "../../src/renderer/mod.ts";
 
 interface Task {
@@ -29,14 +30,14 @@ class App extends Component<void, DomRenderer> {
       },
     ]);
 
-    return h("div")
+    return h2("div")
       .attrs({
         class: () => "app",
       })
       .children(
-        h("h1").children(text("Todo!")),
+        h2("h1").children(text("Todo!")),
 
-        h("form")
+        h2("form")
           .on("submit", (evt) => {
             evt.preventDefault();
 
@@ -57,8 +58,8 @@ class App extends Component<void, DomRenderer> {
             }
           })
           .children(
-            h("p").children(
-              h("input")
+            h2("p").children(
+              h2("input")
                 .attrs({
                   placeholder: () => "New task...",
                   value: newTaskText,
@@ -67,13 +68,13 @@ class App extends Component<void, DomRenderer> {
                   setNewTaskText(evt.currentTarget.value);
                 }),
               text(" "),
-              h("button")
+              h2("button")
                 .attrs({
                   type: () => "submit",
                 })
                 .children(text("+")),
               text(" "),
-              h("button")
+              h2("button")
                 .on("click", (evt) => {
                   evt.preventDefault();
 
@@ -93,12 +94,12 @@ class App extends Component<void, DomRenderer> {
             )
           ),
 
-        h("ul").children(
+        h2("ul").children(
           For(tasks)
             .key((task) => task.id)
             .each((task, i) =>
-              h("li").children(
-                h("button")
+              h2("li").children(
+                h2("button")
                   .attrs({
                     title: () => "Remove",
                   })
@@ -114,8 +115,8 @@ class App extends Component<void, DomRenderer> {
                   .children(text("-")),
                 text(" "),
 
-                h("label").children(
-                  h("input")
+                h2("label").children(
+                  h2("input")
                     .attrs({
                       type: () => "checkbox",
                       checked: () => task().done,
@@ -134,10 +135,10 @@ class App extends Component<void, DomRenderer> {
                       });
                     }),
 
-                  new Switch()
+                  h(Switch, {})
                     .when(
                       () => task().done,
-                      () => h("del").children(text(() => task().text))
+                      () => h2("del").children(text(() => task().text))
                     )
                     .otherwise(() => text(() => task().text))
                 )
@@ -148,4 +149,4 @@ class App extends Component<void, DomRenderer> {
   }
 }
 
-new DomRenderer().mount(new App(), document.getElementById("root")!);
+mount(new DomRenderer(), new App(), document.getElementById("root")!);

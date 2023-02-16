@@ -1,3 +1,4 @@
+import { ComponentProps } from "../renderer/component.ts";
 import {
   Component,
   Renderer,
@@ -5,6 +6,8 @@ import {
   Rendering,
 } from "../renderer/mod.ts";
 import { SignalLike } from "../scope.ts";
+import { TagProps } from "./mod.ts";
+import { TagComponent } from "./tag.ts";
 
 export enum HtmlNodeType {
   Element,
@@ -48,6 +51,37 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
     } catch (_) {
       // ignore
     }
+  }
+}
+
+export function h2<T extends string>(tagName: T): TagComponent<T> {
+  // @ts-ignore
+  return new TagComponent({ tagName });
+}
+
+export function h<T extends string>(
+  type: T,
+  props: Omit<TagProps<T>, "tagName">,
+  ...children: Component<any, DomRenderer>[]
+): TagComponent<T>;
+export function h<T extends new (props: any) => Component<any, DomRenderer>>(
+  type: T,
+  props: ComponentProps<InstanceType<T>>,
+  ...children:
+    | (NonNullable<ComponentProps<InstanceType<T>>["children"]> & any[])
+    | []
+): InstanceType<T>;
+export function h(
+  type: string | (new (props: any) => Component<any, DomRenderer>),
+  props: any,
+  ...children: any[]
+): Component<any, DomRenderer> {
+  if (children.length === 1) children = children[0];
+
+  if (typeof type === "string") {
+    return new TagComponent({ tagName: type, children, ...props });
+  } else {
+    return new type({ children, ...props });
   }
 }
 

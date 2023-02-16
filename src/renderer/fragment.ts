@@ -2,7 +2,7 @@ import { Component } from "./component.ts";
 import { Renderer, RendererScope, Rendering } from "./renderer.ts";
 
 interface FragmentProps<R extends Renderer> {
-  children?: Component<any, R>[];
+  children?: Component<any, R> | Component<any, R>[];
 }
 
 export class Fragment<R extends Renderer> extends Component<
@@ -10,9 +10,9 @@ export class Fragment<R extends Renderer> extends Component<
   R
 > {
   render(s: RendererScope<R>): Rendering<R> {
-    return (
-      this.props.children?.map((component) => component.createRendering(s)) ??
-      []
-    );
+    let { children } = this.props;
+    if (children != null && !Array.isArray(children)) children = [children];
+
+    return children?.map((component) => component.createRendering(s)) ?? [];
   }
 }

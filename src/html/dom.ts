@@ -26,6 +26,8 @@
  */
 
 import type { SignalLike } from "../scope.ts";
+import type { Component } from "../renderer/mod.ts";
+import type { DangerousHtml, DomRenderer } from "./mod.ts";
 
 const IS_NON_DIMENSIONAL =
   /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
@@ -81,178 +83,227 @@ export function setAttr(node: any, name: string, value: unknown): void {
   }
 }
 
-export interface ElementMap {
-  // HTML
-  a: [HtmlAttributes, HTMLAnchorElement];
-  abbr: [HtmlAttributes, HTMLElement];
-  address: [HtmlAttributes, HTMLElement];
-  area: [HtmlAttributes, HTMLAreaElement];
-  article: [HtmlAttributes, HTMLElement];
-  aside: [HtmlAttributes, HTMLElement];
-  audio: [HtmlAttributes, HTMLAudioElement];
-  b: [HtmlAttributes, HTMLElement];
-  base: [HtmlAttributes, HTMLBaseElement];
-  bdi: [HtmlAttributes, HTMLElement];
-  bdo: [HtmlAttributes, HTMLElement];
-  big: [HtmlAttributes, HTMLElement];
-  blockquote: [HtmlAttributes, HTMLQuoteElement];
-  body: [HtmlAttributes, HTMLBodyElement];
-  br: [HtmlAttributes, HTMLBRElement];
-  button: [HtmlAttributes, HTMLButtonElement];
-  canvas: [HtmlAttributes, HTMLCanvasElement];
-  caption: [HtmlAttributes, HTMLTableCaptionElement];
-  cite: [HtmlAttributes, HTMLElement];
-  code: [HtmlAttributes, HTMLElement];
-  col: [HtmlAttributes, HTMLTableColElement];
-  colgroup: [HtmlAttributes, HTMLTableColElement];
-  data: [HtmlAttributes, HTMLDataElement];
-  datalist: [HtmlAttributes, HTMLDataListElement];
-  dd: [HtmlAttributes, HTMLElement];
-  del: [HtmlAttributes, HTMLModElement];
-  details: [HtmlAttributes, HTMLDetailsElement];
-  dfn: [HtmlAttributes, HTMLElement];
-  dialog: [HtmlAttributes, HTMLDialogElement];
-  div: [HtmlAttributes, HTMLDivElement];
-  dl: [HtmlAttributes, HTMLDListElement];
-  dt: [HtmlAttributes, HTMLElement];
-  em: [HtmlAttributes, HTMLElement];
-  embed: [HtmlAttributes, HTMLEmbedElement];
-  fieldset: [HtmlAttributes, HTMLFieldSetElement];
-  figcaption: [HtmlAttributes, HTMLElement];
-  figure: [HtmlAttributes, HTMLElement];
-  footer: [HtmlAttributes, HTMLElement];
-  form: [HtmlAttributes, HTMLFormElement];
-  h1: [HtmlAttributes, HTMLHeadingElement];
-  h2: [HtmlAttributes, HTMLHeadingElement];
-  h3: [HtmlAttributes, HTMLHeadingElement];
-  h4: [HtmlAttributes, HTMLHeadingElement];
-  h5: [HtmlAttributes, HTMLHeadingElement];
-  h6: [HtmlAttributes, HTMLHeadingElement];
-  head: [HtmlAttributes, HTMLHeadElement];
-  header: [HtmlAttributes, HTMLElement];
-  hgroup: [HtmlAttributes, HTMLElement];
-  hr: [HtmlAttributes, HTMLHRElement];
-  html: [HtmlAttributes, HTMLHtmlElement];
-  i: [HtmlAttributes, HTMLElement];
-  iframe: [HtmlAttributes, HTMLIFrameElement];
-  img: [HtmlAttributes, HTMLImageElement];
-  input: [HtmlAttributes, HTMLInputElement];
-  ins: [HtmlAttributes, HTMLModElement];
-  kbd: [HtmlAttributes, HTMLElement];
-  keygen: [HtmlAttributes, HTMLUnknownElement];
-  label: [HtmlAttributes, HTMLLabelElement];
-  legend: [HtmlAttributes, HTMLLegendElement];
-  li: [HtmlAttributes, HTMLLIElement];
-  link: [HtmlAttributes, HTMLLinkElement];
-  main: [HtmlAttributes, HTMLElement];
-  map: [HtmlAttributes, HTMLMapElement];
-  mark: [HtmlAttributes, HTMLElement];
-  marquee: [HtmlAttributes, HTMLMarqueeElement];
-  menu: [HtmlAttributes, HTMLMenuElement];
-  menuitem: [HtmlAttributes, HTMLUnknownElement];
-  meta: [HtmlAttributes, HTMLMetaElement];
-  meter: [HtmlAttributes, HTMLMeterElement];
-  nav: [HtmlAttributes, HTMLElement];
-  noscript: [HtmlAttributes, HTMLElement];
-  object: [HtmlAttributes, HTMLObjectElement];
-  ol: [HtmlAttributes, HTMLOListElement];
-  optgroup: [HtmlAttributes, HTMLOptGroupElement];
-  option: [HtmlAttributes, HTMLOptionElement];
-  output: [HtmlAttributes, HTMLOutputElement];
-  p: [HtmlAttributes, HTMLParagraphElement];
-  param: [HtmlAttributes, HTMLParamElement];
-  picture: [HtmlAttributes, HTMLPictureElement];
-  pre: [HtmlAttributes, HTMLPreElement];
-  progress: [HtmlAttributes, HTMLProgressElement];
-  q: [HtmlAttributes, HTMLQuoteElement];
-  rp: [HtmlAttributes, HTMLElement];
-  rt: [HtmlAttributes, HTMLElement];
-  ruby: [HtmlAttributes, HTMLElement];
-  s: [HtmlAttributes, HTMLElement];
-  samp: [HtmlAttributes, HTMLElement];
-  script: [HtmlAttributes, HTMLScriptElement];
-  section: [HtmlAttributes, HTMLElement];
-  select: [HtmlAttributes, HTMLSelectElement];
-  slot: [HtmlAttributes, HTMLSlotElement];
-  small: [HtmlAttributes, HTMLElement];
-  source: [HtmlAttributes, HTMLSourceElement];
-  span: [HtmlAttributes, HTMLSpanElement];
-  strong: [HtmlAttributes, HTMLElement];
-  style: [HtmlAttributes, HTMLStyleElement];
-  sub: [HtmlAttributes, HTMLElement];
-  summary: [HtmlAttributes, HTMLElement];
-  sup: [HtmlAttributes, HTMLElement];
-  table: [HtmlAttributes, HTMLTableElement];
-  tbody: [HtmlAttributes, HTMLTableSectionElement];
-  td: [HtmlAttributes, HTMLTableCellElement];
-  textarea: [HtmlAttributes, HTMLTextAreaElement];
-  tfoot: [HtmlAttributes, HTMLTableSectionElement];
-  th: [HtmlAttributes, HTMLTableCellElement];
-  thead: [HtmlAttributes, HTMLTableSectionElement];
-  time: [HtmlAttributes, HTMLTimeElement];
-  title: [HtmlAttributes, HTMLTitleElement];
-  tr: [HtmlAttributes, HTMLTableRowElement];
-  track: [HtmlAttributes, HTMLTrackElement];
-  u: [HtmlAttributes, HTMLElement];
-  ul: [HtmlAttributes, HTMLUListElement];
-  var: [HtmlAttributes, HTMLElement];
-  video: [HtmlAttributes, HTMLVideoElement];
-  wbr: [HtmlAttributes, HTMLElement];
+declare global {
+  namespace JSX {
+    interface Element extends Component<any, DomRenderer> {}
 
-  //SVG
-  svg: [SvgAttributes, SVGSVGElement];
-  animate: [SvgAttributes, SVGAnimateElement];
-  circle: [SvgAttributes, SVGCircleElement];
-  animateTransform: [SvgAttributes, SVGAnimateElement];
-  clipPath: [SvgAttributes, SVGClipPathElement];
-  defs: [SvgAttributes, SVGDefsElement];
-  desc: [SvgAttributes, SVGDescElement];
-  ellipse: [SvgAttributes, SVGEllipseElement];
-  feBlend: [SvgAttributes, SVGFEBlendElement];
-  feColorMatrix: [SvgAttributes, SVGFEColorMatrixElement];
-  feComponentTransfer: [SvgAttributes, SVGFEComponentTransferElement];
-  feComposite: [SvgAttributes, SVGFECompositeElement];
-  feConvolveMatrix: [SvgAttributes, SVGFEConvolveMatrixElement];
-  feDiffuseLighting: [SvgAttributes, SVGFEDiffuseLightingElement];
-  feDisplacementMap: [SvgAttributes, SVGFEDisplacementMapElement];
-  feDropShadow: [SvgAttributes, SVGFEDropShadowElement];
-  feFlood: [SvgAttributes, SVGFEFloodElement];
-  feFuncA: [SvgAttributes, SVGFEFuncAElement];
-  feFuncB: [SvgAttributes, SVGFEFuncBElement];
-  feFuncG: [SvgAttributes, SVGFEFuncGElement];
-  feFuncR: [SvgAttributes, SVGFEFuncRElement];
-  feGaussianBlur: [SvgAttributes, SVGFEGaussianBlurElement];
-  feImage: [SvgAttributes, SVGFEImageElement];
-  feMerge: [SvgAttributes, SVGFEMergeElement];
-  feMergeNode: [SvgAttributes, SVGFEMergeNodeElement];
-  feMorphology: [SvgAttributes, SVGFEMorphologyElement];
-  feOffset: [SvgAttributes, SVGFEOffsetElement];
-  feSpecularLighting: [SvgAttributes, SVGFESpecularLightingElement];
-  feTile: [SvgAttributes, SVGFETileElement];
-  feTurbulence: [SvgAttributes, SVGFETurbulenceElement];
-  filter: [SvgAttributes, SVGFilterElement];
-  foreignObject: [SvgAttributes, SVGForeignObjectElement];
-  g: [SvgAttributes, SVGGElement];
-  image: [SvgAttributes, SVGImageElement];
-  line: [SvgAttributes, SVGLineElement];
-  linearGradient: [SvgAttributes, SVGLinearGradientElement];
-  marker: [SvgAttributes, SVGMarkerElement];
-  mask: [SvgAttributes, SVGMaskElement];
-  path: [SvgAttributes, SVGPathElement];
-  pattern: [SvgAttributes, SVGPatternElement];
-  polygon: [SvgAttributes, SVGPolygonElement];
-  polyline: [SvgAttributes, SVGPolylineElement];
-  radialGradient: [SvgAttributes, SVGRadialGradientElement];
-  rect: [SvgAttributes, SVGRectElement];
-  stop: [SvgAttributes, SVGStopElement];
-  symbol: [SvgAttributes, SVGSymbolElement];
-  text: [SvgAttributes, SVGTextElement];
-  textPath: [SvgAttributes, SVGTextPathElement];
-  tspan: [SvgAttributes, SVGTSpanElement];
-  use: [SvgAttributes, SVGUseElement];
+    interface ElementChildrenAttribute {
+      children: {};
+    }
+
+    interface IntrinsicElements {
+      // HTML
+      a: HtmlProps & EventProps<HTMLAnchorElement>;
+      abbr: HtmlProps & EventProps<HTMLElement>;
+      address: HtmlProps & EventProps<HTMLElement>;
+      area: HtmlProps & EventProps<HTMLAreaElement>;
+      article: HtmlProps & EventProps<HTMLElement>;
+      aside: HtmlProps & EventProps<HTMLElement>;
+      audio: HtmlProps & EventProps<HTMLAudioElement>;
+      b: HtmlProps & EventProps<HTMLElement>;
+      base: HtmlProps & EventProps<HTMLBaseElement>;
+      bdi: HtmlProps & EventProps<HTMLElement>;
+      bdo: HtmlProps & EventProps<HTMLElement>;
+      big: HtmlProps & EventProps<HTMLElement>;
+      blockquote: HtmlProps & EventProps<HTMLQuoteElement>;
+      body: HtmlProps & EventProps<HTMLBodyElement>;
+      br: HtmlProps & EventProps<HTMLBRElement>;
+      button: HtmlProps & EventProps<HTMLButtonElement>;
+      canvas: HtmlProps & EventProps<HTMLCanvasElement>;
+      caption: HtmlProps & EventProps<HTMLTableCaptionElement>;
+      cite: HtmlProps & EventProps<HTMLElement>;
+      code: HtmlProps & EventProps<HTMLElement>;
+      col: HtmlProps & EventProps<HTMLTableColElement>;
+      colgroup: HtmlProps & EventProps<HTMLTableColElement>;
+      data: HtmlProps & EventProps<HTMLDataElement>;
+      datalist: HtmlProps & EventProps<HTMLDataListElement>;
+      dd: HtmlProps & EventProps<HTMLElement>;
+      del: HtmlProps & EventProps<HTMLModElement>;
+      details: HtmlProps & EventProps<HTMLDetailsElement>;
+      dfn: HtmlProps & EventProps<HTMLElement>;
+      dialog: HtmlProps & EventProps<HTMLDialogElement>;
+      div: HtmlProps & EventProps<HTMLDivElement>;
+      dl: HtmlProps & EventProps<HTMLDListElement>;
+      dt: HtmlProps & EventProps<HTMLElement>;
+      em: HtmlProps & EventProps<HTMLElement>;
+      embed: HtmlProps & EventProps<HTMLEmbedElement>;
+      fieldset: HtmlProps & EventProps<HTMLFieldSetElement>;
+      figcaption: HtmlProps & EventProps<HTMLElement>;
+      figure: HtmlProps & EventProps<HTMLElement>;
+      footer: HtmlProps & EventProps<HTMLElement>;
+      form: HtmlProps & EventProps<HTMLFormElement>;
+      h1: HtmlProps & EventProps<HTMLHeadingElement>;
+      h2: HtmlProps & EventProps<HTMLHeadingElement>;
+      h3: HtmlProps & EventProps<HTMLHeadingElement>;
+      h4: HtmlProps & EventProps<HTMLHeadingElement>;
+      h5: HtmlProps & EventProps<HTMLHeadingElement>;
+      h6: HtmlProps & EventProps<HTMLHeadingElement>;
+      head: HtmlProps & EventProps<HTMLHeadElement>;
+      header: HtmlProps & EventProps<HTMLElement>;
+      hgroup: HtmlProps & EventProps<HTMLElement>;
+      hr: HtmlProps & EventProps<HTMLHRElement>;
+      html: HtmlProps & EventProps<HTMLHtmlElement>;
+      i: HtmlProps & EventProps<HTMLElement>;
+      iframe: HtmlProps & EventProps<HTMLIFrameElement>;
+      img: HtmlProps & EventProps<HTMLImageElement>;
+      input: HtmlProps & EventProps<HTMLInputElement>;
+      ins: HtmlProps & EventProps<HTMLModElement>;
+      kbd: HtmlProps & EventProps<HTMLElement>;
+      keygen: HtmlProps & EventProps<HTMLUnknownElement>;
+      label: HtmlProps & EventProps<HTMLLabelElement>;
+      legend: HtmlProps & EventProps<HTMLLegendElement>;
+      li: HtmlProps & EventProps<HTMLLIElement>;
+      link: HtmlProps & EventProps<HTMLLinkElement>;
+      main: HtmlProps & EventProps<HTMLElement>;
+      map: HtmlProps & EventProps<HTMLMapElement>;
+      mark: HtmlProps & EventProps<HTMLElement>;
+      marquee: HtmlProps & EventProps<HTMLMarqueeElement>;
+      menu: HtmlProps & EventProps<HTMLMenuElement>;
+      menuitem: HtmlProps & EventProps<HTMLUnknownElement>;
+      meta: HtmlProps & EventProps<HTMLMetaElement>;
+      meter: HtmlProps & EventProps<HTMLMeterElement>;
+      nav: HtmlProps & EventProps<HTMLElement>;
+      noscript: HtmlProps & EventProps<HTMLElement>;
+      object: HtmlProps & EventProps<HTMLObjectElement>;
+      ol: HtmlProps & EventProps<HTMLOListElement>;
+      optgroup: HtmlProps & EventProps<HTMLOptGroupElement>;
+      option: HtmlProps & EventProps<HTMLOptionElement>;
+      output: HtmlProps & EventProps<HTMLOutputElement>;
+      p: HtmlProps & EventProps<HTMLParagraphElement>;
+      param: HtmlProps & EventProps<HTMLParamElement>;
+      picture: HtmlProps & EventProps<HTMLPictureElement>;
+      pre: HtmlProps & EventProps<HTMLPreElement>;
+      progress: HtmlProps & EventProps<HTMLProgressElement>;
+      q: HtmlProps & EventProps<HTMLQuoteElement>;
+      rp: HtmlProps & EventProps<HTMLElement>;
+      rt: HtmlProps & EventProps<HTMLElement>;
+      ruby: HtmlProps & EventProps<HTMLElement>;
+      s: HtmlProps & EventProps<HTMLElement>;
+      samp: HtmlProps & EventProps<HTMLElement>;
+      script: HtmlProps & EventProps<HTMLScriptElement>;
+      section: HtmlProps & EventProps<HTMLElement>;
+      select: HtmlProps & EventProps<HTMLSelectElement>;
+      slot: HtmlProps & EventProps<HTMLSlotElement>;
+      small: HtmlProps & EventProps<HTMLElement>;
+      source: HtmlProps & EventProps<HTMLSourceElement>;
+      span: HtmlProps & EventProps<HTMLSpanElement>;
+      strong: HtmlProps & EventProps<HTMLElement>;
+      style: HtmlProps & EventProps<HTMLStyleElement>;
+      sub: HtmlProps & EventProps<HTMLElement>;
+      summary: HtmlProps & EventProps<HTMLElement>;
+      sup: HtmlProps & EventProps<HTMLElement>;
+      table: HtmlProps & EventProps<HTMLTableElement>;
+      tbody: HtmlProps & EventProps<HTMLTableSectionElement>;
+      td: HtmlProps & EventProps<HTMLTableCellElement>;
+      textarea: HtmlProps & EventProps<HTMLTextAreaElement>;
+      tfoot: HtmlProps & EventProps<HTMLTableSectionElement>;
+      th: HtmlProps & EventProps<HTMLTableCellElement>;
+      thead: HtmlProps & EventProps<HTMLTableSectionElement>;
+      time: HtmlProps & EventProps<HTMLTimeElement>;
+      title: HtmlProps & EventProps<HTMLTitleElement>;
+      tr: HtmlProps & EventProps<HTMLTableRowElement>;
+      track: HtmlProps & EventProps<HTMLTrackElement>;
+      u: HtmlProps & EventProps<HTMLElement>;
+      ul: HtmlProps & EventProps<HTMLUListElement>;
+      var: HtmlProps & EventProps<HTMLElement>;
+      video: HtmlProps & EventProps<HTMLVideoElement>;
+      wbr: HtmlProps & EventProps<HTMLElement>;
+
+      //SVG
+      svg: SvgProps & EventProps<SVGSVGElement>;
+      animate: SvgProps & EventProps<SVGAnimateElement>;
+      circle: SvgProps & EventProps<SVGCircleElement>;
+      animateTransform: SvgProps & EventProps<SVGAnimateElement>;
+      clipPath: SvgProps & EventProps<SVGClipPathElement>;
+      defs: SvgProps & EventProps<SVGDefsElement>;
+      desc: SvgProps & EventProps<SVGDescElement>;
+      ellipse: SvgProps & EventProps<SVGEllipseElement>;
+      feBlend: SvgProps & EventProps<SVGFEBlendElement>;
+      feColorMatrix: SvgProps & EventProps<SVGFEColorMatrixElement>;
+      feComponentTransfer: SvgProps & EventProps<SVGFEComponentTransferElement>;
+      feComposite: SvgProps & EventProps<SVGFECompositeElement>;
+      feConvolveMatrix: SvgProps & EventProps<SVGFEConvolveMatrixElement>;
+      feDiffuseLighting: SvgProps & EventProps<SVGFEDiffuseLightingElement>;
+      feDisplacementMap: SvgProps & EventProps<SVGFEDisplacementMapElement>;
+      feDropShadow: SvgProps & EventProps<SVGFEDropShadowElement>;
+      feFlood: SvgProps & EventProps<SVGFEFloodElement>;
+      feFuncA: SvgProps & EventProps<SVGFEFuncAElement>;
+      feFuncB: SvgProps & EventProps<SVGFEFuncBElement>;
+      feFuncG: SvgProps & EventProps<SVGFEFuncGElement>;
+      feFuncR: SvgProps & EventProps<SVGFEFuncRElement>;
+      feGaussianBlur: SvgProps & EventProps<SVGFEGaussianBlurElement>;
+      feImage: SvgProps & EventProps<SVGFEImageElement>;
+      feMerge: SvgProps & EventProps<SVGFEMergeElement>;
+      feMergeNode: SvgProps & EventProps<SVGFEMergeNodeElement>;
+      feMorphology: SvgProps & EventProps<SVGFEMorphologyElement>;
+      feOffset: SvgProps & EventProps<SVGFEOffsetElement>;
+      feSpecularLighting: SvgProps & EventProps<SVGFESpecularLightingElement>;
+      feTile: SvgProps & EventProps<SVGFETileElement>;
+      feTurbulence: SvgProps & EventProps<SVGFETurbulenceElement>;
+      filter: SvgProps & EventProps<SVGFilterElement>;
+      foreignObject: SvgProps & EventProps<SVGForeignObjectElement>;
+      g: SvgProps & EventProps<SVGGElement>;
+      image: SvgProps & EventProps<SVGImageElement>;
+      line: SvgProps & EventProps<SVGLineElement>;
+      linearGradient: SvgProps & EventProps<SVGLinearGradientElement>;
+      marker: SvgProps & EventProps<SVGMarkerElement>;
+      mask: SvgProps & EventProps<SVGMaskElement>;
+      path: SvgProps & EventProps<SVGPathElement>;
+      pattern: SvgProps & EventProps<SVGPatternElement>;
+      polygon: SvgProps & EventProps<SVGPolygonElement>;
+      polyline: SvgProps & EventProps<SVGPolylineElement>;
+      radialGradient: SvgProps & EventProps<SVGRadialGradientElement>;
+      rect: SvgProps & EventProps<SVGRectElement>;
+      stop: SvgProps & EventProps<SVGStopElement>;
+      symbol: SvgProps & EventProps<SVGSymbolElement>;
+      text: SvgProps & EventProps<SVGTextElement>;
+      textPath: SvgProps & EventProps<SVGTextPathElement>;
+      tspan: SvgProps & EventProps<SVGTSpanElement>;
+      use: SvgProps & EventProps<SVGUseElement>;
+
+      [tagName: string]: ShingoProps & Record<string, any>;
+    }
+  }
 }
 
-interface HtmlAttributes {
+export type Style = {
+  [K in Exclude<
+    keyof CSSStyleDeclaration,
+    | "item"
+    | "setProperty"
+    | "removeProperty"
+    | "getPropertyValue"
+    | "getPropertyPriority"
+    | typeof Symbol.iterator
+    | number
+  >]?: SignalLike<string | number | null | undefined> | undefined;
+} & {
+  [key: string]: SignalLike<string | number | null | undefined> | undefined;
+};
+
+type EventMap = ElementEventMap &
+  DocumentAndElementEventHandlersEventMap &
+  GlobalEventHandlersEventMap;
+
+export type EventHandler<K extends keyof EventMap, E> = (
+  this: E,
+  evt: Omit<EventMap[K], "currentTarget"> & {
+    currentTarget: E;
+  }
+) => void;
+
+type EventProps<E> = {
+  [K in keyof EventMap as `on${Capitalize<K>}`]?: EventHandler<K, E>;
+};
+
+interface ShingoProps {
+  children?: Component<any, DomRenderer> | Component<any, DomRenderer>[];
+  style?: Style;
+}
+
+interface HtmlProps extends ShingoProps {
+  dangerouslySetInnerHTML?: DangerousHtml;
+
   // Standard HTML Attributes
   accept?: SignalLike<string>;
   acceptCharset?: SignalLike<string>;
@@ -437,7 +488,7 @@ interface HtmlAttributes {
   itemRef?: SignalLike<string>;
 }
 
-interface SvgAttributes extends HtmlAttributes {
+interface SvgProps extends HtmlProps {
   accentHeight?: SignalLike<number | string>;
   accumulate?: SignalLike<"none" | "sum">;
   additive?: SignalLike<"replace" | "sum">;

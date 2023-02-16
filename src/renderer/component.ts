@@ -15,8 +15,8 @@ export function flattenRendering<R extends Renderer>(
 }
 
 export abstract class Component<
-  out P = unknown,
-  in out R extends Renderer = Renderer
+  out P = any,
+  out R extends Renderer = Renderer
 > {
   constructor(protected props: P) {}
 
