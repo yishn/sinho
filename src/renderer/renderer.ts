@@ -1,4 +1,4 @@
-import { Component, ComponentProps, flattenRendering } from "./component.ts";
+import { Component, flattenRendering } from "./component.ts";
 import { Scope, Destructor } from "../scope.ts";
 
 type RenderingWithNode<N> = (N | RenderingWithNode<N>)[];
@@ -50,19 +50,6 @@ export function mount<R extends Renderer>(
   s.renderer.appendRendering(parent, rendering);
 
   return destructor;
-}
-
-export function h<
-  R extends Renderer,
-  T extends new (props: any) => Component<any, R>
->(
-  Component: T,
-  props: ComponentProps<InstanceType<T>>,
-  ...children:
-    | (NonNullable<ComponentProps<InstanceType<T>>["children"]> & any[])
-    | []
-): InstanceType<T> {
-  return new Component({ children, ...props }) as InstanceType<T>;
 }
 
 export class RendererScope<out R extends Renderer> extends Scope {

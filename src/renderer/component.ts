@@ -20,12 +20,10 @@ export abstract class Component<
 > {
   constructor(protected props: P) {}
 
-  abstract render(s: RendererScope<R>): Component<any, R> | Rendering<R>;
+  abstract render(s: RendererScope<R>): Component<any, R>;
 
   createRendering(s: RendererScope<R>): Rendering<R> {
-    const result = this.render(s);
-
-    return result instanceof Component ? result.createRendering(s) : result;
+    return this.render(s).createRendering(s);
   }
 
   createRenderingWithDestructor(

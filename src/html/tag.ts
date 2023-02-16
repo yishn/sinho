@@ -16,7 +16,11 @@ export class TagComponent<T extends string> extends Component<
   TagProps<T>,
   DomRenderer
 > {
-  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
+  render(_: RendererScope<DomRenderer>): Component<any, DomRenderer> {
+    throw new Error("unimplemented");
+  }
+
+  createRendering(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
     const { tagName, ref, style, children, dangerouslySetInnerHTML, ...attrs } =
       this.props;
     const prevIsSvg = s.renderer.isSvg;
@@ -33,18 +37,22 @@ export class TagComponent<T extends string> extends Component<
       s.renderer.linkNodeRef(node, ref);
     }
 
-    for (const [name, prop] of Object.entries(style ?? {})) {
+    for (const [name, value] of Object.entries(style ?? {})) {
       s.effect(() => {
-        setStyle(node, name, typeof prop === "function" ? prop() : prop);
+        setStyle(node, name, typeof value === "function" ? value() : value);
       });
     }
 
     for (const [name, value] of Object.entries(attrs)) {
       if (name.startsWith("on") && name.length > 2) {
+        // Register event
+
         node.addEventListener(name.slice(2), (evt) =>
           s.batch(() => value(evt))
         );
       } else {
+        // Set attribute
+
         s.effect(() => {
           setAttr(node, name, typeof value === "function" ? value() : value);
         });
@@ -85,7 +93,11 @@ interface TextProps {
 }
 
 export class Text extends Component<TextProps, DomRenderer> {
-  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
+  render(_: RendererScope<DomRenderer>): Component<any, DomRenderer> {
+    throw new Error("unimplemented");
+  }
+
+  createRendering(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
     const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
 
     s.effect(() => {

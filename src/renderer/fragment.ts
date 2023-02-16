@@ -9,7 +9,11 @@ export class Fragment<R extends Renderer> extends Component<
   FragmentProps<R>,
   R
 > {
-  render(s: RendererScope<R>): Rendering<R> {
+  render(_: RendererScope<R>): Component<any, R> {
+    throw new Error("unimplemented");
+  }
+
+  createRendering(s: RendererScope<R>): Rendering<R> {
     const { children = [] } = this.props;
 
     return (

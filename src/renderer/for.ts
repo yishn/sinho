@@ -91,7 +91,11 @@ interface ForProps<T, R extends Renderer> {
 }
 
 export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
-  render(s: RendererScope<R>): Rendering<R> {
+  render(_: RendererScope<R>): Component<any, R> {
+    throw new Error("unimplemented");
+  }
+
+  createRendering(s: RendererScope<R>): Rendering<R> {
     type K = string | number;
 
     let firstTime = true;

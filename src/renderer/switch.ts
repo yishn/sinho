@@ -13,7 +13,11 @@ export interface SwitchProps<R extends Renderer> {
 }
 
 export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
-  render(s: RendererScope<R>): Rendering<R> {
+  render(_: RendererScope<R>): Component<any, R> {
+    throw new Error("unimplemented");
+  }
+
+  createRendering(s: RendererScope<R>): Rendering<R> {
     let firstTime = true;
 
     const marker = s.renderer.createMarkerNode();
@@ -69,7 +73,7 @@ export interface WhenProps<R extends Renderer> {
 }
 
 export class When<R extends Renderer> extends Component<WhenProps<R>, R> {
-  render(_: RendererScope<R>): Component<any, R> | Rendering<R> {
+  render(_: RendererScope<R>): Component<any, R> {
     return new Switch({
       cases: [
         when(
