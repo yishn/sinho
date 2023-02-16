@@ -13,11 +13,11 @@ export class Fragment<R extends Renderer> extends Component<
     throw new Error("unimplemented");
   }
 
-  createRendering(s: RendererScope<R>): Rendering<R> {
+  reify(s: RendererScope<R>): Rendering<R> {
     const { children = [] } = this.props;
 
     return (
-      [children].flat(1).map((component) => component.createRendering(s)) ?? []
+      [children].flat(1).map((component) => component.reify(s)) ?? []
     );
   }
 }

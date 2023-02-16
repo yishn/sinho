@@ -1,5 +1,5 @@
 import { Component } from "./component.ts";
-import { Scope, Destructor, EffectOptions } from "../scope.ts";
+import { Scope, Destructor } from "../scope.ts";
 
 type RenderingWithNode<N> = (N | RenderingWithNode<N>)[];
 
@@ -20,13 +20,13 @@ export abstract class Renderer<in P = any, out N extends object = any> {
   _mountListeners = new WeakMap<Component<any, this>, (() => void)[]>();
 
   abstract createNode(arg: P): N;
-  abstract createMarkerNode(): N;
+  abstract createMarker(): N;
 
   abstract appendNode(parent: N, node: N): void;
   abstract insertNode(node: N, before: N): void;
   abstract removeNode(node: N): void;
 
-  private fireMountListeners(rendering: RenderingWithNode<N>) {
+  private _fireMountListeners(rendering: RenderingWithNode<N>) {
     const component = this._renderingComponents.get(rendering);
 
     if (component != null) {
@@ -48,7 +48,7 @@ export abstract class Renderer<in P = any, out N extends object = any> {
       }
     }
 
-    this.fireMountListeners(rendering);
+    this._fireMountListeners(rendering);
   }
 
   insertRendering(rendering: RenderingWithNode<N>, before: N): void {
@@ -60,7 +60,7 @@ export abstract class Renderer<in P = any, out N extends object = any> {
       }
     }
 
-    this.fireMountListeners(rendering);
+    this._fireMountListeners(rendering);
   }
 
   removeRendering(rendering: RenderingWithNode<N>): void {
@@ -80,7 +80,7 @@ export function mount<R extends Renderer>(
   parent: RendererNode<R>
 ): Destructor {
   const s = new RendererScope(renderer);
-  const [rendering, destructor] = component.createRenderingWithDestructor(s);
+  const [rendering, destructor] = component.reifyWithDestructor(s);
 
   s.renderer.appendRendering(parent, rendering);
 
@@ -88,14 +88,14 @@ export function mount<R extends Renderer>(
 }
 
 export class RendererScope<out R extends Renderer> extends Scope {
-  _currentComponent: Component<any, R> | undefined;
+  _current: Component<any, R> | undefined;
 
   constructor(public renderer: R) {
     super();
   }
 
   onMount(f: () => void): void {
-    const component = this._currentComponent;
+    const component = this._current;
     if (component == null) return;
 
     let listeners = this.renderer._mountListeners.get(component);

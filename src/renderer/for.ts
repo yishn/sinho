@@ -95,13 +95,13 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
     throw new Error("unimplemented");
   }
 
-  createRendering(s: RendererScope<R>): Rendering<R> {
+  reify(s: RendererScope<R>): Rendering<R> {
     type K = string | number;
 
     let firstTime = true;
 
     const { source = () => [], key = (_, i) => i } = this.props;
-    const endMarker: RendererNode<R> = s.renderer.createMarkerNode();
+    const endMarker: RendererNode<R> = s.renderer.createMarker();
     const rendering: [marker: RendererNode<R>, rendering: Rendering<R>][] = [];
 
     const state = new Map<K, StateEntry<R, T>>();
@@ -125,12 +125,12 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
                   ? source()[index()]
                   : value.peek()
               );
-              const marker: RendererNode<R> = s.renderer.createMarkerNode();
+              const marker: RendererNode<R> = s.renderer.createMarker();
               const eachRendering: [RendererNode<R>, Rendering<R>] = [
                 marker,
                 this.props
                   .children?.(value, index)
-                  .createRenderingWithDestructor(s)[0] ?? [],
+                  .reifyWithDestructor(s)[0] ?? [],
               ];
 
               s.cleanup(() => s.renderer.removeNode(marker));

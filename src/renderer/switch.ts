@@ -17,10 +17,10 @@ export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
     throw new Error("unimplemented");
   }
 
-  createRendering(s: RendererScope<R>): Rendering<R> {
+  reify(s: RendererScope<R>): Rendering<R> {
     let firstTime = true;
 
-    const marker = s.renderer.createMarkerNode();
+    const marker = s.renderer.createMarker();
     const rendering: [Rendering<R>, RendererNode<R>] = [[], marker];
 
     const result = s.memo(() => {
@@ -38,7 +38,7 @@ export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
     s.effect(() => {
       const component = result();
 
-      rendering[0] = component.createRenderingWithDestructor(s)[0];
+      rendering[0] = component.reifyWithDestructor(s)[0];
 
       if (firstTime) {
         firstTime = false;

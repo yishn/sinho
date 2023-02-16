@@ -15,11 +15,14 @@ export type CreateNodeArg =
 export class DomRenderer extends Renderer<CreateNodeArg, Node> {
   isSvg = false;
 
-  private _nodeRefsBySignal = new WeakMap<
+  private _nodeRefSignals = new WeakMap<
     Signal<Node | null>,
     SignalSetter<Node | null>
   >();
-  private _nodeRefsByElement = new WeakMap<Node, SignalSetter<Node | null>>();
+  private _elementNodeRefSetters = new WeakMap<
+    Node,
+    SignalSetter<Node | null>
+  >();
 
   createNode([type, arg]: CreateNodeArg): Node {
     if (type === HtmlNodeType.Element) {
@@ -30,30 +33,30 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
       return document.createTextNode(arg);
     }
 
-    return this.createMarkerNode();
+    return this.createMarker();
   }
 
-  createMarkerNode(): Node {
+  createMarker(): Node {
     return document.createComment("");
   }
 
   appendNode(parent: Node, node: Node): void {
     parent.appendChild(node);
 
-    this._nodeRefsByElement.get(node)?.(node);
+    this._elementNodeRefSetters.get(node)?.(node);
   }
 
   insertNode(node: Node, before: Node): void {
     before.parentNode!.insertBefore(node, before);
 
-    this._nodeRefsByElement.get(node)?.(node);
+    this._elementNodeRefSetters.get(node)?.(node);
   }
 
   removeNode(node: Node): void {
     try {
       node.parentNode!.removeChild(node);
 
-      this._nodeRefsByElement.get(node)?.(null);
+      this._elementNodeRefSetters.get(node)?.(null);
     } catch (_) {
       // ignore
     }
@@ -62,16 +65,16 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
   nodeRef<E extends Element>(s: Scope): Signal<E | null> {
     const [signal, setSignal] = s.signal<Node | null>(null);
 
-    this._nodeRefsBySignal.set(signal, setSignal);
+    this._nodeRefSignals.set(signal, setSignal);
 
     return signal as Signal<E | null>;
   }
 
   linkNodeRef(element: Element, signal: Signal<Element | null>): void {
-    const setter = this._nodeRefsBySignal.get(signal);
+    const setter = this._nodeRefSignals.get(signal);
 
     if (setter != null) {
-      this._nodeRefsByElement.set(element, setter);
+      this._elementNodeRefSetters.set(element, setter);
     }
   }
 }

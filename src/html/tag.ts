@@ -20,7 +20,7 @@ export class TagComponent<T extends string> extends Component<
     throw new Error("unimplemented");
   }
 
-  createRendering(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
+  reify(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
     const { tagName, ref, style, children, dangerouslySetInnerHTML, ...attrs } =
       this.props;
     const prevIsSvg = s.renderer.isSvg;
@@ -78,7 +78,7 @@ export class TagComponent<T extends string> extends Component<
               return new Text({ children: child });
             }
           }),
-        }).createRendering(s)
+        }).reify(s)
       );
     }
 
@@ -97,7 +97,7 @@ export class Text extends Component<TextProps, DomRenderer> {
     throw new Error("unimplemented");
   }
 
-  createRendering(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
+  reify(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
     const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
 
     s.effect(() => {

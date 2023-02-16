@@ -9,20 +9,18 @@ export abstract class Component<
 
   abstract render(s: RendererScope<R>): Component<any, R>;
 
-  createRendering(s: RendererScope<R>): Rendering<R> {
-    return this.render(s).createRendering(s);
+  reify(s: RendererScope<R>): Rendering<R> {
+    return this.render(s).reify(s);
   }
 
-  createRenderingWithDestructor(
-    s: RendererScope<R>
-  ): [Rendering<R>, Destructor] {
-    const lastComponent = s._currentComponent;
-    s._currentComponent = this;
+  reifyWithDestructor(s: RendererScope<R>): [Rendering<R>, Destructor] {
+    const lastComponent = s._current;
+    s._current = this;
 
     let rendering: Rendering<R>;
 
     const destructor = s.subscope(() => {
-      rendering = this.createRendering(s);
+      rendering = this.reify(s);
 
       s.cleanup(() => {
         s.renderer.removeRendering(rendering);
@@ -30,7 +28,7 @@ export abstract class Component<
     });
 
     s.renderer._renderingComponents.set(rendering!, this);
-    s._currentComponent = lastComponent;
+    s._current = lastComponent;
 
     return [rendering!, destructor];
   }
