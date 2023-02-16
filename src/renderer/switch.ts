@@ -53,16 +53,19 @@ export interface Case<R extends Renderer> {
 }
 
 export function when<R extends Renderer>(
-  condition: SignalLike<boolean>,
+  condition: boolean | SignalLike<boolean>,
   render: () => Component<any, R>
 ): Case<R> {
-  return { condition, render };
+  return {
+    condition: typeof condition === "boolean" ? () => condition : condition,
+    render,
+  };
 }
 
 export interface WhenProps<R extends Renderer> {
-  condition: SignalLike<boolean>;
-  then: () => Component<any, R>;
-  otherwise: () => Component<any, R>;
+  condition?: SignalLike<boolean>;
+  then?: () => Component<any, R>;
+  otherwise?: () => Component<any, R>;
 }
 
 export class When<R extends Renderer> extends Component<WhenProps<R>, R> {
@@ -70,10 +73,10 @@ export class When<R extends Renderer> extends Component<WhenProps<R>, R> {
     return new Switch({
       cases: [
         when(
-          this.props.condition ?? (() => true),
+          this.props.condition ?? true,
           this.props.then ?? (() => new Fragment({}))
         ),
-        when(() => true, this.props.otherwise ?? (() => new Fragment({}))),
+        when(true, this.props.otherwise ?? (() => new Fragment({}))),
       ],
     });
   }

@@ -1,6 +1,5 @@
 import { Destructor, Signal, SignalLike, SignalSetter } from "../scope.ts";
 import { Component } from "./component.ts";
-import { Fragment } from "./fragment.ts";
 import {
   Renderer,
   RendererNode,

@@ -10,9 +10,10 @@ export class Fragment<R extends Renderer> extends Component<
   R
 > {
   render(s: RendererScope<R>): Rendering<R> {
-    let { children } = this.props;
-    if (children != null && !Array.isArray(children)) children = [children];
+    const { children = [] } = this.props;
 
-    return children?.map((component) => component.createRendering(s)) ?? [];
+    return (
+      [children].flat(1).map((component) => component.createRendering(s)) ?? []
+    );
   }
 }

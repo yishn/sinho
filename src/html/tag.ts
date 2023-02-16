@@ -8,10 +8,6 @@ import type { SignalLike } from "../scope.ts";
 import { HtmlNodeType, DomRenderer } from "./mod.ts";
 import { setAttr, setStyle } from "./dom.ts";
 
-export type DangerousHtml = SignalLike<{
-  __html: string;
-}>;
-
 export type TagProps<T extends string> = {
   tagName: T;
 } & JSX.IntrinsicElements[T];
@@ -21,8 +17,8 @@ export class TagComponent<T extends string> extends Component<
   DomRenderer
 > {
   render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
-    const { tagName, style, children, ...attrs } = this.props;
-    this.props.tagName;
+    const { tagName, style, children, dangerouslySetInnerHTML, ...attrs } =
+      this.props;
     const prevIsSvg = s.renderer.isSvg;
 
     if (tagName === "svg") {
@@ -35,7 +31,7 @@ export class TagComponent<T extends string> extends Component<
 
     for (const [name, prop] of Object.entries(style ?? {})) {
       s.effect(() => {
-        setStyle(node, name, prop?.());
+        setStyle(node, name, typeof prop === "function" ? prop() : prop);
       });
     }
 
@@ -51,9 +47,9 @@ export class TagComponent<T extends string> extends Component<
       }
     }
 
-    if (this.props.dangerouslySetInnerHTML != null) {
+    if (dangerouslySetInnerHTML != null) {
       s.effect(() => {
-        const html = this.props.dangerouslySetInnerHTML!().__html;
+        const html = dangerouslySetInnerHTML!().__html;
 
         if (node.innerHTML !== html) {
           node.innerHTML = html;

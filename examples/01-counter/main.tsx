@@ -23,31 +23,24 @@ class App extends Component<void, DomRenderer> {
             fontWeight: () => (illegal() ? "bold" : undefined),
           }}
         >
-          <button
-            onClick={() => {
-              setCounter((counter) => counter - 1);
-            }}
-          >
-            -
-          </button>
-
-          <button
-            onClick={() => {
-              setCounter((counter) => counter + 1);
-            }}
-          >
-            +
-          </button>
-
-          {" Counter: "}
-          {counter}
+          <button onClick={() => setCounter((c) => c - 1)}>-</button>
+          <button onClick={() => setCounter((c) => c + 1)}>+</button>
+          {/* */} Counter: {counter}
           {() => (illegal() ? "⚠️" : "")}
         </p>
 
         <When
           condition={illegal}
           then={() => <h3>Counter must be between 0 and 10!</h3>}
-          otherwise={() => <p>Everything ok!</p>}
+          otherwise={() => (
+            <p
+              style={{
+                color: "green",
+              }}
+            >
+              Everything ok!
+            </p>
+          )}
         />
       </div>
     );

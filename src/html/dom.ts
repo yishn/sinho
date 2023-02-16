@@ -27,7 +27,7 @@
 
 import type { SignalLike } from "../scope.ts";
 import type { Component } from "../renderer/mod.ts";
-import type { DangerousHtml, DomRenderer } from "./mod.ts";
+import type { DomRenderer } from "./mod.ts";
 
 const IS_NON_DIMENSIONAL =
   /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
@@ -276,9 +276,9 @@ export type Style = {
     | "getPropertyPriority"
     | typeof Symbol.iterator
     | number
-  >]?: SignalLike<string | number | null | undefined> | undefined;
+  >]?: SignalLike<string | number | null | undefined> | string | number | null | undefined;
 } & {
-  [key: string]: SignalLike<string | number | null | undefined> | undefined;
+  [key: string]: SignalLike<string | number | null | undefined> | string | number | null | undefined;
 };
 
 type EventMap = ElementEventMap &
@@ -296,6 +296,10 @@ type EventProps<E> = {
   [K in keyof EventMap as `on${Capitalize<K>}`]?: EventHandler<K, E>;
 };
 
+export type DangerousHtml = SignalLike<{
+  __html: string;
+}>;
+
 interface ShingoProps {
   children?:
     | string
@@ -309,11 +313,10 @@ interface ShingoProps {
         | Component<any, DomRenderer>
       )[];
   style?: Style;
+  dangerouslySetInnerHTML?: DangerousHtml;
 }
 
 interface HtmlProps extends ShingoProps {
-  dangerouslySetInnerHTML?: DangerousHtml;
-
   // Standard HTML Attributes
   accept?: SignalLike<string>;
   acceptCharset?: SignalLike<string>;

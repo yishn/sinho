@@ -1,12 +1,5 @@
 import { ComponentProps } from "../renderer/component.ts";
-import {
-  Component,
-  Renderer,
-  RendererScope,
-  Rendering,
-} from "../renderer/mod.ts";
-import { SignalLike } from "../scope.ts";
-import { TagProps } from "./mod.ts";
+import { Component, Renderer } from "../renderer/mod.ts";
 import { TagComponent } from "./tag.ts";
 
 export enum HtmlNodeType {
@@ -54,11 +47,11 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
   }
 }
 
-export function h<T extends string>(
+export function h<T extends keyof JSX.IntrinsicElements>(
   type: T,
-  props: Omit<TagProps<T>, "tagName">,
+  props: JSX.IntrinsicElements[T],
   ...children: Component<any, DomRenderer>[]
-): TagComponent<T>;
+): TagComponent<T & string>;
 export function h<T extends new (props: any) => Component<any, DomRenderer>>(
   type: T,
   props: ComponentProps<InstanceType<T>>,
