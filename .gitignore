@@ -1,2 +1,2 @@
-dist/shingo.js
-examples/*/*.js
+dist
+examples/**/*.js

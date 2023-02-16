@@ -14,14 +14,12 @@ export type CreateNodeArg =
 
 export class DomRenderer extends Renderer<CreateNodeArg, Node> {
   isSvg = false;
-  private nodeRefsBySignal = new WeakMap<
-    Signal<Element | null>,
-    SignalSetter<Element | null>
+
+  private _nodeRefsBySignal = new WeakMap<
+    Signal<Node | null>,
+    SignalSetter<Node | null>
   >();
-  private nodeRefsByElement = new WeakMap<
-    Element,
-    SignalSetter<Element | null>
-  >();
+  private _nodeRefsByElement = new WeakMap<Node, SignalSetter<Node | null>>();
 
   createNode([type, arg]: CreateNodeArg): Node {
     if (type === HtmlNodeType.Element) {
@@ -42,38 +40,38 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
   appendNode(parent: Node, node: Node): void {
     parent.appendChild(node);
 
-    this.nodeRefsByElement.get(node as Element)?.(node as Element);
+    this._nodeRefsByElement.get(node)?.(node);
   }
 
   insertNode(node: Node, before: Node): void {
     before.parentNode!.insertBefore(node, before);
 
-    this.nodeRefsByElement.get(node as Element)?.(node as Element);
+    this._nodeRefsByElement.get(node)?.(node);
   }
 
   removeNode(node: Node): void {
     try {
       node.parentNode!.removeChild(node);
 
-      this.nodeRefsByElement.get(node as Element)?.(null);
+      this._nodeRefsByElement.get(node)?.(null);
     } catch (_) {
       // ignore
     }
   }
 
   nodeRef<E extends Element>(s: Scope): Signal<E | null> {
-    const [signal, setSignal] = s.signal<Element | null>(null);
+    const [signal, setSignal] = s.signal<Node | null>(null);
 
-    this.nodeRefsBySignal.set(signal, setSignal);
+    this._nodeRefsBySignal.set(signal, setSignal);
 
     return signal as Signal<E | null>;
   }
 
   linkNodeRef(element: Element, signal: Signal<Element | null>): void {
-    const setter = this.nodeRefsBySignal.get(signal);
+    const setter = this._nodeRefsBySignal.get(signal);
 
     if (setter != null) {
-      this.nodeRefsByElement.set(element, setter);
+      this._nodeRefsByElement.set(element, setter);
     }
   }
 }

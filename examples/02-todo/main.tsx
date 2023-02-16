@@ -15,7 +15,7 @@ interface Task {
   text: string;
 }
 
-class App extends Component<void, DomRenderer> {
+class App extends Component<{}, DomRenderer> {
   render(s: RendererScope<DomRenderer>) {
     const [newTaskText, setNewTaskText] = s.signal("");
     const [tasks, setTasks] = s.signal<Task[]>([
@@ -129,4 +129,4 @@ class App extends Component<void, DomRenderer> {
   }
 }
 
-mount(new DomRenderer(), new App(), document.getElementById("root")!);
+mount(new DomRenderer(), <App />, document.getElementById("root")!);

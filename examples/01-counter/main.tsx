@@ -8,7 +8,7 @@ import {
   When,
 } from "../../src/renderer/mod.ts";
 
-class App extends Component<void, DomRenderer> {
+class App extends Component<{}, DomRenderer> {
   render(s: RendererScope<DomRenderer>) {
     const [counter, setCounter] = s.signal(0);
     const illegal = s.memo(() => counter() < 0 || counter() > 10);
@@ -19,7 +19,11 @@ class App extends Component<void, DomRenderer> {
 
       s.effect(() => {
         console.log(okParagraphRef());
-        console.log(okParagraphRef() == null ? "Paragraph dismounted" : "Paragraph mounted");
+        console.log(
+          okParagraphRef() == null
+            ? "Paragraph dismounted"
+            : "Paragraph mounted"
+        );
       });
     });
 
@@ -58,4 +62,4 @@ class App extends Component<void, DomRenderer> {
   }
 }
 
-mount(new DomRenderer(), new App(), document.getElementById("root")!);
+mount(new DomRenderer(), <App />, document.getElementById("root")!);

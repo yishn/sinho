@@ -1,3 +1,3 @@
-export * as html from "./html/mod.ts";
-export * as renderer from "./renderer/mod.ts";
-export * as signals from "./scope.ts";
+export * from "./renderer/mod.ts";
+export * from "./html/mod.ts";
+export * from "./scope.ts";
