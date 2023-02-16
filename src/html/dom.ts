@@ -297,7 +297,17 @@ type EventProps<E> = {
 };
 
 interface ShingoProps {
-  children?: Component<any, DomRenderer> | Component<any, DomRenderer>[];
+  children?:
+    | string
+    | number
+    | SignalLike<string | number>
+    | Component<any, DomRenderer>
+    | (
+        | string
+        | number
+        | SignalLike<string | number>
+        | Component<any, DomRenderer>
+      )[];
   style?: Style;
 }
 

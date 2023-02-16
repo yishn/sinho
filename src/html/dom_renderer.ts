@@ -79,31 +79,3 @@ export function h(
     return new type({ children, ...props });
   }
 }
-
-interface TextComponentProps {
-  value: SignalLike<string | number>;
-}
-
-export class TextComponent extends Component<TextComponentProps, DomRenderer> {
-  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
-    const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
-
-    s.effect(() => {
-      const text = this.props.value().toString();
-
-      if (node.textContent !== text) {
-        node.textContent = text;
-      }
-    });
-
-    return [node];
-  }
-}
-
-export function text(
-  value: string | number | SignalLike<string | number>
-): TextComponent {
-  return new TextComponent({
-    value: typeof value === "function" ? value : () => value,
-  });
-}

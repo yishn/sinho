@@ -1,6 +1,6 @@
 /* @jsx h */
 
-import { h, DomRenderer, text } from "../../src/html/mod.ts";
+import { h, DomRenderer, Text } from "../../src/html/mod.ts";
 import {
   Component,
   When,
@@ -33,7 +33,7 @@ class App extends Component<void, DomRenderer> {
 
     return (
       <div class={() => "app"}>
-        <h1>{text("Todo!")}</h1>
+        <h1>Todo!</h1>
 
         <form
           onSubmit={(evt) => {
@@ -59,10 +59,8 @@ class App extends Component<void, DomRenderer> {
               onInput={(evt) => {
                 setNewTaskText(evt.currentTarget.value);
               }}
-            />
-            {text(" ")}
-            <button type={() => "submit"}>{text("+")}</button>
-            {text(" ")}
+            />{" "}
+            <button type={() => "submit"}>+</button>{" "}
             <button
               onClick={(evt) => {
                 evt.preventDefault();
@@ -80,7 +78,7 @@ class App extends Component<void, DomRenderer> {
                 });
               }}
             >
-              {text("Sort")}
+              Sort
             </button>
           </p>
         </form>
@@ -95,10 +93,8 @@ class App extends Component<void, DomRenderer> {
                     setTasks((tasks) => tasks.filter((_, j) => j !== i()));
                   }}
                 >
-                  {text("-")}
-                </button>
-                {text(" ")}
-
+                  -
+                </button>{" "}
                 <label>
                   <input
                     type={() => "checkbox"}
@@ -120,8 +116,8 @@ class App extends Component<void, DomRenderer> {
 
                   <When
                     condition={() => task().done}
-                    then={() => <del>{text(() => task().text)}</del>}
-                    otherwise={() => text(() => task().text)}
+                    then={() => <del>{() => task().text}</del>}
+                    otherwise={() => <Text>{() => task().text}</Text>}
                   />
                 </label>
               </li>

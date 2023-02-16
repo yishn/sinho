@@ -1,6 +1,6 @@
 /* @jsx h */
 
-import { h, DomRenderer, text } from "../../src/html/mod.ts";
+import { h, DomRenderer } from "../../src/html/mod.ts";
 import {
   Component,
   RendererScope,
@@ -15,7 +15,7 @@ class App extends Component<void, DomRenderer> {
 
     return (
       <div class={() => "app"}>
-        <h1>{text("Hello World!")}</h1>
+        <h1>Hello World!</h1>
 
         <p
           style={{
@@ -28,7 +28,7 @@ class App extends Component<void, DomRenderer> {
               setCounter((counter) => counter - 1);
             }}
           >
-            {text("-")}
+            -
           </button>
 
           <button
@@ -36,18 +36,18 @@ class App extends Component<void, DomRenderer> {
               setCounter((counter) => counter + 1);
             }}
           >
-            {text("+")}
+            +
           </button>
 
-          {text(" Counter: ")}
-          {text(counter)}
-          {text(() => (illegal() ? "⚠️" : ""))}
+          {" Counter: "}
+          {counter}
+          {() => (illegal() ? "⚠️" : "")}
         </p>
 
         <When
           condition={illegal}
-          then={() => <h3>{text("Counter must be between 0 and 10!")}</h3>}
-          otherwise={() => <p>{text("Everything ok!")}</p>}
+          then={() => <h3>Counter must be between 0 and 10!</h3>}
+          otherwise={() => <p>Everything ok!</p>}
         />
       </div>
     );

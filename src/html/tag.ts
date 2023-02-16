@@ -62,11 +62,42 @@ export class TagComponent<T extends string> extends Component<
     } else {
       s.renderer.appendRendering(
         node,
-        new Fragment({ children }).createRendering(s)
+        new Fragment({
+          children: [children].flat(1).map((child) => {
+            if (child instanceof Component) {
+              return child;
+            } else {
+              return new Text({ children: child });
+            }
+          }),
+        }).createRendering(s)
       );
     }
 
     s.renderer.isSvg = prevIsSvg;
+
+    return [node];
+  }
+}
+
+interface TextProps {
+  children?: string | number | SignalLike<string | number>;
+}
+
+export class Text extends Component<TextProps, DomRenderer> {
+  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
+    const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
+
+    s.effect(() => {
+      const text =
+        typeof this.props.children === "function"
+          ? this.props.children().toString()
+          : this.props.children?.toString() ?? "";
+
+      if (node.textContent !== text) {
+        node.textContent = text;
+      }
+    });
 
     return [node];
   }
