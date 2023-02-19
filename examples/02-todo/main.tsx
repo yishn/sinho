@@ -1,6 +1,6 @@
 /* @jsx h */
 
-import { h, DomRenderer, Text } from "../../src/html/mod.ts";
+import { h, DomRenderer, Text } from "../../src/dom/mod.ts";
 import {
   Component,
   When,

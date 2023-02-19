@@ -1,6 +1,6 @@
 /* @jsx h */
 
-import { h, DomRenderer } from "../../src/html/mod.ts";
+import { h, DomRenderer } from "../../src/dom/mod.ts";
 import {
   Component,
   RendererScope,
