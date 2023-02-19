@@ -25,7 +25,7 @@
  * SOFTWARE.
  */
 
-import type { Signal, SignalLike } from "../scope.ts";
+import type { OptionalSignal, Signal, SignalLike } from "../scope.ts";
 import type { Component } from "../renderer/mod.ts";
 import type { DomRenderer } from "./mod.ts";
 
@@ -291,8 +291,6 @@ declare global {
     }
   }
 }
-
-type OptionalSignal<T> = T | SignalLike<T>;
 
 export type Style = {
   [K in Exclude<

@@ -1,31 +1,52 @@
-import { Component } from "../../src/renderer/component.ts";
-import { mount, RendererScope } from "../../src/renderer/renderer.ts";
-import { sapRequire, Ui5Control, Control } from "../../src/ui5/mod.ts";
-import { Ui5NodeType, Ui5Renderer } from "../../src/ui5/ui5_renderer.ts";
+/** @jsx h */
+/** @jsxFrag Fragment */
+
+import {
+  mount,
+  RendererScope,
+  Component,
+  Fragment,
+  OptionalSignal,
+} from "../../src/mod.ts";
+import {
+  h,
+  sapRequireControl,
+  Control,
+  Ui5Renderer,
+} from "../../src/ui5/mod.ts";
+
+const Title = Control.fromUi5Control<{
+  text?: OptionalSignal<string>;
+  titleStyle?: OptionalSignal<string>;
+  width?: OptionalSignal<string>;
+}>("sap/m/Title");
+
+const Text = Control.fromUi5Control<{
+  text?: OptionalSignal<string>;
+}>("sap/m/Text");
 
 class App extends Component<{}, Ui5Renderer> {
   render(s: RendererScope<Ui5Renderer>): Component<any, Ui5Renderer> {
-    throw new Error("Method not implemented.");
+    const [counter, setCounter] = s.signal(0);
+
+    s.onMount(() => {
+      const interval = setInterval(() => setCounter((x) => x + 1), 1000);
+
+      s.cleanup(() => clearInterval(interval));
+    });
+
+    return (
+      <>
+        <Title text="Hello World!" titleStyle="H1" width="100%" />
+        <Text text={() => `Counting ${counter()}...`} />
+      </>
+    );
   }
 }
 
-async function main() {
-  const [Panel, Text] = await sapRequire<
-    new () => Ui5Control,
-    new () => Ui5Control
-  >("sap/m/Panel", "sap/m/Text");
+const panel = sapRequireControl("sap/m/Panel").then((Panel) =>
+  new Panel().placeAt("root")
+);
+const renderer = new Ui5Renderer();
 
-  const panel = new Panel();
-  const component = new Control({
-    Control: Text,
-    text: () => "Hello World",
-  });
-
-  const renderer = await Ui5Renderer.init();
-
-  mount(renderer, component, { type: Ui5NodeType.Control, control: panel });
-
-  panel.placeAt("root");
-}
-
-main().catch(console.error);
+mount(renderer, <App />, renderer.createNode(panel));

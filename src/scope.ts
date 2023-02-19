@@ -17,6 +17,8 @@ export interface Signal<out T> extends SignalLike<T> {
   track(): void;
 }
 
+export type OptionalSignal<T> = T | SignalLike<T>;
+
 export interface SignalSetOptions {
   force?: boolean;
   silent?: boolean;

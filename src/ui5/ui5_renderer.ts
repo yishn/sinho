@@ -1,5 +1,9 @@
 import { Renderer } from "../renderer/mod.ts";
-import { capitalize, Marker } from "./utils.ts";
+import { capitalize, sapRequireControl } from "./utils.ts";
+
+export type Ui5ControlConstructor = (new (id?: string) => Ui5Control) & {
+  extend(name: string, props: { renderer(): void }): Ui5ControlConstructor;
+};
 
 export type Ui5Control = {
   getMetadata(): {
@@ -20,33 +24,37 @@ export enum Ui5NodeType {
 export type Ui5Node =
   | {
       type: Ui5NodeType.Control;
-      control: Ui5Control;
+      control: Promise<Ui5Control>;
       aggregation?: Ui5Node & { type: Ui5NodeType.Aggregation };
     }
   | {
       type: Ui5NodeType.Aggregation;
-      control?: Ui5Control;
-      name: string;
+      control?: Promise<Ui5Control>;
+      name?: string;
       tempChildren?: (Ui5Node & { type: Ui5NodeType.Control })[];
     };
 
-export class Ui5Renderer extends Renderer<Ui5Node, Ui5Node> {
-  static async init(): Promise<Ui5Renderer> {
-    return new Ui5Renderer(await Marker);
-  }
+export const Marker = sapRequireControl("sap/ui/core/Control").then((Control) =>
+  Control.extend("shingo.Marker", {
+    renderer: () => {},
+  })
+);
 
-  private constructor(private Marker: new () => Ui5Control) {
-    super();
-  }
-
-  createNode(arg: Ui5Node): Ui5Node {
-    return arg;
+export class Ui5Renderer extends Renderer<
+  Ui5Control | Promise<Ui5Control>,
+  Ui5Node
+> {
+  createNode(control: Ui5Control | Promise<Ui5Control>): Ui5Node {
+    return {
+      type: Ui5NodeType.Control,
+      control: Promise.resolve(control),
+    };
   }
 
   createMarker(): Ui5Node {
     return {
       type: Ui5NodeType.Control,
-      control: new this.Marker(),
+      control: Marker.then((Marker) => new Marker()),
     };
   }
 
@@ -59,7 +67,6 @@ export class Ui5Renderer extends Renderer<Ui5Node, Ui5Node> {
         {
           type: Ui5NodeType.Aggregation,
           control: parent.control,
-          name: parent.control.getMetadata().getDefaultAggregation().name,
         },
         node
       );
@@ -67,15 +74,25 @@ export class Ui5Renderer extends Renderer<Ui5Node, Ui5Node> {
       parent.type === Ui5NodeType.Control &&
       node.type === Ui5NodeType.Aggregation
     ) {
-      if (node.control != null && node.control !== parent.control) {
+      if (node.control != null) {
         throw new Error("Aggregation is already linked to another control");
       }
 
       node.control = parent.control;
 
-      for (const child of node.tempChildren ?? []) {
-        parent.control[`add${capitalize(node.name)}`](child.control);
-      }
+      parent.control.then(async (control) => {
+        const children = await Promise.all(
+          (node.tempChildren ?? []).map((child) => child.control)
+        );
+
+        for (const child of children) {
+          control[
+            `add${capitalize(
+              node.name ?? control.getMetadata().getDefaultAggregation().name
+            )}`
+          ](child);
+        }
+      });
 
       node.tempChildren = undefined;
     } else if (
@@ -87,7 +104,16 @@ export class Ui5Renderer extends Renderer<Ui5Node, Ui5Node> {
       if (parent.control == null) {
         (parent.tempChildren ??= []).push(node);
       } else {
-        parent.control[`add${capitalize(parent.name)}`](node.control);
+        Promise.all([parent.control, node.control]).then(
+          ([parentControl, nodeControl]) => {
+            parentControl[
+              `add${capitalize(
+                parent.name ??
+                  parentControl.getMetadata().getDefaultAggregation().name
+              )}`
+            ](nodeControl);
+          }
+        );
       }
     } else {
       throw new Error("Cannot append aggregation to an aggregation");
@@ -111,12 +137,15 @@ export class Ui5Renderer extends Renderer<Ui5Node, Ui5Node> {
         const index = aggregation.tempChildren.indexOf(before);
         aggregation.tempChildren.splice(index, 0, node);
       } else {
-        const index = aggregation.control[
-          `get${capitalize(aggregation.name)}`
-        ]().indexOf(before.control);
-        aggregation.control[`insert${capitalize(aggregation.name)}`](
-          node.control,
-          index
+        Promise.all([aggregation.control, node.control, before.control]).then(
+          ([control, nodeControl, beforeControl]) => {
+            const name =
+              aggregation.name ??
+              control.getMetadata().getDefaultAggregation().name;
+            const index =
+              control[`get${capitalize(name)}`]().indexOf(beforeControl);
+            control[`insert${capitalize(name)}`](nodeControl, index);
+          }
         );
       }
     } else {
@@ -125,10 +154,19 @@ export class Ui5Renderer extends Renderer<Ui5Node, Ui5Node> {
   }
 
   removeNode(node: Ui5Node): void {
-    if (node.type === Ui5NodeType.Control) {
-      node.control.destroy();
-    } else if (node.type === Ui5NodeType.Aggregation && node.control != null) {
-      node.control[`destroy${capitalize(node.name)}`]();
-    }
+    node.control?.then((control) => {
+      if (node.type === Ui5NodeType.Control) {
+        control.destroy();
+      } else if (
+        node.type === Ui5NodeType.Aggregation &&
+        node.control != null
+      ) {
+        control[
+          `destroy${capitalize(
+            node.name ?? control.getMetadata().getDefaultAggregation().name
+          )}`
+        ]();
+      }
+    });
   }
 }

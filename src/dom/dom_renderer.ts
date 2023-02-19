@@ -87,9 +87,7 @@ export function h<T extends keyof JSX.IntrinsicElements>(
 export function h<T extends new (props: any) => Component<any, DomRenderer>>(
   type: T,
   props: ComponentProps<InstanceType<T>>,
-  ...children:
-    | (NonNullable<ComponentProps<InstanceType<T>>["children"]> & any[])
-    | []
+  ...children: Component<any, DomRenderer>[]
 ): InstanceType<T>;
 export function h(
   type: string | (new (props: any) => Component<any, DomRenderer>),
