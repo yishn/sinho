@@ -1,18 +1,28 @@
-import { Renderer } from "../renderer/mod.ts";
+import {
+  Component,
+  Renderer,
+  RendererScope,
+  Rendering,
+} from "../renderer/mod.ts";
+import { Destructor } from "../scope.ts";
 import { capitalize, sapRequireControl } from "./utils.ts";
 
 export type Ui5ControlConstructor = (new (id?: string) => Ui5Control) & {
   extend(name: string, props: { renderer(): void }): Ui5ControlConstructor;
 };
 
+export interface AggregationInfo {
+  name: string;
+  singularName: string;
+}
+
 export type Ui5Control = {
   getMetadata(): {
-    getDefaultAggregation(): {
-      name: string;
-    };
+    getAggregation(name: string): AggregationInfo;
+    getDefaultAggregation(): AggregationInfo;
   };
   destroy(): void;
-  placeAt(id: string): Ui5Control;
+  placeAt(element: Element): Ui5Control;
   [_: string]: any;
 };
 
@@ -44,6 +54,18 @@ export class Ui5Renderer extends Renderer<
   Ui5Control | Promise<Ui5Control>,
   Ui5Node
 > {
+  _currentControl: Ui5Control | undefined;
+  _currentAggregationInfo: AggregationInfo | undefined;
+
+  private _getAggregationInfo(
+    control: Ui5Control,
+    name: string | undefined
+  ): AggregationInfo {
+    return name != null
+      ? control.getMetadata().getAggregation(name)
+      : control.getMetadata().getDefaultAggregation();
+  }
+
   createNode(control: Ui5Control | Promise<Ui5Control>): Ui5Node {
     return {
       type: Ui5NodeType.Control,
@@ -80,15 +102,16 @@ export class Ui5Renderer extends Renderer<
 
       node.control = parent.control;
 
+      const tempChildren = node.tempChildren;
       parent.control.then(async (control) => {
         const children = await Promise.all(
-          (node.tempChildren ?? []).map((child) => child.control)
+          (tempChildren ?? []).map((child) => child.control)
         );
 
         for (const child of children) {
           control[
             `add${capitalize(
-              node.name ?? control.getMetadata().getDefaultAggregation().name
+              this._getAggregationInfo(control, node.name).singularName
             )}`
           ](child);
         }
@@ -108,8 +131,8 @@ export class Ui5Renderer extends Renderer<
           ([parentControl, nodeControl]) => {
             parentControl[
               `add${capitalize(
-                parent.name ??
-                  parentControl.getMetadata().getDefaultAggregation().name
+                this._getAggregationInfo(parentControl, parent.name)
+                  .singularName
               )}`
             ](nodeControl);
           }
@@ -139,12 +162,17 @@ export class Ui5Renderer extends Renderer<
       } else {
         Promise.all([aggregation.control, node.control, before.control]).then(
           ([control, nodeControl, beforeControl]) => {
-            const name =
-              aggregation.name ??
-              control.getMetadata().getDefaultAggregation().name;
             const index =
-              control[`get${capitalize(name)}`]().indexOf(beforeControl);
-            control[`insert${capitalize(name)}`](nodeControl, index);
+              control[
+                `get${capitalize(
+                  this._getAggregationInfo(control, aggregation.name).name
+                )}`
+              ]().indexOf(beforeControl);
+            control[
+              `insert${capitalize(
+                this._getAggregationInfo(control, aggregation.name).singularName
+              )}`
+            ](nodeControl, index);
           }
         );
       }
@@ -163,10 +191,41 @@ export class Ui5Renderer extends Renderer<
       ) {
         control[
           `destroy${capitalize(
-            node.name ?? control.getMetadata().getDefaultAggregation().name
+            this._getAggregationInfo(control, node.name).name
           )}`
         ]();
       }
     });
+  }
+
+  mountToDom(
+    component: Component<any, Ui5Renderer>,
+    element: Element
+  ): Destructor {
+    const s = new RendererScope(this);
+    const [rendering, destructor] = component.reifyWithDestructor(s);
+    const promControls: Promise<Ui5Control>[] = [];
+
+    function getControls(rendering: Rendering<Ui5Renderer>) {
+      for (const child of rendering) {
+        if (Array.isArray(child)) {
+          getControls(child);
+        } else if (child.type === Ui5NodeType.Control) {
+          promControls.push(child.control);
+        }
+      }
+    }
+
+    getControls(rendering);
+
+    const controls = Promise.all(promControls);
+
+    controls.then((controls) => {
+      for (const control of controls) {
+        control.placeAt(element);
+      }
+    });
+
+    return destructor;
   }
 }

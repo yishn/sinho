@@ -1,52 +1,70 @@
-/** @jsx h */
-/** @jsxFrag Fragment */
+/**
+ * @jsx h
+ * @jsxFrag Fragment
+ */
 
 import {
-  mount,
   RendererScope,
   Component,
   Fragment,
   OptionalSignal,
 } from "../../src/mod.ts";
-import {
-  h,
-  sapRequireControl,
-  Control,
-  Ui5Renderer,
-} from "../../src/ui5/mod.ts";
+import { For } from "../../src/renderer/for.ts";
+import { h, Control, Ui5Renderer } from "../../src/ui5/mod.ts";
 
-const Title = Control.fromUi5Control<{
-  text?: OptionalSignal<string>;
-  titleStyle?: OptionalSignal<string>;
-  width?: OptionalSignal<string>;
-}>("sap/m/Title");
+interface Task {
+  id: string;
+  done: boolean;
+  text: string;
+}
 
-const Text = Control.fromUi5Control<{
-  text?: OptionalSignal<string>;
-}>("sap/m/Text");
+const Page = Control.fromUi5Control<{
+  title?: OptionalSignal<string>;
+}>("sap/m/Page");
+
+const List = Control.fromUi5Control("sap/m/List");
+
+const CustomListItem = Control.fromUi5Control<{
+  onPress?: (evt: any) => void;
+}>("sap/m/CustomListItem");
+
+const Button = Control.fromUi5Control<{
+  icon?: OptionalSignal<string>;
+  tooltip?: OptionalSignal<string>;
+}>("sap/m/Button");
 
 class App extends Component<{}, Ui5Renderer> {
   render(s: RendererScope<Ui5Renderer>): Component<any, Ui5Renderer> {
-    const [counter, setCounter] = s.signal(0);
-
-    s.onMount(() => {
-      const interval = setInterval(() => setCounter((x) => x + 1), 1000);
-
-      s.cleanup(() => clearInterval(interval));
-    });
+    const [newTaskText, setNewTaskText] = s.signal("");
+    const [tasks, setTasks] = s.signal<Task[]>([
+      {
+        id: crypto.randomUUID(),
+        done: false,
+        text: "Clean up",
+      },
+      {
+        id: crypto.randomUUID(),
+        done: true,
+        text: "Make example",
+      },
+    ]);
 
     return (
-      <>
-        <Title text="Hello World!" titleStyle="H1" width="100%" />
-        <Text text={() => `Counting ${counter()}...`} />
-      </>
+      <Page title="Todo">
+        <headerContent>
+          <Button icon="sap-icon://add" tooltip="Add" />
+        </headerContent>
+
+        <List>
+          <For source={tasks} key={(task) => task.id}>
+            {(task) => <CustomListItem></CustomListItem>}
+          </For>
+        </List>
+      </Page>
     );
   }
 }
 
-const panel = sapRequireControl("sap/m/Panel").then((Panel) =>
-  new Panel().placeAt("root")
-);
 const renderer = new Ui5Renderer();
 
-mount(renderer, <App />, renderer.createNode(panel));
+renderer.mountToDom(<App />, document.getElementById("root")!);

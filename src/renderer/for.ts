@@ -1,6 +1,7 @@
 import { Destructor, Signal, SignalLike, SignalSetter } from "../scope.ts";
 import { Component } from "./component.ts";
 import {
+  getMarker,
   Renderer,
   RendererNode,
   RendererScope,
@@ -80,7 +81,6 @@ interface StateEntry<R extends Renderer, T> {
   value: Signal<T>;
   index: Signal<number>;
   setIndex: SignalSetter<number>;
-  marker: RendererNode<R>;
   destructor: Destructor;
 }
 
@@ -102,7 +102,7 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
 
     const { source = () => [], key = (_, i) => i } = this.props;
     const endMarker: RendererNode<R> = s.renderer.createMarker();
-    const rendering: [marker: RendererNode<R>, rendering: Rendering<R>][] = [];
+    const rendering: Rendering<R>[] = [];
 
     const state = new Map<K, StateEntry<R, T>>();
     let keys: K[] = [];
@@ -125,27 +125,26 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
                   ? source()[index()]
                   : value.peek()
               );
-              const marker: RendererNode<R> = s.renderer.createMarker();
-              const eachRendering: [RendererNode<R>, Rendering<R>] = [
-                marker,
-                this.props
-                  .children?.(value, index)
-                  .reifyWithDestructor(s)[0] ?? [],
-              ];
+              const eachRendering: Rendering<R> =
+                this.props.children?.(value, index).reifyWithDestructor(s)[0] ??
+                [];
 
-              s.cleanup(() => s.renderer.removeNode(marker));
+              if (eachRendering.length === 0) {
+                const marker = s.renderer.createMarker();
+                eachRendering.push(marker);
+                s.cleanup(() => s.renderer.removeNode(marker));
+              }
 
               Object.assign(entry, {
                 index,
                 setIndex,
                 value,
-                marker,
               });
 
               if (!firstTime) {
                 // Insert rendering
 
-                const beforeMarker = rendering[j]?.[0] ?? endMarker;
+                const beforeMarker = getMarker(rendering[j]) ?? endMarker;
                 s.renderer.insertRendering(eachRendering, beforeMarker);
               }
 
@@ -169,7 +168,7 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
           const entry = state.get(key)!;
 
           if (tempIndex !== j) {
-            const beforeMarker = rendering[j]?.[0] ?? endMarker;
+            const beforeMarker = getMarker(rendering[j]) ?? endMarker;
             const [eachRendering] = rendering.splice(tempIndex, 1);
 
             s.renderer.insertRendering(eachRendering, beforeMarker);

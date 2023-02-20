@@ -112,3 +112,12 @@ export class RendererScope<out R extends Renderer> extends Scope {
     });
   }
 }
+
+export function getMarker<R extends Renderer>(
+  rendering: Rendering<R> | undefined | null
+): RendererNode<R> | undefined {
+  if (rendering == null || rendering.length === 0) return undefined;
+  if (Array.isArray(rendering[0])) return getMarker(rendering[0]);
+
+  return rendering[0];
+}

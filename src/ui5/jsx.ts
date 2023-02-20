@@ -15,8 +15,10 @@ export function h<T extends new (props: any) => Component<any, Ui5Renderer>>(
 export function h(
   type: string | (new (props: any) => Component<any, Ui5Renderer>),
   props: any,
-  ...children: Component<any, Ui5Renderer>[]
+  ...children: any[]
 ): Component<any, Ui5Renderer> {
+  if (children.length === 1) children = children[0];
+
   if (typeof type === "string") {
     return new Aggregation({
       name: type,
