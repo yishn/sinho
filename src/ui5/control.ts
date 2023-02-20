@@ -8,23 +8,27 @@ import {
 import { capitalize, sapRequireControl } from "./utils.ts";
 
 export type ControlProps = {
-  Control: Promise<Ui5ControlConstructor>;
+  Control: Ui5ControlConstructor;
   id?: string;
   children?: Component<any, Ui5Renderer> | Component<any, Ui5Renderer>[];
 };
 
 export class Control<P> extends Component<ControlProps & P, Ui5Renderer> {
-  static fromUi5Control<P>(
+  static async fromUi5Control<P>(
     path: string
-  ): new (props: Omit<ControlProps, "Control"> & P) => Component<
-    any,
-    Ui5Renderer
+  ): Promise<
+    new (props: Omit<ControlProps, "Control"> & P) => Component<
+      any,
+      Ui5Renderer
+    >
   > {
+    const RequiredControl = await sapRequireControl(path);
+
     return class extends Control<P> {
       constructor(props: Omit<ControlProps, "Control"> & P) {
         super({
           ...props,
-          Control: sapRequireControl(path),
+          Control: RequiredControl,
         });
       }
     };
@@ -36,35 +40,31 @@ export class Control<P> extends Component<ControlProps & P, Ui5Renderer> {
 
   reify(s: RendererScope<Ui5Renderer>): Rendering<Ui5Renderer> {
     const { Control, id, children, ...props } = this.props;
-    const control = Control.then((Control) => new Control(id));
+    const control = new Control(id);
 
     const node: Ui5Node = {
       type: Ui5NodeType.Control,
       control,
     };
 
-    control.then((control) => {
-      for (const [prop, value] of Object.entries(props)) {
-        if (prop.startsWith("on") && typeof value === "function") {
-          // Register event
+    for (const [prop, value] of Object.entries(props)) {
+      if (prop.startsWith("on") && typeof value === "function") {
+        // Register event
 
-          // @ts-ignore
-          control[`attach${prop.slice(2)}`]((evt) => {
-            s.batch(() => value(evt));
-          });
-        } else {
-          // Set property
+        // @ts-ignore
+        control[`attach${prop.slice(2)}`]((evt) => {
+          s.batch(() => value(evt));
+        });
+      } else {
+        // Set property
 
-          s.effect(() => {
-            control[`set${capitalize(prop)}`](
-              typeof value === "function" && value.length === 0
-                ? value()
-                : value
-            );
-          });
-        }
+        s.effect(() => {
+          control[`set${capitalize(prop)}`](
+            typeof value === "function" && value.length === 0 ? value() : value
+          );
+        });
       }
-    });
+    }
 
     for (const child of [this.props.children ?? []].flat(1)) {
       s.renderer.appendRendering(node, child.reify(s));

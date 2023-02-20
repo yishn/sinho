@@ -34,46 +34,25 @@ export enum Ui5NodeType {
 export type Ui5Node =
   | {
       type: Ui5NodeType.Control;
-      control: Promise<Ui5Control>;
+      control: Ui5Control;
       aggregation?: Ui5Node & { type: Ui5NodeType.Aggregation };
     }
   | {
       type: Ui5NodeType.Aggregation;
-      control?: Promise<Ui5Control>;
+      control?: Ui5Control;
       name?: string;
       tempChildren?: (Ui5Node & { type: Ui5NodeType.Control })[];
     };
 
-export const Marker = sapRequireControl("sap/ui/core/Control").then((Control) =>
-  Control.extend("shingo.Marker", {
-    renderer: () => {},
-  })
-);
+const Control = await sapRequireControl("sap/ui/core/Control");
 
-export class Ui5Renderer extends Renderer<
-  Ui5Control | Promise<Ui5Control>,
-  Ui5Node
-> {
-  _queueWorking = false;
-  _queue: Promise<void>[] = [];
+const Marker = Control.extend("shingo.Marker", {
+  renderer: () => {},
+});
+
+export class Ui5Renderer extends Renderer<Ui5Control, Ui5Node> {
   _currentControl: Ui5Control | undefined;
   _currentAggregationInfo: AggregationInfo | undefined;
-
-  private _queueJob(job: Promise<void>): void {
-    this._queue.push(job);
-
-    if (!this._queueWorking) {
-      this._queueWorking = true;
-
-      (async () => {
-        while (this._queue.length > 0) {
-          await this._queue.pop()!;
-        }
-
-        this._queueWorking = false;
-      })();
-    }
-  }
 
   private _getAggregationInfo(
     control: Ui5Control,
@@ -84,17 +63,17 @@ export class Ui5Renderer extends Renderer<
       : control.getMetadata().getDefaultAggregation();
   }
 
-  createNode(control: Ui5Control | Promise<Ui5Control>): Ui5Node {
+  createNode(control: Ui5Control): Ui5Node {
     return {
       type: Ui5NodeType.Control,
-      control: Promise.resolve(control),
+      control: control,
     };
   }
 
   createMarker(): Ui5Node {
     return {
       type: Ui5NodeType.Control,
-      control: Marker.then((Marker) => new Marker()),
+      control: new Marker(),
     };
   }
 
@@ -120,22 +99,13 @@ export class Ui5Renderer extends Renderer<
 
       node.control = parent.control;
 
-      const tempChildren = node.tempChildren;
-      this._queueJob(
-        parent.control.then(async (control) => {
-          const children = await Promise.all(
-            (tempChildren ?? []).map((child) => child.control)
-          );
-
-          for (const child of children) {
-            control[
-              `add${capitalize(
-                this._getAggregationInfo(control, node.name).singularName
-              )}`
-            ](child);
-          }
-        })
-      );
+      for (const child of node.tempChildren ?? []) {
+        parent.control[
+          `add${capitalize(
+            this._getAggregationInfo(parent.control, node.name).singularName
+          )}`
+        ](child.control);
+      }
 
       node.tempChildren = undefined;
     } else if (
@@ -147,18 +117,11 @@ export class Ui5Renderer extends Renderer<
       if (parent.control == null) {
         (parent.tempChildren ??= []).push(node);
       } else {
-        this._queueJob(
-          Promise.all([parent.control, node.control]).then(
-            ([parentControl, nodeControl]) => {
-              parentControl[
-                `add${capitalize(
-                  this._getAggregationInfo(parentControl, parent.name)
-                    .singularName
-                )}`
-              ](nodeControl);
-            }
-          )
-        );
+        parent.control[
+          `add${capitalize(
+            this._getAggregationInfo(parent.control, parent.name).singularName
+          )}`
+        ](node.control);
       }
     } else {
       throw new Error("Cannot append aggregation to an aggregation");
@@ -182,24 +145,17 @@ export class Ui5Renderer extends Renderer<
         const index = aggregation.tempChildren.indexOf(before);
         aggregation.tempChildren.splice(index, 0, node);
       } else {
-        this._queueJob(
-          Promise.all([aggregation.control, node.control, before.control]).then(
-            ([control, nodeControl, beforeControl]) => {
-              const index =
-                control[
-                  `get${capitalize(
-                    this._getAggregationInfo(control, aggregation.name).name
-                  )}`
-                ]().indexOf(beforeControl);
-              control[
-                `insert${capitalize(
-                  this._getAggregationInfo(control, aggregation.name)
-                    .singularName
-                )}`
-              ](nodeControl, index);
-            }
-          )
-        );
+        const index = aggregation.control[
+          `get${capitalize(
+            this._getAggregationInfo(aggregation.control, aggregation.name).name
+          )}`
+        ]().indexOf(before.control);
+        aggregation.control[
+          `insert${capitalize(
+            this._getAggregationInfo(aggregation.control, aggregation.name)
+              .singularName
+          )}`
+        ](node.control, index);
       }
     } else {
       throw new Error("Inserting aggregations is not supported");
@@ -207,22 +163,15 @@ export class Ui5Renderer extends Renderer<
   }
 
   removeNode(node: Ui5Node): void {
-    this._queueJob(
-      node.control?.then((control) => {
-        if (node.type === Ui5NodeType.Control) {
-          control.destroy();
-        } else if (
-          node.type === Ui5NodeType.Aggregation &&
-          node.control != null
-        ) {
-          control[
-            `destroy${capitalize(
-              this._getAggregationInfo(control, node.name).name
-            )}`
-          ]();
-        }
-      }) ?? Promise.resolve()
-    );
+    if (node.type === Ui5NodeType.Control) {
+      node.control.destroy();
+    } else if (node.type === Ui5NodeType.Aggregation && node.control != null) {
+      node.control[
+        `destroy${capitalize(
+          this._getAggregationInfo(node.control, node.name).name
+        )}`
+      ]();
+    }
   }
 
   mountToDom(
@@ -231,27 +180,18 @@ export class Ui5Renderer extends Renderer<
   ): Destructor {
     const s = new RendererScope(this);
     const [rendering, destructor] = component.reifyWithDestructor(s);
-    const controls: Promise<Ui5Control>[] = [];
 
-    function getControls(rendering: Rendering<Ui5Renderer>) {
+    function append(rendering: Rendering<Ui5Renderer>) {
       for (const child of rendering) {
         if (Array.isArray(child)) {
-          getControls(child);
+          append(child);
         } else if (child.type === Ui5NodeType.Control) {
-          controls.push(child.control);
+          child.control.placeAt(element);
         }
       }
     }
 
-    getControls(rendering);
-
-    this._queueJob(
-      Promise.all(controls).then((controls) => {
-        for (const control of controls) {
-          control.placeAt(element);
-        }
-      })
-    );
+    append(rendering);
 
     return destructor;
   }

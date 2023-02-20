@@ -18,17 +18,17 @@ interface Task {
   text: string;
 }
 
-const Page = Control.fromUi5Control<{
+const Page = await Control.fromUi5Control<{
   title?: OptionalSignal<string>;
 }>("sap/m/Page");
 
-const List = Control.fromUi5Control("sap/m/List");
+const List = await Control.fromUi5Control("sap/m/List");
 
-const CustomListItem = Control.fromUi5Control<{
+const CustomListItem = await Control.fromUi5Control<{
   onPress?: (evt: any) => void;
 }>("sap/m/CustomListItem");
 
-const Button = Control.fromUi5Control<{
+const Button = await Control.fromUi5Control<{
   icon?: OptionalSignal<string>;
   tooltip?: OptionalSignal<string>;
 }>("sap/m/Button");
@@ -56,9 +56,9 @@ class App extends Component<{}, Ui5Renderer> {
         </headerContent>
 
         <List>
-          <For source={tasks} key={(task) => task.id}>
+          {/* <For source={tasks} key={(task) => task.id}>
             {(task) => <CustomListItem></CustomListItem>}
-          </For>
+          </For> */}
         </List>
       </Page>
     );
