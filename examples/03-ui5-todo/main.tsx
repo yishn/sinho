@@ -19,46 +19,49 @@ interface Task {
   text: string;
 }
 
-const Page = await Control.fromUi5Control<{
-  title?: OptionalSignal<string>;
-  subHeader?: OptionalSignal<Component<any, Ui5Renderer>>;
-}>("sap/m/Page");
+const [Page, Bar, List, CustomListItem, Input, CheckBox, Button] =
+  await Promise.all([
+    Control.fromUi5Control<{
+      title?: OptionalSignal<string>;
+      subHeader?: OptionalSignal<Component<any, Ui5Renderer>>;
+    }>("sap/m/Page"),
 
-const Bar = await Control.fromUi5Control("sap/m/Page");
+    Control.fromUi5Control("sap/m/Page"),
 
-const List = await Control.fromUi5Control<{
-  mode?: OptionalSignal<string>;
-  onDelete?: (evt: {
-    getSource(): Ui5Control;
-    getParameters(): {
-      listItem: Ui5Control;
-    };
-  }) => void;
-}>("sap/m/List");
+    Control.fromUi5Control<{
+      mode?: OptionalSignal<string>;
+      onDelete?: (evt: {
+        getSource(): Ui5Control;
+        getParameters(): {
+          listItem: Ui5Control;
+        };
+      }) => void;
+    }>("sap/m/List"),
 
-const CustomListItem = await Control.fromUi5Control("sap/m/CustomListItem");
+    Control.fromUi5Control("sap/m/CustomListItem"),
 
-const Input = await Control.fromUi5Control<{
-  value?: OptionalSignal<string>;
-  onLiveChange?: (evt: {
-    getParameters(): {
-      value: string;
-    };
-  }) => void;
-  onSubmit?: (evt: any) => void;
-}>("sap/m/Input");
+    Control.fromUi5Control<{
+      value?: OptionalSignal<string>;
+      onLiveChange?: (evt: {
+        getParameters(): {
+          value: string;
+        };
+      }) => void;
+      onSubmit?: (evt: any) => void;
+    }>("sap/m/Input"),
 
-const CheckBox = await Control.fromUi5Control<{
-  text?: OptionalSignal<string>;
-  selected?: OptionalSignal<boolean>;
-  onSelect?: (evt: any) => void;
-}>("sap/m/CheckBox");
+    Control.fromUi5Control<{
+      text?: OptionalSignal<string>;
+      selected?: OptionalSignal<boolean>;
+      onSelect?: (evt: any) => void;
+    }>("sap/m/CheckBox"),
 
-const Button = await Control.fromUi5Control<{
-  type?: OptionalSignal<string>;
-  icon?: OptionalSignal<string>;
-  tooltip?: OptionalSignal<string>;
-}>("sap/m/Button");
+    Control.fromUi5Control<{
+      type?: OptionalSignal<string>;
+      icon?: OptionalSignal<string>;
+      tooltip?: OptionalSignal<string>;
+    }>("sap/m/Button"),
+  ]);
 
 class App extends Component<{}, Ui5Renderer> {
   render(s: RendererScope<Ui5Renderer>): Component<any, Ui5Renderer> {
