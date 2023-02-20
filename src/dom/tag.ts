@@ -54,7 +54,11 @@ export class TagComponent<T extends string> extends Component<
         // Set attribute
 
         s.effect(() => {
-          setAttr(node, name, typeof value === "function" ? value() : value);
+          setAttr(
+            node,
+            name,
+            typeof value === "function" && value.length === 0 ? value() : value
+          );
         });
       }
     }

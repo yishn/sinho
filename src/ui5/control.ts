@@ -1,5 +1,4 @@
 import { Component, RendererScope, Rendering } from "../renderer/mod.ts";
-import { SignalLike } from "../scope.ts";
 import {
   Ui5Renderer,
   Ui5ControlConstructor,
@@ -58,8 +57,8 @@ export class Control<P> extends Component<ControlProps & P, Ui5Renderer> {
 
           s.effect(() => {
             control[`set${capitalize(prop)}`](
-              typeof value === "function"
-                ? (value as SignalLike<unknown>)()
+              typeof value === "function" && value.length === 0
+                ? value()
                 : value
             );
           });
