@@ -44,7 +44,7 @@ export type Ui5Node =
       tempChildren?: (Ui5Node & { type: Ui5NodeType.Control })[];
     };
 
-const Control = await sapRequireControl("sap/ui/core/Control");
+const Control = await sapRequireControl("sap/m/ListItemBase");
 
 const Marker = Control.extend("shingo.Marker", {
   renderer: () => {},

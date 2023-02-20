@@ -11,6 +11,7 @@ import {
 } from "../../src/mod.ts";
 import { For } from "../../src/renderer/for.ts";
 import { h, Control, Ui5Renderer } from "../../src/ui5/mod.ts";
+import { Ui5Control } from "../../src/ui5/ui5_renderer.ts";
 
 interface Task {
   id: string;
@@ -20,15 +21,41 @@ interface Task {
 
 const Page = await Control.fromUi5Control<{
   title?: OptionalSignal<string>;
+  subHeader?: OptionalSignal<Component<any, Ui5Renderer>>;
 }>("sap/m/Page");
 
-const List = await Control.fromUi5Control("sap/m/List");
+const Bar = await Control.fromUi5Control("sap/m/Page");
 
-const CustomListItem = await Control.fromUi5Control<{
-  onPress?: (evt: any) => void;
-}>("sap/m/CustomListItem");
+const List = await Control.fromUi5Control<{
+  mode?: OptionalSignal<string>;
+  onDelete?: (evt: {
+    getSource(): Ui5Control;
+    getParameters(): {
+      listItem: Ui5Control;
+    };
+  }) => void;
+}>("sap/m/List");
+
+const CustomListItem = await Control.fromUi5Control("sap/m/CustomListItem");
+
+const Input = await Control.fromUi5Control<{
+  value?: OptionalSignal<string>;
+  onLiveChange?: (evt: {
+    getParameters(): {
+      value: string;
+    };
+  }) => void;
+  onSubmit?: (evt: any) => void;
+}>("sap/m/Input");
+
+const CheckBox = await Control.fromUi5Control<{
+  text?: OptionalSignal<string>;
+  selected?: OptionalSignal<boolean>;
+  onSelect?: (evt: any) => void;
+}>("sap/m/CheckBox");
 
 const Button = await Control.fromUi5Control<{
+  type?: OptionalSignal<string>;
   icon?: OptionalSignal<string>;
   tooltip?: OptionalSignal<string>;
 }>("sap/m/Button");
@@ -55,10 +82,38 @@ class App extends Component<{}, Ui5Renderer> {
           <Button icon="sap-icon://add" tooltip="Add" />
         </headerContent>
 
-        <List>
-          {/* <For source={tasks} key={(task) => task.id}>
-            {(task) => <CustomListItem></CustomListItem>}
-          </For> */}
+        <List
+          mode="Delete"
+          onDelete={(evt) => {
+            const index = evt
+              .getSource()
+              .indexOfItem(evt.getParameters().listItem);
+
+            setTasks((tasks) => tasks.filter((_, i) => i !== index));
+          }}
+        >
+          <For source={tasks} key={(task) => task.id}>
+            {(task, i) => (
+              <CustomListItem>
+                <CheckBox
+                  selected={() => task().done}
+                  text={() => task().text}
+                  onSelect={() => {
+                    setTasks((tasks) => {
+                      const newTasks = [...tasks];
+
+                      newTasks[i()] = {
+                        ...tasks[i()],
+                        done: !tasks[i()].done,
+                      };
+
+                      return newTasks;
+                    });
+                  }}
+                />
+              </CustomListItem>
+            )}
+          </For>
         </List>
       </Page>
     );
@@ -67,4 +122,4 @@ class App extends Component<{}, Ui5Renderer> {
 
 const renderer = new Ui5Renderer();
 
-renderer.mountToDom(<App />, document.getElementById("root")!);
+renderer.mountToDom(<App />, document.body);
