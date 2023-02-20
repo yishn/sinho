@@ -54,8 +54,26 @@ export class Ui5Renderer extends Renderer<
   Ui5Control | Promise<Ui5Control>,
   Ui5Node
 > {
+  _queueWorking = false;
+  _queue: Promise<void>[] = [];
   _currentControl: Ui5Control | undefined;
   _currentAggregationInfo: AggregationInfo | undefined;
+
+  private _queueJob(job: Promise<void>): void {
+    this._queue.push(job);
+
+    if (!this._queueWorking) {
+      this._queueWorking = true;
+
+      (async () => {
+        while (this._queue.length > 0) {
+          await this._queue.pop()!;
+        }
+
+        this._queueWorking = false;
+      })();
+    }
+  }
 
   private _getAggregationInfo(
     control: Ui5Control,
@@ -103,19 +121,21 @@ export class Ui5Renderer extends Renderer<
       node.control = parent.control;
 
       const tempChildren = node.tempChildren;
-      parent.control.then(async (control) => {
-        const children = await Promise.all(
-          (tempChildren ?? []).map((child) => child.control)
-        );
+      this._queueJob(
+        parent.control.then(async (control) => {
+          const children = await Promise.all(
+            (tempChildren ?? []).map((child) => child.control)
+          );
 
-        for (const child of children) {
-          control[
-            `add${capitalize(
-              this._getAggregationInfo(control, node.name).singularName
-            )}`
-          ](child);
-        }
-      });
+          for (const child of children) {
+            control[
+              `add${capitalize(
+                this._getAggregationInfo(control, node.name).singularName
+              )}`
+            ](child);
+          }
+        })
+      );
 
       node.tempChildren = undefined;
     } else if (
@@ -127,15 +147,17 @@ export class Ui5Renderer extends Renderer<
       if (parent.control == null) {
         (parent.tempChildren ??= []).push(node);
       } else {
-        Promise.all([parent.control, node.control]).then(
-          ([parentControl, nodeControl]) => {
-            parentControl[
-              `add${capitalize(
-                this._getAggregationInfo(parentControl, parent.name)
-                  .singularName
-              )}`
-            ](nodeControl);
-          }
+        this._queueJob(
+          Promise.all([parent.control, node.control]).then(
+            ([parentControl, nodeControl]) => {
+              parentControl[
+                `add${capitalize(
+                  this._getAggregationInfo(parentControl, parent.name)
+                    .singularName
+                )}`
+              ](nodeControl);
+            }
+          )
         );
       }
     } else {
@@ -160,20 +182,23 @@ export class Ui5Renderer extends Renderer<
         const index = aggregation.tempChildren.indexOf(before);
         aggregation.tempChildren.splice(index, 0, node);
       } else {
-        Promise.all([aggregation.control, node.control, before.control]).then(
-          ([control, nodeControl, beforeControl]) => {
-            const index =
+        this._queueJob(
+          Promise.all([aggregation.control, node.control, before.control]).then(
+            ([control, nodeControl, beforeControl]) => {
+              const index =
+                control[
+                  `get${capitalize(
+                    this._getAggregationInfo(control, aggregation.name).name
+                  )}`
+                ]().indexOf(beforeControl);
               control[
-                `get${capitalize(
-                  this._getAggregationInfo(control, aggregation.name).name
+                `insert${capitalize(
+                  this._getAggregationInfo(control, aggregation.name)
+                    .singularName
                 )}`
-              ]().indexOf(beforeControl);
-            control[
-              `insert${capitalize(
-                this._getAggregationInfo(control, aggregation.name).singularName
-              )}`
-            ](nodeControl, index);
-          }
+              ](nodeControl, index);
+            }
+          )
         );
       }
     } else {
@@ -182,20 +207,22 @@ export class Ui5Renderer extends Renderer<
   }
 
   removeNode(node: Ui5Node): void {
-    node.control?.then((control) => {
-      if (node.type === Ui5NodeType.Control) {
-        control.destroy();
-      } else if (
-        node.type === Ui5NodeType.Aggregation &&
-        node.control != null
-      ) {
-        control[
-          `destroy${capitalize(
-            this._getAggregationInfo(control, node.name).name
-          )}`
-        ]();
-      }
-    });
+    this._queueJob(
+      node.control?.then((control) => {
+        if (node.type === Ui5NodeType.Control) {
+          control.destroy();
+        } else if (
+          node.type === Ui5NodeType.Aggregation &&
+          node.control != null
+        ) {
+          control[
+            `destroy${capitalize(
+              this._getAggregationInfo(control, node.name).name
+            )}`
+          ]();
+        }
+      }) ?? Promise.resolve()
+    );
   }
 
   mountToDom(
@@ -204,27 +231,27 @@ export class Ui5Renderer extends Renderer<
   ): Destructor {
     const s = new RendererScope(this);
     const [rendering, destructor] = component.reifyWithDestructor(s);
-    const promControls: Promise<Ui5Control>[] = [];
+    const controls: Promise<Ui5Control>[] = [];
 
     function getControls(rendering: Rendering<Ui5Renderer>) {
       for (const child of rendering) {
         if (Array.isArray(child)) {
           getControls(child);
         } else if (child.type === Ui5NodeType.Control) {
-          promControls.push(child.control);
+          controls.push(child.control);
         }
       }
     }
 
     getControls(rendering);
 
-    const controls = Promise.all(promControls);
-
-    controls.then((controls) => {
-      for (const control of controls) {
-        control.placeAt(element);
-      }
-    });
+    this._queueJob(
+      Promise.all(controls).then((controls) => {
+        for (const control of controls) {
+          control.placeAt(element);
+        }
+      })
+    );
 
     return destructor;
   }
