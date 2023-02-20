@@ -27,7 +27,7 @@ const [Page, Bar, List, CustomListItem, Input, CheckBox, Button] =
       subHeader?: OptionalSignal<Component<any, Ui5Renderer>>;
     }>("sap/m/Page"),
 
-    Control.fromUi5Control("sap/m/Page"),
+    Control.fromUi5Control("sap/m/Bar"),
 
     Control.fromUi5Control<{
       mode?: OptionalSignal<string>;
@@ -52,6 +52,7 @@ const [Page, Bar, List, CustomListItem, Input, CheckBox, Button] =
       type?: OptionalSignal<string>;
       icon?: OptionalSignal<string>;
       tooltip?: OptionalSignal<string>;
+      onPress?: Ui5EventHandler<Ui5Control, any>;
     }>("sap/m/Button"),
   ]);
 
@@ -61,13 +62,13 @@ class App extends Component<{}, Ui5Renderer> {
     const [tasks, setTasks] = s.signal<Task[]>([
       {
         id: crypto.randomUUID(),
-        done: false,
-        text: "Clean up",
+        done: true,
+        text: "Make example",
       },
       {
         id: crypto.randomUUID(),
-        done: true,
-        text: "Make example",
+        done: false,
+        text: "Clean up",
       },
     ]);
 
@@ -75,6 +76,21 @@ class App extends Component<{}, Ui5Renderer> {
       <Page title="Todo">
         <headerContent>
           <Button icon="sap-icon://add" tooltip="Add" />
+          <Button
+            icon="sap-icon://sort-ascending"
+            tooltip="Sort"
+            onPress={() => {
+              setTasks((tasks) => {
+                const newTasks = [...tasks];
+
+                newTasks.sort((x, y) =>
+                  x.text < y.text ? -1 : x.text > y.text ? 1 : 0
+                );
+
+                return newTasks;
+              });
+            }}
+          />
         </headerContent>
 
         <List

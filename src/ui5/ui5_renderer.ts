@@ -134,17 +134,25 @@ export class Ui5Renderer extends Renderer<Ui5Control, Ui5Node> {
         const index = aggregation.tempChildren.indexOf(before);
         aggregation.tempChildren.splice(index, 0, node);
       } else {
+        const aggregationSingularName = this._getAggregationInfo(
+          aggregation.control,
+          aggregation.name
+        ).singularName;
+
+        aggregation.control[`remove${capitalize(aggregationSingularName)}`](
+          node.control
+        );
+
         const index = aggregation.control[
           `get${capitalize(
             this._getAggregationInfo(aggregation.control, aggregation.name).name
           )}`
         ]().indexOf(before.control);
-        aggregation.control[
-          `insert${capitalize(
-            this._getAggregationInfo(aggregation.control, aggregation.name)
-              .singularName
-          )}`
-        ](node.control, index);
+
+        aggregation.control[`insert${capitalize(aggregationSingularName)}`](
+          node.control,
+          index
+        );
       }
     } else {
       throw new Error("Inserting aggregations is not supported");
