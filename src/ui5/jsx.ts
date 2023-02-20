@@ -29,6 +29,15 @@ export function h(
   }
 }
 
+export interface Ui5Event<T, P> {
+  getSource(): T;
+  getParameters(): P;
+}
+
+export interface Ui5EventHandler<T, P> {
+  (evt: Ui5Event<T, P>): void;
+}
+
 declare global {
   namespace JSX {
     interface Element extends Component<any, Ui5Renderer> {}

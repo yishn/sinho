@@ -10,6 +10,7 @@ import {
   OptionalSignal,
 } from "../../src/mod.ts";
 import { For } from "../../src/renderer/for.ts";
+import { Ui5EventHandler } from "../../src/ui5/jsx.ts";
 import { h, Control, Ui5Renderer } from "../../src/ui5/mod.ts";
 import { Ui5Control } from "../../src/ui5/ui5_renderer.ts";
 
@@ -30,30 +31,21 @@ const [Page, Bar, List, CustomListItem, Input, CheckBox, Button] =
 
     Control.fromUi5Control<{
       mode?: OptionalSignal<string>;
-      onDelete?: (evt: {
-        getSource(): Ui5Control;
-        getParameters(): {
-          listItem: Ui5Control;
-        };
-      }) => void;
+      onDelete?: Ui5EventHandler<Ui5Control, { listItem: Ui5Control }>;
     }>("sap/m/List"),
 
     Control.fromUi5Control("sap/m/CustomListItem"),
 
     Control.fromUi5Control<{
       value?: OptionalSignal<string>;
-      onLiveChange?: (evt: {
-        getParameters(): {
-          value: string;
-        };
-      }) => void;
-      onSubmit?: (evt: any) => void;
+      onLiveChange?: Ui5EventHandler<Ui5Control, { value: string }>;
+      onSubmit?: Ui5EventHandler<Ui5Control, any>;
     }>("sap/m/Input"),
 
     Control.fromUi5Control<{
       text?: OptionalSignal<string>;
       selected?: OptionalSignal<boolean>;
-      onSelect?: (evt: any) => void;
+      onSelect?: Ui5EventHandler<Ui5Control, any>;
     }>("sap/m/CheckBox"),
 
     Control.fromUi5Control<{
@@ -99,6 +91,7 @@ class App extends Component<{}, Ui5Renderer> {
             {(task, i) => (
               <CustomListItem>
                 <CheckBox
+                  class={() => (task().done ? "done" : "")}
                   selected={() => task().done}
                   text={() => task().text}
                   onSelect={() => {

@@ -5,7 +5,7 @@ import {
   Rendering,
 } from "../renderer/mod.ts";
 import { Destructor } from "../scope.ts";
-import { capitalize, sapRequireControl } from "./utils.ts";
+import { capitalize } from "./utils.ts";
 
 export type Ui5ControlConstructor = (new (id?: string) => Ui5Control) & {
   extend(name: string, props: { renderer(): void }): Ui5ControlConstructor;
@@ -23,6 +23,8 @@ export type Ui5Control = {
   };
   destroy(): void;
   placeAt(element: Element): Ui5Control;
+  addStyleClass(className: string): Ui5Control;
+  removeStyleClass(className: string): Ui5Control;
   [_: string]: any;
 };
 

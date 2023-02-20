@@ -1,4 +1,5 @@
 import { Component, RendererScope, Rendering } from "../renderer/mod.ts";
+import { OptionalSignal } from "../scope.ts";
 import {
   Ui5Renderer,
   Ui5ControlConstructor,
@@ -10,6 +11,7 @@ import { capitalize, sapRequireControl } from "./utils.ts";
 export type ControlProps = {
   Control: Ui5ControlConstructor;
   id?: string;
+  class?: OptionalSignal<string>;
   children?: Component<any, Ui5Renderer> | Component<any, Ui5Renderer>[];
 };
 
@@ -39,13 +41,31 @@ export class Control<P> extends Component<ControlProps & P, Ui5Renderer> {
   }
 
   reify(s: RendererScope<Ui5Renderer>): Rendering<Ui5Renderer> {
-    const { Control, id, children, ...props } = this.props;
+    const { Control, id, class: classNames, children, ...props } = this.props;
     const control = new Control(id);
 
     const node: Ui5Node = {
       type: Ui5NodeType.Control,
       control,
     };
+
+    let prevClassNames =
+      typeof classNames === "string" ? classNames : classNames?.();
+
+    s.effect(() => {
+      const evaluatedClassNames =
+        typeof classNames === "string" ? classNames : classNames?.();
+
+      if (prevClassNames != null) {
+        control.removeStyleClass(prevClassNames);
+      }
+
+      if (evaluatedClassNames != null) {
+        control.addStyleClass(evaluatedClassNames);
+      }
+
+      prevClassNames = evaluatedClassNames;
+    });
 
     for (const [prop, value] of Object.entries(props)) {
       if (prop.startsWith("on") && typeof value === "function") {
