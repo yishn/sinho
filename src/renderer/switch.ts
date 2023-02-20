@@ -18,10 +18,7 @@ export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
   }
 
   reify(s: RendererScope<R>): Rendering<R> {
-    let firstTime = true;
-
-    const marker = s.renderer.createMarker();
-    const rendering: [Rendering<R>, RendererNode<R>] = [[], marker];
+    const rendering: Rendering<R> = [];
 
     const result = s.memo(() => {
       for (const when of this.props.cases ?? []) {
@@ -37,14 +34,13 @@ export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
 
     s.effect(() => {
       const component = result();
+      const [childRendering] = component.reifyWithDestructor(s);
 
-      rendering[0] = component.reifyWithDestructor(s)[0];
+      s.renderer.appendRenderingIntoRendering(childRendering, rendering);
 
-      if (firstTime) {
-        firstTime = false;
-      } else {
-        s.renderer.insertRendering(rendering[0], marker);
-      }
+      s.cleanup(() => {
+        s.renderer.removeFromRendering(rendering, 0);
+      });
     });
 
     return rendering;

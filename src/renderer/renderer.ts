@@ -13,6 +13,8 @@ export type RendererNode<R extends Renderer> = R extends Renderer<
   : never;
 
 export abstract class Renderer<in P = any, out N extends object = any> {
+  _parentRenderings = new WeakMap<RenderingWithNode<N>, RenderingWithNode<N>>();
+  _parentNodes = new WeakMap<N | RenderingWithNode<N>, N>();
   _renderingComponents = new WeakMap<
     RenderingWithNode<N>,
     Component<any, this>
@@ -20,7 +22,6 @@ export abstract class Renderer<in P = any, out N extends object = any> {
   _mountListeners = new WeakMap<Component<any, this>, (() => void)[]>();
 
   abstract createNode(arg: P): N;
-  abstract createMarker(): N;
 
   abstract appendNode(parent: N, node: N): void;
   abstract insertNode(node: N, before: N): void;
@@ -39,11 +40,15 @@ export abstract class Renderer<in P = any, out N extends object = any> {
     }
   }
 
-  appendRendering(parent: N, rendering: RenderingWithNode<N>): void {
+  appendRendering(rendering: RenderingWithNode<N>, parent: N): void {
+    this._parentNodes.set(rendering, parent);
+
     for (const node of rendering) {
       if (Array.isArray(node)) {
-        this.appendRendering(parent, node);
+        this._parentRenderings.set(node, rendering);
+        this.appendRendering(node, parent);
       } else {
+        this._parentNodes.set(node, parent);
         this.appendNode(parent, node);
       }
     }
@@ -51,16 +56,47 @@ export abstract class Renderer<in P = any, out N extends object = any> {
     this._fireMountListeners(rendering);
   }
 
+  appendRenderingIntoRendering(
+    rendering: RenderingWithNode<N>,
+    parent: RenderingWithNode<N>
+  ): void {
+    this.insertRenderingIntoRendering(rendering, parent, parent.length);
+  }
+
   insertRendering(rendering: RenderingWithNode<N>, before: N): void {
+    const parent = this._parentNodes.get(before);
+    if (parent != null) this._parentNodes.set(rendering, parent);
+
     for (const node of rendering) {
       if (Array.isArray(node)) {
+        this._parentRenderings.set(node, rendering);
         this.insertRendering(node, before);
       } else {
+        if (parent != null) this._parentNodes.set(rendering, parent);
         this.insertNode(node, before);
       }
     }
 
     this._fireMountListeners(rendering);
+  }
+
+  insertRenderingIntoRendering(
+    rendering: RenderingWithNode<N>,
+    parent: RenderingWithNode<N>,
+    index: number
+  ): void {
+    const marker = getMarker(this, parent as Rendering<this>, index) as
+      | N
+      | undefined;
+
+    if (marker != null) {
+      this.insertRendering(rendering, marker);
+    } else {
+      const node = this._parentNodes.get(parent);
+      if (node != null) this.appendRendering(rendering, node);
+    }
+
+    parent.splice(index, 0, rendering);
   }
 
   removeRendering(rendering: RenderingWithNode<N>): void {
@@ -72,6 +108,21 @@ export abstract class Renderer<in P = any, out N extends object = any> {
       }
     }
   }
+
+  removeFromRendering(
+    parent: RenderingWithNode<N>,
+    index: number
+  ): N | RenderingWithNode<N> | undefined {
+    const [result] = parent.splice(index, 1);
+
+    if (Array.isArray(result)) {
+      this.removeRendering(result);
+    } else {
+      this.removeNode(result);
+    }
+
+    return result;
+  }
 }
 
 export function mount<R extends Renderer>(
@@ -82,7 +133,7 @@ export function mount<R extends Renderer>(
   const s = new RendererScope(renderer);
   const [rendering, destructor] = component.reifyWithDestructor(s);
 
-  s.renderer.appendRendering(parent, rendering);
+  s.renderer.appendRendering(rendering, parent);
 
   return destructor;
 }
@@ -114,10 +165,22 @@ export class RendererScope<out R extends Renderer> extends Scope {
 }
 
 export function getMarker<R extends Renderer>(
-  rendering: Rendering<R> | undefined | null
+  renderer: R,
+  rendering: Rendering<R> | undefined,
+  index: number = 0
 ): RendererNode<R> | undefined {
-  if (rendering == null || rendering.length === 0) return undefined;
-  if (Array.isArray(rendering[0])) return getMarker(rendering[0]);
+  if (rendering == null) {
+    return undefined;
+  } else if (index >= rendering.length) {
+    const parentRendering = renderer._parentRenderings.get(rendering);
+    return getMarker(
+      renderer,
+      parentRendering,
+      (parentRendering?.indexOf(rendering) ?? -1) + 1
+    );
+  } else if (Array.isArray(rendering[index])) {
+    return getMarker(renderer, rendering[index]);
+  }
 
-  return rendering[0];
+  return rendering[index] as RendererNode<R>;
 }

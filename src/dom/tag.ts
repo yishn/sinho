@@ -73,7 +73,6 @@ export class TagComponent<T extends string> extends Component<
       });
     } else {
       s.renderer.appendRendering(
-        node,
         new Fragment({
           children: [children].flat(1).map((child) => {
             if (child instanceof Component) {
@@ -82,7 +81,8 @@ export class TagComponent<T extends string> extends Component<
               return new Text({ children: child });
             }
           }),
-        }).reify(s)
+        }).reify(s),
+        node
       );
     }
 

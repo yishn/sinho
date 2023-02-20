@@ -33,10 +33,6 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
       return document.createTextNode(arg);
     }
 
-    return this.createMarker();
-  }
-
-  createMarker(): Node {
     return document.createComment("");
   }
 

@@ -67,7 +67,7 @@ export class Control<P> extends Component<ControlProps & P, Ui5Renderer> {
     }
 
     for (const child of [this.props.children ?? []].flat(1)) {
-      s.renderer.appendRendering(node, child.reify(s));
+      s.renderer.appendRendering(child.reify(s), node);
     }
 
     return [node];
@@ -91,7 +91,7 @@ export class Aggregation extends Component<AggregationProps, Ui5Renderer> {
     };
 
     for (const child of [this.props.children ?? []].flat(1)) {
-      s.renderer.appendRendering(node, child.reify(s));
+      s.renderer.appendRendering(child.reify(s), node);
     }
 
     return [node];

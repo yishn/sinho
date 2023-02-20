@@ -44,12 +44,6 @@ export type Ui5Node =
       tempChildren?: (Ui5Node & { type: Ui5NodeType.Control })[];
     };
 
-const Control = await sapRequireControl("sap/m/ListItemBase");
-
-const Marker = Control.extend("shingo.Marker", {
-  renderer: () => {},
-});
-
 export class Ui5Renderer extends Renderer<Ui5Control, Ui5Node> {
   _currentControl: Ui5Control | undefined;
   _currentAggregationInfo: AggregationInfo | undefined;
@@ -67,13 +61,6 @@ export class Ui5Renderer extends Renderer<Ui5Control, Ui5Node> {
     return {
       type: Ui5NodeType.Control,
       control: control,
-    };
-  }
-
-  createMarker(): Ui5Node {
-    return {
-      type: Ui5NodeType.Control,
-      control: new Marker(),
     };
   }
 
