@@ -14,6 +14,7 @@ export type Ui5ControlConstructor = (new (id?: string) => Ui5Control) & {
 export interface AggregationInfo {
   name: string;
   singularName: string;
+  multiple: boolean;
 }
 
 export type Ui5Control = {
@@ -86,14 +87,23 @@ export class Ui5Renderer extends Renderer<Ui5Control, Ui5Node> {
         throw new Error("Aggregation is already linked to another control");
       }
 
+      const aggregationInfo = this._getAggregationInfo(
+        parent.control,
+        node.name
+      );
+
       node.control = parent.control;
 
-      for (const child of node.tempChildren ?? []) {
-        parent.control[
-          `add${capitalize(
-            this._getAggregationInfo(parent.control, node.name).singularName
-          )}`
-        ](child.control);
+      if (aggregationInfo.multiple) {
+        for (const child of node.tempChildren ?? []) {
+          parent.control[`add${capitalize(aggregationInfo.singularName)}`](
+            child.control
+          );
+        }
+      } else {
+        parent.control[`set${capitalize(aggregationInfo.name)}`](
+          (node.tempChildren ?? [])[0]?.control
+        );
       }
 
       node.tempChildren = undefined;
@@ -106,11 +116,20 @@ export class Ui5Renderer extends Renderer<Ui5Control, Ui5Node> {
       if (parent.control == null) {
         (parent.tempChildren ??= []).push(node);
       } else {
-        parent.control[
-          `add${capitalize(
-            this._getAggregationInfo(parent.control, parent.name).singularName
-          )}`
-        ](node.control);
+        const aggregationInfo = this._getAggregationInfo(
+          parent.control,
+          parent.name
+        );
+
+        if (aggregationInfo.multiple) {
+          parent.control[`add${capitalize(aggregationInfo.singularName)}`](
+            node.control
+          );
+        } else {
+          parent.control[`set${capitalize(aggregationInfo.name)}`](
+            node.control
+          );
+        }
       }
     } else {
       throw new Error("Cannot append aggregation to an aggregation");
@@ -134,25 +153,31 @@ export class Ui5Renderer extends Renderer<Ui5Control, Ui5Node> {
         const index = aggregation.tempChildren.indexOf(before);
         aggregation.tempChildren.splice(index, 0, node);
       } else {
-        const aggregationSingularName = this._getAggregationInfo(
+        const aggregationInfo = this._getAggregationInfo(
           aggregation.control,
           aggregation.name
-        ).singularName;
-
-        aggregation.control[`remove${capitalize(aggregationSingularName)}`](
-          node.control
         );
 
-        const index = aggregation.control[
-          `get${capitalize(
-            this._getAggregationInfo(aggregation.control, aggregation.name).name
-          )}`
-        ]().indexOf(before.control);
+        if (aggregationInfo.multiple) {
+          aggregation.control[
+            `remove${capitalize(aggregationInfo.singularName)}`
+          ](node.control);
 
-        aggregation.control[`insert${capitalize(aggregationSingularName)}`](
-          node.control,
-          index
-        );
+          const index = aggregation.control[
+            `get${capitalize(
+              this._getAggregationInfo(aggregation.control, aggregation.name)
+                .name
+            )}`
+          ]().indexOf(before.control);
+
+          aggregation.control[
+            `insert${capitalize(aggregationInfo.singularName)}`
+          ](node.control, index);
+        } else {
+          aggregation.control[`set${capitalize(aggregationInfo.name)}`](
+            node.control
+          );
+        }
       }
     } else {
       throw new Error("Inserting aggregations is not supported");

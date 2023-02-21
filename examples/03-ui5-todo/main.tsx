@@ -20,14 +20,14 @@ interface Task {
   text: string;
 }
 
-const [Page, Bar, List, CustomListItem, Input, CheckBox, Button] =
+const [Page, Toolbar, List, CustomListItem, Input, CheckBox, Button] =
   await Promise.all([
     Control.fromUi5Control<{
       title?: OptionalSignal<string>;
       subHeader?: OptionalSignal<Component<any, Ui5Renderer>>;
     }>("sap/m/Page"),
 
-    Control.fromUi5Control("sap/m/Bar"),
+    Control.fromUi5Control("sap/m/Toolbar"),
 
     Control.fromUi5Control<{
       mode?: OptionalSignal<string>;
@@ -38,6 +38,7 @@ const [Page, Bar, List, CustomListItem, Input, CheckBox, Button] =
 
     Control.fromUi5Control<{
       value?: OptionalSignal<string>;
+      placeholder?: OptionalSignal<string>;
       onLiveChange?: Ui5EventHandler<Ui5Control, { value: string }>;
       onSubmit?: Ui5EventHandler<Ui5Control, any>;
     }>("sap/m/Input"),
@@ -72,26 +73,60 @@ class App extends Component<{}, Ui5Renderer> {
       },
     ]);
 
+    function addNewTask(text: string) {
+      if (text.trim() === "") return;
+
+      setTasks((tasks) => [
+        ...tasks,
+        {
+          id: crypto.randomUUID(),
+          done: false,
+          text,
+        },
+      ]);
+
+      setNewTaskText("");
+    }
+
     return (
       <Page title="Todo">
-        <headerContent>
-          <Button icon="sap-icon://add" tooltip="Add" />
-          <Button
-            icon="sap-icon://sort-ascending"
-            tooltip="Sort"
-            onPress={() => {
-              setTasks((tasks) => {
-                const newTasks = [...tasks];
+        <subHeader>
+          <Toolbar>
+            <Input
+              placeholder="Add new task"
+              value={newTaskText}
+              onLiveChange={(evt) => {
+                setNewTaskText(evt.getParameters().value);
+              }}
+              onSubmit={() => addNewTask(newTaskText())}
+            />
+            <Button
+              type="Emphasized"
+              icon="sap-icon://add"
+              tooltip="Add"
+              onPress={() => addNewTask(newTaskText())}
+            />
+            <Button
+              icon="sap-icon://sort-ascending"
+              tooltip="Sort"
+              onPress={() => {
+                setTasks((tasks) => {
+                  const newTasks = [...tasks];
 
-                newTasks.sort((x, y) =>
-                  x.text < y.text ? -1 : x.text > y.text ? 1 : 0
-                );
+                  newTasks.sort((x, y) =>
+                    x.text.toLowerCase() < y.text.toLowerCase()
+                      ? -1
+                      : x.text.toLowerCase() > y.text.toLowerCase()
+                      ? 1
+                      : 0
+                  );
 
-                return newTasks;
-              });
-            }}
-          />
-        </headerContent>
+                  return newTasks;
+                });
+              }}
+            />
+          </Toolbar>
+        </subHeader>
 
         <List
           mode="Delete"

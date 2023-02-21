@@ -49,22 +49,22 @@ export class Control<P> extends Component<ControlProps & P, Ui5Renderer> {
       control,
     };
 
-    let prevClassNames =
-      typeof classNames === "string" ? classNames : classNames?.();
+    let prevClassNames: string | undefined;
 
     s.effect(() => {
-      const evaluatedClassNames =
-        typeof classNames === "string" ? classNames : classNames?.();
+      const evaluatedClassNames = s.memo(() =>
+        typeof classNames === "string" ? classNames : classNames?.()
+      );
 
       if (prevClassNames != null) {
         control.removeStyleClass(prevClassNames);
       }
 
-      if (evaluatedClassNames != null) {
-        control.addStyleClass(evaluatedClassNames);
+      if (evaluatedClassNames() != null) {
+        control.addStyleClass(evaluatedClassNames()!);
       }
 
-      prevClassNames = evaluatedClassNames;
+      prevClassNames = evaluatedClassNames();
     });
 
     for (const [prop, value] of Object.entries(props)) {
