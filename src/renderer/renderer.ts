@@ -1,5 +1,5 @@
 import { Component } from "./component.ts";
-import { Scope, Destructor } from "../scope.ts";
+import { Scope, Destructor, Signal, SignalSetter } from "../scope.ts";
 
 type RenderingWithNode<N> = (N | RenderingWithNode<N>)[];
 
@@ -12,7 +12,13 @@ export type RendererNode<R extends Renderer> = R extends Renderer<
   ? N
   : never;
 
-export abstract class Renderer<in P = any, out N extends object = any> {
+export abstract class Renderer<in P = any, in out N extends object = any> {
+  private _nodeRefSignals = new WeakMap<
+    Signal<N | null>,
+    SignalSetter<N | null>
+  >();
+  private _elementNodeRefSetters = new WeakMap<N, SignalSetter<N | null>>();
+
   _parentRenderings = new WeakMap<RenderingWithNode<N>, RenderingWithNode<N>>();
   _parentNodes = new WeakMap<N | RenderingWithNode<N>, N>();
   _renderingComponents = new WeakMap<
@@ -50,6 +56,7 @@ export abstract class Renderer<in P = any, out N extends object = any> {
       } else {
         this._parentNodes.set(node, parent);
         this.appendNode(parent, node);
+        this._elementNodeRefSetters.get(node)?.(node);
       }
     }
 
@@ -74,6 +81,7 @@ export abstract class Renderer<in P = any, out N extends object = any> {
       } else {
         if (parent != null) this._parentNodes.set(rendering, parent);
         this.insertNode(node, before);
+        this._elementNodeRefSetters.get(node)?.(node);
       }
     }
 
@@ -105,6 +113,7 @@ export abstract class Renderer<in P = any, out N extends object = any> {
         this.removeRendering(node);
       } else {
         this.removeNode(node);
+        this._elementNodeRefSetters.get(node)?.(null);
       }
     }
   }
@@ -122,6 +131,20 @@ export abstract class Renderer<in P = any, out N extends object = any> {
     }
 
     return result;
+  }
+
+  nodeRef(s: Scope): Signal<N | null> {
+    const [signal, setSignal] = s.signal<N | null>(null);
+    this._nodeRefSignals.set(signal, setSignal);
+    return signal;
+  }
+
+  linkNodeRef(element: N, signal: Signal<N | null>): void {
+    const setter = this._nodeRefSignals.get(signal);
+
+    if (setter != null) {
+      this._elementNodeRefSetters.set(element, setter);
+    }
   }
 }
 
