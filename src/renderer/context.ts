@@ -40,7 +40,9 @@ class ContextInner<T> implements Context<T> {
   }
 }
 
-export function createContext<T>(defaultValue: T): Context<T> {
+export function createContext<T>(): Context<T | undefined>;
+export function createContext<T>(defaultValue: T): Context<T>;
+export function createContext<T>(defaultValue?: T): Context<T | undefined> {
   return new ContextInner(defaultValue);
 }
 

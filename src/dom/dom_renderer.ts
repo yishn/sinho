@@ -2,9 +2,12 @@ import {
   ComponentProps,
   FunctionComponent,
   FunctionComponentWrapper,
-} from "../renderer/component.ts";
-import { Component, Renderer } from "../renderer/mod.ts";
-import { Scope, Signal } from "../scope.ts";
+  Component,
+  Renderer,
+  Scope,
+  Signal,
+} from "../mod.ts";
+import type { ShingoProps } from "./dom.ts";
 import { TagComponent } from "./tag.ts";
 
 export enum HtmlNodeType {
@@ -55,17 +58,17 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
 export function h<T extends keyof JSX.IntrinsicElements>(
   type: T,
   props: JSX.IntrinsicElements[T],
-  ...children: Component<any, DomRenderer>[]
+  ...children: Extract<ShingoProps<never>["children"], unknown[]>
 ): TagComponent<T & string>;
 export function h<T extends new (props: any) => Component<any, DomRenderer>>(
   type: T,
   props: ComponentProps<InstanceType<T>>,
-  ...children: Component<any, DomRenderer>[]
+  ...children: Extract<ShingoProps<never>["children"], unknown[]>
 ): InstanceType<T>;
 export function h<T extends FunctionComponent<any, DomRenderer>>(
   type: T,
   props: ComponentProps<T>,
-  ...children: Component<any, DomRenderer>[]
+  ...children: Extract<ShingoProps<never>["children"], unknown[]>
 ): ReturnType<T>;
 export function h(
   type: any,

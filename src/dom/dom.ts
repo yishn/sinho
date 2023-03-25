@@ -331,7 +331,7 @@ export type DangerousHtml = SignalLike<{
   __html: string;
 }>;
 
-interface ShingoProps<E> {
+export interface ShingoProps<E> {
   ref?: Signal<E | null>;
   style?: Style;
   dangerouslySetInnerHTML?: DangerousHtml;
