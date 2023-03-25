@@ -61,7 +61,7 @@ export interface WhenProps<R extends Renderer> {
 
 export class When<R extends Renderer> extends Component<WhenProps<R>, R> {
   render(s: RendererScope<R>): Rendering<R> {
-    return new Switch({
+    return new Switch<R>({
       cases: [
         when(
           this.props.condition ?? true,

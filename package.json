@@ -5,12 +5,12 @@
   "keywords": ["ui", "framework", "signal"],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yishn/shingo-ts.git"
+    "url": "git+https://github.com/yishn/shingo.git"
   },
   "author": "Yichuan Shen",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/yishn/shingo-ts/issues"
+    "url": "https://github.com/yishn/shingo/issues"
   },
-  "homepage": "https://github.com/yishn/shingo-ts#readme"
+  "homepage": "https://github.com/yishn/shingo#readme"
 }

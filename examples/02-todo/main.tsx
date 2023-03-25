@@ -25,7 +25,7 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
   ]);
 
   return (
-    <div class={() => "app"}>
+    <div class="app">
       <h1>Todo!</h1>
 
       <form
@@ -47,13 +47,13 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
       >
         <p>
           <input
-            placeholder={() => "New task..."}
+            placeholder="New task..."
             value={newTaskText}
             oninput={(evt) => {
               setNewTaskText(evt.currentTarget.value);
             }}
           />{" "}
-          <button type={() => "submit"}>+</button>{" "}
+          <button type="submit">+</button>{" "}
           <button
             onclick={(evt) => {
               evt.preventDefault();
@@ -81,7 +81,7 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
           {(task, i) => (
             <li>
               <button
-                title={() => "Remove"}
+                title="Remove"
                 onclick={() => {
                   setTasks((tasks) => tasks.filter((_, j) => j !== i()));
                 }}
@@ -90,7 +90,7 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
               </button>{" "}
               <label>
                 <input
-                  type={() => "checkbox"}
+                  type="checkbox"
                   checked={() => task().done}
                   onclick={() => {
                     setTasks((tasks) => {

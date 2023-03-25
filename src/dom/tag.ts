@@ -82,7 +82,7 @@ export class TagComponent<T extends string> extends DomComponent<TagProps<T>> {
   }
 }
 
-interface TextProps {
+export interface TextProps {
   children?: string | number | SignalLike<string | number>;
 }
 
