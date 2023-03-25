@@ -1,10 +1,5 @@
 import type { SignalLike } from "../scope.ts";
-import type {
-  Renderer,
-  RendererNode,
-  RendererScope,
-  Rendering,
-} from "./renderer.ts";
+import type { Renderer, RendererScope, Rendering } from "./renderer.ts";
 import { Component } from "./component.ts";
 import { Fragment } from "./fragment.ts";
 
@@ -13,11 +8,7 @@ export interface SwitchProps<R extends Renderer> {
 }
 
 export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
-  render(_: RendererScope<R>): never {
-    throw new Error("unimplemented");
-  }
-
-  reify(s: RendererScope<R>): Rendering<R> {
+  render(s: RendererScope<R>): Rendering<R> {
     const rendering: Rendering<R> = [];
 
     const result = s.memo(() => {
@@ -25,16 +16,16 @@ export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
         const memoizedCondition = s.memo(() => when.condition?.());
 
         if (memoizedCondition()) {
-          return when.render?.() ?? new Fragment({});
+          return when.render?.() ?? new Fragment<R>({});
         }
       }
 
-      return new Fragment({});
+      return new Fragment<R>({});
     });
 
     s.effect(() => {
       const component = result();
-      const [childRendering] = component.reifyWithDestructor(s);
+      const [childRendering] = component.renderWithDestructor(s);
 
       s.renderer.appendIntoRendering(childRendering, rendering);
 
@@ -69,7 +60,7 @@ export interface WhenProps<R extends Renderer> {
 }
 
 export class When<R extends Renderer> extends Component<WhenProps<R>, R> {
-  render(_: RendererScope<R>): Component<any, R> {
+  render(s: RendererScope<R>): Rendering<R> {
     return new Switch({
       cases: [
         when(
@@ -78,6 +69,6 @@ export class When<R extends Renderer> extends Component<WhenProps<R>, R> {
         ),
         when(true, this.props.otherwise ?? (() => new Fragment({}))),
       ],
-    });
+    }).render(s);
   }
 }

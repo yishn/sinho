@@ -8,11 +8,7 @@ export type TagProps<T extends string> = {
 } & JSX.IntrinsicElements[T];
 
 export class TagComponent<T extends string> extends DomComponent<TagProps<T>> {
-  render(_: RendererScope<DomRenderer>): never {
-    throw new Error("unimplemented");
-  }
-
-  reify(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
+  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
     const { tagName, ref, style, children, dangerouslySetInnerHTML, ...attrs } =
       this.props;
     const prevIsSvg = s.renderer.isSvg;
@@ -66,14 +62,16 @@ export class TagComponent<T extends string> extends DomComponent<TagProps<T>> {
     } else {
       s.renderer.appendRendering(
         new Fragment({
-          children: [children].flat(1).map((child) => {
-            if (child instanceof Component) {
-              return child;
-            } else {
-              return new Text({ children: child });
+          children: (Array.isArray(children) ? children : [children]).map(
+            (child) => {
+              if (child instanceof Component) {
+                return child;
+              } else {
+                return new Text({ children: child });
+              }
             }
-          }),
-        }).reify(s),
+          ),
+        }).render(s),
         node
       );
     }
@@ -89,11 +87,7 @@ interface TextProps {
 }
 
 export class Text extends DomComponent<TextProps> {
-  render(_: RendererScope<DomRenderer>): never {
-    throw new Error("unimplemented");
-  }
-
-  reify(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
+  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
     const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
 
     s.effect(() => {

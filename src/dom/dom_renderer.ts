@@ -1,4 +1,8 @@
-import { ComponentProps } from "../renderer/component.ts";
+import {
+  ComponentProps,
+  FunctionComponent,
+  FunctionComponentWrapper,
+} from "../renderer/component.ts";
 import { Component, Renderer } from "../renderer/mod.ts";
 import { Scope, Signal } from "../scope.ts";
 import { TagComponent } from "./tag.ts";
@@ -58,8 +62,13 @@ export function h<T extends new (props: any) => Component<any, DomRenderer>>(
   props: ComponentProps<InstanceType<T>>,
   ...children: Component<any, DomRenderer>[]
 ): InstanceType<T>;
+export function h<T extends FunctionComponent<any, DomRenderer>>(
+  type: T,
+  props: ComponentProps<T>,
+  ...children: Component<any, DomRenderer>[]
+): ReturnType<T>;
 export function h(
-  type: string | (new (props: any) => Component<any, DomRenderer>),
+  type: any,
   props: any,
   ...children: any[]
 ): Component<any, DomRenderer> {
@@ -67,7 +76,9 @@ export function h(
 
   if (typeof type === "string") {
     return new TagComponent({ tagName: type, children, ...props });
-  } else {
+  } else if (type.prototype !== undefined) {
     return new type({ children, ...props });
+  } else {
+    return new FunctionComponentWrapper<any, DomRenderer>(props, type);
   }
 }

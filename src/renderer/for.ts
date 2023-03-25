@@ -94,11 +94,7 @@ class IndexedFor<T, R extends Renderer> extends Component<
   Omit<ForProps<T, R>, "key">,
   R
 > {
-  render(_: RendererScope<R>): never {
-    throw new Error("unimplemented");
-  }
-
-  reify(s: RendererScope<R>): Rendering<R> {
+  render(s: RendererScope<R>): Rendering<R> {
     let firstTime = true;
 
     const { source = () => [] } = this.props;
@@ -121,7 +117,7 @@ class IndexedFor<T, R extends Renderer> extends Component<
                 i < source().length && i >= 0 ? source()[i] : value.peek()
               );
               const eachRendering: Rendering<R> =
-                this.props.children?.(value, index).reifyWithDestructor(s)[0] ??
+                this.props.children?.(value, index).renderWithDestructor(s)[0] ??
                 [];
 
               Object.assign(entry, {
@@ -166,13 +162,9 @@ class IndexedFor<T, R extends Renderer> extends Component<
 }
 
 export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
-  render(_: RendererScope<R>): never {
-    throw new Error("unimplemented");
-  }
-
-  reify(s: RendererScope<R>): Rendering<R> {
+  render(s: RendererScope<R>): Rendering<R> {
     if (this.props.key == null) {
-      return new IndexedFor(this.props).reify(s);
+      return new IndexedFor(this.props).render(s);
     }
 
     type K = string | number;
@@ -203,7 +195,7 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
                   : value.peek()
               );
               const eachRendering: Rendering<R> =
-                this.props.children?.(value, index).reifyWithDestructor(s)[0] ??
+                this.props.children?.(value, index).renderWithDestructor(s)[0] ??
                 [];
 
               Object.assign(entry, {

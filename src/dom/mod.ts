@@ -4,7 +4,4 @@ import type { DomRenderer } from "./dom_renderer.ts";
 export * from "./dom_renderer.ts";
 export * from "./tag.ts";
 
-export abstract class DomComponent<out P = any> extends Component<
-  P,
-  DomRenderer
-> {}
+export abstract class DomComponent<P = any> extends Component<P, DomRenderer> {}

@@ -9,15 +9,11 @@ export class Fragment<R extends Renderer> extends Component<
   FragmentProps<R>,
   R
 > {
-  render(_: RendererScope<R>): never {
-    throw new Error("unimplemented");
-  }
-
-  reify(s: RendererScope<R>): Rendering<R> {
+  render(s: RendererScope<R>): Rendering<R> {
     const { children = [] } = this.props;
 
-    return (
-      [children].flat(1).map((component) => component.reify(s)) ?? []
-    );
+    return !Array.isArray(children)
+      ? [children.render(s)]
+      : children.map((component) => component.render(s)) ?? [];
   }
 }

@@ -154,7 +154,7 @@ export function mount<R extends Renderer>(
   parent: RendererNode<R>
 ): Destructor {
   const s = new RendererScope(renderer);
-  const [rendering, destructor] = component.reifyWithDestructor(s);
+  const [rendering, destructor] = component.renderWithDestructor(s);
 
   s.renderer.appendRendering(rendering, parent);
 
