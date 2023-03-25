@@ -25,8 +25,13 @@
  * SOFTWARE.
  */
 
-import type { OptionalSignal, Signal, SignalLike } from "../scope.ts";
-import type { Component } from "../renderer/mod.ts";
+import type {
+  Children,
+  Component,
+  OptionalSignal,
+  Signal,
+  SignalLike,
+} from "../mod.ts";
 import type { DomRenderer } from "./mod.ts";
 
 const IS_NON_DIMENSIONAL =
@@ -332,8 +337,8 @@ interface ShingoProps<E> {
   dangerouslySetInnerHTML?: DangerousHtml;
   children?:
     | OptionalSignal<string | number>
-    | Component<any, DomRenderer>
-    | (OptionalSignal<string | number> | Component<any, DomRenderer>)[];
+    | OptionalSignal<string | number>[]
+    | Children<DomRenderer>;
 }
 
 interface HtmlProps<E> extends ShingoProps<E> {

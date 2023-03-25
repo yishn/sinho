@@ -1,13 +1,16 @@
 import { RendererScope, Rendering, Fragment, Component } from "../mod.ts";
 import type { SignalLike } from "../scope.ts";
-import { HtmlNodeType, DomRenderer, DomComponent } from "./mod.ts";
+import { HtmlNodeType, DomRenderer } from "./mod.ts";
 import { setAttr, setStyle } from "./dom.ts";
 
 export type TagProps<T extends string> = {
   tagName: T;
 } & JSX.IntrinsicElements[T];
 
-export class TagComponent<T extends string> extends DomComponent<TagProps<T>> {
+export class TagComponent<T extends string> extends Component<
+  TagProps<T>,
+  DomRenderer
+> {
   render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
     const { tagName, ref, style, children, dangerouslySetInnerHTML, ...attrs } =
       this.props;
@@ -86,7 +89,7 @@ export interface TextProps {
   children?: string | number | SignalLike<string | number>;
 }
 
-export class Text extends DomComponent<TextProps> {
+export class Text extends Component<TextProps, DomRenderer> {
   render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
     const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
 

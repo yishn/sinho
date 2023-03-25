@@ -57,3 +57,7 @@ export type ComponentRenderer<C extends Component | FunctionComponent> =
   C extends Component<infer _, infer R> | FunctionComponent<infer _, infer R>
     ? R
     : never;
+
+export type Children<R extends Renderer> =
+  | Component<any, R>
+  | Component<any, R>[];
