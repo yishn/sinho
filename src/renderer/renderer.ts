@@ -63,11 +63,11 @@ export abstract class Renderer<in P = any, in out N extends object = any> {
     this._fireMountListeners(rendering);
   }
 
-  appendRenderingIntoRendering(
+  appendIntoRendering(
     rendering: RenderingWithNode<N>,
     parent: RenderingWithNode<N>
   ): void {
-    this.insertRenderingIntoRendering(rendering, parent, parent.length);
+    this.insertIntoRendering(rendering, parent, parent.length);
   }
 
   insertRendering(rendering: RenderingWithNode<N>, before: N): void {
@@ -88,7 +88,7 @@ export abstract class Renderer<in P = any, in out N extends object = any> {
     this._fireMountListeners(rendering);
   }
 
-  insertRenderingIntoRendering(
+  insertIntoRendering(
     rendering: RenderingWithNode<N>,
     parent: RenderingWithNode<N>,
     index: number

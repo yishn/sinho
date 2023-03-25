@@ -77,9 +77,9 @@ function diff<K>(
   return [ops, valueOps];
 }
 
-interface StateEntry<R extends Renderer, T> {
-  value: Signal<T>;
-  index: Signal<number>;
+interface StateEntry<T> {
+  value: SignalLike<T>;
+  index: SignalLike<number>;
   setIndex: SignalSetter<number>;
   destructor: Destructor;
 }
@@ -90,20 +90,98 @@ interface ForProps<T, R extends Renderer> {
   children?: (value: Signal<T>, index: Signal<number>) => Component<any, R>;
 }
 
+class IndexedFor<T, R extends Renderer> extends Component<
+  Omit<ForProps<T, R>, "key">,
+  R
+> {
+  render(_: RendererScope<R>): never {
+    throw new Error("unimplemented");
+  }
+
+  reify(s: RendererScope<R>): Rendering<R> {
+    let firstTime = true;
+
+    const { source = () => [] } = this.props;
+    const rendering: Rendering<R>[] = [];
+    const state: StateEntry<T>[] = [];
+
+    s.effect(() => {
+      const length = state.length;
+      const newLength = source().length;
+      const append = newLength >= length ? true : false;
+
+      if (append) {
+        for (let i = length; i < newLength; i++) {
+          const entry: Partial<StateEntry<T>> = {};
+
+          entry.destructor = s.subscope(
+            () => {
+              const [index] = s.signal(i);
+              const value: Signal<T> = s.memo(() =>
+                i < source().length && i >= 0 ? source()[i] : value.peek()
+              );
+              const eachRendering: Rendering<R> =
+                this.props.children?.(value, index).reifyWithDestructor(s)[0] ??
+                [];
+
+              Object.assign(entry, {
+                index,
+                setIndex: () => {},
+                value,
+              });
+
+              if (!firstTime) {
+                // Insert rendering
+
+                s.renderer.insertIntoRendering(eachRendering, rendering, i);
+              } else {
+                rendering.push(eachRendering);
+              }
+            },
+            { leaked: true }
+          );
+
+          state.push(entry as StateEntry<T>);
+        }
+      } else {
+        for (let i = length - 1; i >= newLength; i--) {
+          const entry = state.pop()!;
+
+          s.renderer.removeFromRendering(rendering, i);
+          entry.destructor();
+        }
+      }
+
+      firstTime = false;
+    });
+
+    s.cleanup(() => {
+      for (const entry of state) {
+        entry.destructor();
+      }
+    });
+
+    return rendering;
+  }
+}
+
 export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
   render(_: RendererScope<R>): never {
     throw new Error("unimplemented");
   }
 
   reify(s: RendererScope<R>): Rendering<R> {
+    if (this.props.key == null) {
+      return new IndexedFor(this.props).reify(s);
+    }
+
     type K = string | number;
 
+    const { source = () => [], key } = this.props;
     let firstTime = true;
 
-    const { source = () => [], key = (_, i) => i } = this.props;
     const rendering: Rendering<R>[] = [];
-
-    const state = new Map<K, StateEntry<R, T>>();
+    const state = new Map<K, StateEntry<T>>();
     let keys: K[] = [];
 
     s.effect(() => {
@@ -114,7 +192,7 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
         if (op[0] === ArrayOpType.Added) {
           const j = op[1];
           const key = newKeys[j];
-          const entry: Partial<StateEntry<R, T>> = {};
+          const entry: Partial<StateEntry<T>> = {};
 
           entry.destructor = s.subscope(
             () => {
@@ -137,11 +215,7 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
               if (!firstTime) {
                 // Insert rendering
 
-                s.renderer.insertRenderingIntoRendering(
-                  eachRendering,
-                  rendering,
-                  j
-                );
+                s.renderer.insertIntoRendering(eachRendering, rendering, j);
               } else {
                 rendering.splice(j, 0, eachRendering);
               }
@@ -149,7 +223,7 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
             { leaked: true }
           );
 
-          state.set(key, entry as StateEntry<R, T>);
+          state.set(key, entry as StateEntry<T>);
         } else if (op[0] === ArrayOpType.Removed) {
           const i = op[1];
           const key = keys[i];
@@ -167,11 +241,7 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
           if (tempIndex !== j) {
             const [eachRendering] = rendering.splice(tempIndex, 1);
 
-            s.renderer.insertRenderingIntoRendering(
-              eachRendering,
-              rendering,
-              j
-            );
+            s.renderer.insertIntoRendering(eachRendering, rendering, j);
           }
 
           entry.setIndex(j);

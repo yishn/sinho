@@ -36,7 +36,7 @@ export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
       const component = result();
       const [childRendering] = component.reifyWithDestructor(s);
 
-      s.renderer.appendRenderingIntoRendering(childRendering, rendering);
+      s.renderer.appendIntoRendering(childRendering, rendering);
 
       s.cleanup(() => {
         s.renderer.removeFromRendering(rendering, 0);
