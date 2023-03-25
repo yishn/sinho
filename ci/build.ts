@@ -15,6 +15,9 @@ await build({
     deno: true,
   },
   package: JSON.parse(Deno.readTextFileSync("./package.json")),
+  compilerOptions: {
+    lib: ["es2021", "dom"],
+  },
 });
 
 // post build steps

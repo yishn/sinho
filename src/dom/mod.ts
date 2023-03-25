@@ -1,5 +1,3 @@
-/// <reference lib="dom" />
-
 import { Component } from "../mod.ts";
 import type { DomRenderer } from "./dom_renderer.ts";
 
