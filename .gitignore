@@ -1,2 +1,4 @@
-dist
+dist/
 examples/**/*.js
+examples/*ui5*
+src/ui5/
