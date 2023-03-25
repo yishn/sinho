@@ -1,1 +1,1 @@
-# Shingo
+# Shingō

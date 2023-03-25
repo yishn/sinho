@@ -1,6 +1,6 @@
 import { ComponentProps } from "../renderer/component.ts";
 import { Component, Renderer } from "../renderer/mod.ts";
-import { Scope, Signal, SignalSetter } from "../scope.ts";
+import { Scope, Signal } from "../scope.ts";
 import { TagComponent } from "./tag.ts";
 
 export enum HtmlNodeType {

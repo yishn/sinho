@@ -84,7 +84,7 @@ interface StateEntry<T> {
   destructor: Destructor;
 }
 
-interface ForProps<T, R extends Renderer> {
+export interface ForProps<T, R extends Renderer> {
   source?: SignalLike<T[]>;
   key?: (value: T, index: number) => string | number;
   children?: (value: Signal<T>, index: Signal<number>) => Component<any, R>;

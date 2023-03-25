@@ -169,14 +169,13 @@ export class RendererScope<out R extends Renderer> extends Scope {
   }
 
   onMount(f: () => void): void {
-    const component = this._current;
-    if (component == null) return;
+    if (this._current == null) return;
 
-    let listeners = this.renderer._mountListeners.get(component);
+    let listeners = this.renderer._mountListeners.get(this._current);
 
     if (listeners == null) {
       listeners = [];
-      this.renderer._mountListeners.set(component, listeners);
+      this.renderer._mountListeners.set(this._current, listeners);
     }
 
     listeners.push(() => {
