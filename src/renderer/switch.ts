@@ -13,7 +13,7 @@ export interface SwitchProps<R extends Renderer> {
 }
 
 export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
-  render(_: RendererScope<R>): Component<any, R> {
+  render(_: RendererScope<R>): never {
     throw new Error("unimplemented");
   }
 

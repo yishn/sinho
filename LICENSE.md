@@ -1,4 +1,6 @@
-Copyright 2023 Yichuan Shen
+All files are licensed under this MIT license unless otherwise noted:
+
+Copyright (c) 2023-present Yichuan Shen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the “Software”), to deal in

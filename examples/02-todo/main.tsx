@@ -1,7 +1,7 @@
 /* @jsx h */
 
-import { h, DomRenderer, Text } from "../../src/dom/mod.ts";
-import { Component, When, For, RendererScope, mount } from "../../src/mod.ts";
+import { h, DomRenderer, Text, DomComponent } from "../../src/dom/mod.ts";
+import { When, For, RendererScope, mount } from "../../src/mod.ts";
 
 interface Task {
   id: string;
@@ -9,7 +9,7 @@ interface Task {
   text: string;
 }
 
-class App extends Component<{}, DomRenderer> {
+class App extends DomComponent<{}> {
   render(s: RendererScope<DomRenderer>) {
     const [newTaskText, setNewTaskText] = s.signal("");
     const [tasks, setTasks] = s.signal<Task[]>([

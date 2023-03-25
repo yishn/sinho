@@ -1,9 +1,9 @@
 /* @jsx h */
 
-import { h, DomRenderer } from "../../src/dom/mod.ts";
-import { Component, RendererScope, mount, When } from "../../src/mod.ts";
+import { h, DomRenderer, DomComponent } from "../../src/dom/mod.ts";
+import { RendererScope, mount, When } from "../../src/mod.ts";
 
-class App extends Component<{}, DomRenderer> {
+class App extends DomComponent<{}> {
   render(s: RendererScope<DomRenderer>) {
     const [counter, setCounter] = s.signal(0);
     const illegal = s.memo(() => counter() < 0 || counter() > 10);

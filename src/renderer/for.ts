@@ -91,7 +91,7 @@ interface ForProps<T, R extends Renderer> {
 }
 
 export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
-  render(_: RendererScope<R>): Component<any, R> {
+  render(_: RendererScope<R>): never {
     throw new Error("unimplemented");
   }
 

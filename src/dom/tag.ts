@@ -1,22 +1,14 @@
-import {
-  Component,
-  RendererScope,
-  Rendering,
-  Fragment,
-} from "../renderer/mod.ts";
+import { RendererScope, Rendering, Fragment, Component } from "../mod.ts";
 import type { SignalLike } from "../scope.ts";
-import { HtmlNodeType, DomRenderer } from "./mod.ts";
+import { HtmlNodeType, DomRenderer, DomComponent } from "./mod.ts";
 import { setAttr, setStyle } from "./dom.ts";
 
 export type TagProps<T extends string> = {
   tagName: T;
 } & JSX.IntrinsicElements[T];
 
-export class TagComponent<T extends string> extends Component<
-  TagProps<T>,
-  DomRenderer
-> {
-  render(_: RendererScope<DomRenderer>): Component<any, DomRenderer> {
+export class TagComponent<T extends string> extends DomComponent<TagProps<T>> {
+  render(_: RendererScope<DomRenderer>): never {
     throw new Error("unimplemented");
   }
 
@@ -34,7 +26,7 @@ export class TagComponent<T extends string> extends Component<
       | SVGElement;
 
     if (ref != null) {
-      s.renderer.linkNodeRef(node, ref);
+      s.renderer.linkNodeRef(ref, node);
     }
 
     for (const [name, value] of Object.entries(style ?? {})) {
@@ -96,8 +88,8 @@ interface TextProps {
   children?: string | number | SignalLike<string | number>;
 }
 
-export class Text extends Component<TextProps, DomRenderer> {
-  render(_: RendererScope<DomRenderer>): Component<any, DomRenderer> {
+export class Text extends DomComponent<TextProps> {
+  render(_: RendererScope<DomRenderer>): never {
     throw new Error("unimplemented");
   }
 

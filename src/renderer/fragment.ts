@@ -9,7 +9,7 @@ export class Fragment<R extends Renderer> extends Component<
   FragmentProps<R>,
   R
 > {
-  render(_: RendererScope<R>): Component<any, R> {
+  render(_: RendererScope<R>): never {
     throw new Error("unimplemented");
   }
 

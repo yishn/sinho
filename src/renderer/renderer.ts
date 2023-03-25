@@ -139,7 +139,7 @@ export abstract class Renderer<in P = any, in out N extends object = any> {
     return signal;
   }
 
-  linkNodeRef(element: N, signal: Signal<N | null>): void {
+  linkNodeRef(signal: Signal<N | null>, element: N): void {
     const setter = this._nodeRefSignals.get(signal);
 
     if (setter != null) {
