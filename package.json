@@ -1,0 +1,16 @@
+{
+  "name": "shingo",
+  "version": "1.0.0",
+  "description": "A signal-based UI framework",
+  "keywords": ["ui", "framework", "signal"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yishn/shingo-ts.git"
+  },
+  "author": "Yichuan Shen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yishn/shingo-ts/issues"
+  },
+  "homepage": "https://github.com/yishn/shingo-ts#readme"
+}

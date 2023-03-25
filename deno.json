@@ -3,7 +3,7 @@
     "lib": ["dom", "dom.iterable", "dom.asynciterable", "deno.ns"]
   },
   "tasks": {
-    "build": "deno bundle ./src/mod.ts ./dist/shingo.js",
+    "build": "deno run -A ./ci/build.ts",
     "start-examples": "cd examples && deno run -A https://deno.land/x/denoliver@2.3.1/mod.ts",
     "build-examples": "deno bundle ./examples/01-counter/main.tsx ./examples/01-counter/main.js && deno bundle ./examples/02-todo/main.tsx ./examples/02-todo/main.js && deno bundle ./examples/03-ui5-todo/main.tsx ./examples/03-ui5-todo/main.js"
   }

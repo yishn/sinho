@@ -1,13 +1,7 @@
 /* @jsx h */
 
 import { h, DomRenderer, Text } from "../../src/dom/mod.ts";
-import {
-  Component,
-  When,
-  For,
-  RendererScope,
-  mount,
-} from "../../src/renderer/mod.ts";
+import { Component, When, For, RendererScope, mount } from "../../src/mod.ts";
 
 interface Task {
   id: string;

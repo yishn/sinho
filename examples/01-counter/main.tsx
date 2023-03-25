@@ -1,12 +1,7 @@
 /* @jsx h */
 
 import { h, DomRenderer } from "../../src/dom/mod.ts";
-import {
-  Component,
-  RendererScope,
-  mount,
-  When,
-} from "../../src/renderer/mod.ts";
+import { Component, RendererScope, mount, When } from "../../src/mod.ts";
 
 class App extends Component<{}, DomRenderer> {
   render(s: RendererScope<DomRenderer>) {
