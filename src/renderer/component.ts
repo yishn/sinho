@@ -35,15 +35,12 @@ export class FunctionComponentWrapper<
   P = any,
   R extends Renderer = any
 > extends Component<P, R> {
-  constructor(
-    props: P,
-    public functionComponent: FunctionComponent<P, R> | undefined
-  ) {
+  constructor(props: P, public functionComponent: FunctionComponent<P, R>) {
     super(props);
   }
 
   render(s: RendererScope<R>): Rendering<R> {
-    return this.functionComponent?.(this.props, s).render(s) ?? [];
+    return this.functionComponent(this.props, s).render(s) ?? [];
   }
 }
 

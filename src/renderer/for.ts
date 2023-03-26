@@ -117,8 +117,9 @@ class IndexedFor<T, R extends Renderer> extends Component<
                 i < source().length && i >= 0 ? source()[i] : value.peek()
               );
               const eachRendering: Rendering<R> =
-                this.props.children?.(value, index).renderWithDestructor(s)[0] ??
-                [];
+                this.props
+                  .children?.(value, index)
+                  .renderWithDestructor(s)[0] ?? [];
 
               Object.assign(entry, {
                 index,
@@ -195,8 +196,9 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
                   : value.peek()
               );
               const eachRendering: Rendering<R> =
-                this.props.children?.(value, index).renderWithDestructor(s)[0] ??
-                [];
+                this.props
+                  .children?.(value, index)
+                  .renderWithDestructor(s)[0] ?? [];
 
               Object.assign(entry, {
                 index,

@@ -337,8 +337,8 @@ export interface ShingoProps<E> {
   dangerouslySetInnerHTML?: DangerousHtml;
   children?:
     | OptionalSignal<string | number>
-    | OptionalSignal<string | number>[]
-    | Children<DomRenderer>;
+    | Component<any, DomRenderer>
+    | (OptionalSignal<string | number> | Component<any, DomRenderer>)[];
 }
 
 interface HtmlProps<E> extends ShingoProps<E> {
