@@ -1,4 +1,7 @@
-/** @jsx h */
+/**
+ * @jsx h
+ * @jsxFrag Fragment
+ */
 
 import {
   createContext,
@@ -7,7 +10,6 @@ import {
   Component,
   Fragment,
   FunctionComponent,
-  SignalSetter,
   For,
   When,
 } from "../mod.ts";
@@ -72,7 +74,7 @@ export function createStyleContext<T>(
           },
         }}
       >
-        <Fragment>{props.children}</Fragment>
+        <>{props.children}</>
 
         <For source={() => componentStyles}>
           {(componentStyle) => (

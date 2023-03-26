@@ -57,17 +57,17 @@ export class DomRenderer extends Renderer<CreateNodeArg, Node> {
 
 export function h<T extends keyof JSX.IntrinsicElements>(
   type: T,
-  props: JSX.IntrinsicElements[T],
+  props?: JSX.IntrinsicElements[T] | null,
   ...children: Extract<ShingoProps<never>["children"], unknown[]>
 ): TagComponent<T & string>;
 export function h<T extends new (props: any) => Component<any, DomRenderer>>(
   type: T,
-  props: ComponentProps<InstanceType<T>>,
+  props?: ComponentProps<InstanceType<T>> | null,
   ...children: Extract<ShingoProps<never>["children"], unknown[]>
 ): InstanceType<T>;
 export function h<T extends FunctionComponent<any, DomRenderer>>(
   type: T,
-  props: ComponentProps<T>,
+  props?: ComponentProps<T> | null,
   ...children: Extract<ShingoProps<never>["children"], unknown[]>
 ): ReturnType<T>;
 export function h(
@@ -82,6 +82,9 @@ export function h(
   } else if (type.prototype !== undefined) {
     return new type({ children, ...props });
   } else {
-    return new FunctionComponentWrapper<any, DomRenderer>(props, type);
+    return new FunctionComponentWrapper<any, DomRenderer>(
+      { children, ...props },
+      type
+    );
   }
 }
