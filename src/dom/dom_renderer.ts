@@ -79,7 +79,7 @@ export function h(
 
   if (typeof type === "string") {
     return new TagComponent({ tagName: type, children, ...props });
-  } else if (type.prototype !== undefined) {
+  } else if (type.isClassComponent) {
     return new type({ children, ...props });
   } else {
     return new FunctionComponentWrapper<any, DomRenderer>(

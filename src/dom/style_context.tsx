@@ -50,51 +50,46 @@ export function createStyleContext<T>(
     ) => void;
   }>({});
 
-  const Provider: FunctionComponent<
-    StyleProviderProps<T | undefined>,
-    DomRenderer
-  > = (props, s) => {
-    const [refCounts, setRefCounts] = s.signal(
-      new Map<ComponentType, number>()
-    );
-
-    return (
-      <StylesContext.Provider
-        value={{
-          setRefCount: (Component, mutate) => {
-            setRefCounts(
-              (map) => {
-                const refCount = map.get(Component) ?? 0;
-                map.set(Component, mutate(refCount));
-                return map;
-              },
-              { force: true }
-            );
-          },
-        }}
-      >
-        <>{props.children}</>
-
-        <For source={() => componentStyles}>
-          {(componentStyle) => (
-            <When
-              condition={() =>
-                (refCounts().get(componentStyle().component) ?? 0) > 0
-              }
-              then={() => (
-                <style>
-                  {() => componentStyle().css(props.value ?? defaultValue)}
-                </style>
-              )}
-            />
-          )}
-        </For>
-      </StylesContext.Provider>
-    );
-  };
-
   return {
-    Provider,
+    Provider: (props, s) => {
+      const [refCounts, setRefCounts] = s.signal(
+        new Map<ComponentType, number>()
+      );
+
+      return (
+        <StylesContext.Provider
+          value={{
+            setRefCount: (Component, mutate) => {
+              setRefCounts(
+                (map) => {
+                  const refCount = map.get(Component) ?? 0;
+                  map.set(Component, mutate(refCount));
+                  return map;
+                },
+                { force: true }
+              );
+            },
+          }}
+        >
+          <>{props.children}</>
+
+          <For source={() => componentStyles}>
+            {(componentStyle) => (
+              <When
+                condition={() =>
+                  (refCounts().get(componentStyle().component) ?? 0) > 0
+                }
+                then={() => (
+                  <style>
+                    {() => componentStyle().css(props.value ?? defaultValue)}
+                  </style>
+                )}
+              />
+            )}
+          </For>
+        </StylesContext.Provider>
+      );
+    },
     createStyledComponent(Component, css) {
       componentStyles.push({ component: Component, css });
 

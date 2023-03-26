@@ -313,7 +313,7 @@ export type Style = {
 };
 
 type EventMap = ElementEventMap &
-  DocumentAndElementEventHandlersEventMap &
+  DocumentEventMap &
   GlobalEventHandlersEventMap;
 
 export type EventHandler<K extends keyof EventMap, E> = (

@@ -50,13 +50,13 @@ interface Cleanup {
 
 class Subscope {
   parent?: Subscope;
-  context?: Map<Context<unknown>, unknown>;
+  context?: Map<ScopeContext<unknown>, unknown>;
   signals: Signal<any>[] = [];
   effects: Effect[] = [];
   cleanups: Cleanup[] = [];
   subscopes: Subscope[] = [];
 
-  getContext<T>(context: Context<T>): T {
+  getContext<T>(context: ScopeContext<T>): T {
     return (
       (this.context?.get(context) as T) ??
       this.parent?.getContext(context) ??
@@ -79,14 +79,14 @@ export interface Destructor extends DestructorInner {
   (): void;
 }
 
-export interface Context<T> {
+export interface ScopeContext<T> {
   defaultValue: T;
 }
 
 export class Scope {
-  static context<T>(): Context<T | undefined>;
-  static context<T>(defaultValue: T): Context<T>;
-  static context<T>(defaultValue?: T): Context<T | undefined> {
+  static context<T>(): ScopeContext<T | undefined>;
+  static context<T>(defaultValue: T): ScopeContext<T>;
+  static context<T>(defaultValue?: T): ScopeContext<T | undefined> {
     return {
       defaultValue,
     };
@@ -260,15 +260,15 @@ export class Scope {
     return this._subscope(() => f(), opts);
   }
 
-  context<T>(context: Context<T>): T;
+  context<T>(context: ScopeContext<T>): T;
   context<T>(
-    context: Context<T>,
+    context: ScopeContext<T>,
     value: T,
     f: () => void,
     opts?: SubscopeOptions
   ): Destructor;
   context<T>(
-    context: Context<T>,
+    context: ScopeContext<T>,
     value?: T,
     f?: () => void,
     opts?: SubscopeOptions

@@ -1,4 +1,4 @@
-import { Context as ScopeContext, Scope } from "../scope.ts";
+import { ScopeContext, Scope } from "../scope.ts";
 import { Children, Component } from "./component.ts";
 import { Fragment } from "./fragment.ts";
 import { Renderer, RendererScope, Rendering } from "./renderer.ts";
@@ -21,23 +21,21 @@ export function createContext<T>(defaultValue?: T): Context<T | undefined> {
   const context = Scope.context(defaultValue);
 
   return Object.assign(context, {
-    Provider: (() => {
-      return class Provider<R extends Renderer> extends Component<
-        ProviderProps<T | undefined>,
-        R
-      > {
-        render(s: RendererScope<R>): Rendering<R> {
-          let result: Rendering<R>;
+    Provider: class Provider<R extends Renderer> extends Component<
+      ProviderProps<T | undefined>,
+      R
+    > {
+      render(s: RendererScope<R>): Rendering<R> {
+        let result: Rendering<R>;
 
-          s.context(context, this.props.value, () => {
-            result = new Fragment<R>({
-              children: this.props.children,
-            }).render(s);
-          });
+        s.context(context, this.props.value, () => {
+          result = new Fragment<R>({
+            children: this.props.children,
+          }).render(s);
+        });
 
-          return result!;
-        }
-      };
-    })(),
+        return result!;
+      }
+    },
   });
 }
