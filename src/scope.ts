@@ -31,6 +31,7 @@ export interface SignalSetter<in out T> {
 
 interface Effect {
   [effectSym]: {
+    subscope: Subscope;
     clean: Destructor;
     dependencies: Signal<any>[];
     deleted: boolean;
@@ -49,10 +50,19 @@ interface Cleanup {
 
 class Subscope {
   parent?: Subscope;
+  context?: Map<Context<unknown>, unknown>;
   signals: Signal<any>[] = [];
   effects: Effect[] = [];
   cleanups: Cleanup[] = [];
   subscopes: Subscope[] = [];
+
+  getContext<T>(context: Context<T>): T {
+    return (
+      (this.context?.get(context) as T) ??
+      this.parent?.getContext(context) ??
+      context.defaultValue
+    );
+  }
 }
 
 export interface SubscopeOptions {
@@ -69,11 +79,23 @@ export interface Destructor extends DestructorInner {
   (): void;
 }
 
+export interface Context<T> {
+  defaultValue: T;
+}
+
 export class Scope {
-  private currentSubscope: Subscope = new Subscope();
-  private currentUntracked: boolean = false;
-  private currentEffect?: Effect;
-  private currentBatch?: {
+  static context<T>(): Context<T | undefined>;
+  static context<T>(defaultValue: T): Context<T>;
+  static context<T>(defaultValue?: T): Context<T | undefined> {
+    return {
+      defaultValue,
+    };
+  }
+
+  protected currentSubscope: Subscope = new Subscope();
+  protected currentUntracked: boolean = false;
+  protected currentEffect?: Effect;
+  protected currentBatch?: {
     signals: [signal: Signal<any>, value: any][];
     effects: Effect[];
   };
@@ -173,6 +195,7 @@ export class Scope {
       },
       {
         [effectSym]: {
+          subscope: this.currentSubscope,
           clean: () => {},
           dependencies: [],
           deleted: false,
@@ -203,17 +226,21 @@ export class Scope {
     });
   }
 
-  subscope(f: () => void, opts?: SubscopeOptions): Destructor {
+  private _subscope(
+    f: (subscope: Subscope) => void,
+    opts?: SubscopeOptions
+  ): Destructor {
     const subscope = new Subscope();
     const prevSubscope = this.currentSubscope;
     this.currentSubscope = subscope;
+    subscope.context = prevSubscope.context;
 
     if (!opts?.leaked) {
       prevSubscope.subscopes.push(subscope);
       subscope.parent = prevSubscope;
     }
 
-    f();
+    f(subscope);
 
     this.currentSubscope = prevSubscope;
 
@@ -227,6 +254,34 @@ export class Scope {
         },
       }
     );
+  }
+
+  subscope(f: () => void, opts?: SubscopeOptions): Destructor {
+    return this._subscope(() => f(), opts);
+  }
+
+  context<T>(context: Context<T>): T;
+  context<T>(
+    context: Context<T>,
+    value: T,
+    f: () => void,
+    opts?: SubscopeOptions
+  ): Destructor;
+  context<T>(
+    context: Context<T>,
+    value?: T,
+    f?: () => void,
+    opts?: SubscopeOptions
+  ): T | Destructor {
+    if (f != null) {
+      return this._subscope((subscope) => {
+        subscope.context = new Map([[context, value]]);
+
+        f();
+      }, opts);
+    } else {
+      return this.currentSubscope.getContext(context);
+    }
   }
 
   private _cleanEffect(effect: Effect): void {
@@ -319,7 +374,12 @@ export class Scope {
         // Run effects
 
         for (const effect of effects) {
+          const previousSubscope = this.currentSubscope;
+          this.currentSubscope = effect[effectSym].subscope;
+
           effect();
+
+          this.currentSubscope = previousSubscope;
         }
       }
 

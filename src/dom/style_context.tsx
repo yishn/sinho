@@ -5,7 +5,6 @@
 
 import {
   createContext,
-  useContext,
   Children,
   Component,
   Fragment,
@@ -100,7 +99,7 @@ export function createStyleContext<T>(
       componentStyles.push({ component: Component, css });
 
       return (props, s) => {
-        const { setRefCount } = useContext(StylesContext);
+        const { setRefCount } = s.context(StylesContext);
 
         s.effect(() => {
           setRefCount?.(Component, (count) => count + 1);

@@ -1,3 +1,4 @@
+import { Context as ScopeContext, Scope } from "../scope.ts";
 import { Children, Component } from "./component.ts";
 import { Fragment } from "./fragment.ts";
 import { Renderer, RendererScope, Rendering } from "./renderer.ts";
@@ -7,45 +8,36 @@ export interface ProviderProps<T, R extends Renderer = any> {
   children?: Children<R>;
 }
 
-export interface Context<T> {
-  Provider: new (props: ProviderProps<T>) => Component;
-  defaultValue: T;
-}
-
-class ContextInner<T> implements Context<T> {
-  protected currentValue: T | undefined;
-
-  Provider = (() => {
-    const context = this;
-
-    return class Provider extends Component<ProviderProps<T>, any> {
-      render(s: RendererScope<any>): Rendering<any> {
-        const previousValue = context.currentValue;
-        context.currentValue = this.props.value;
-
-        const result = new Fragment({
-          children: this.props.children,
-        }).render(s);
-
-        context.currentValue = previousValue;
-        return result;
-      }
-    };
-  })();
-
-  constructor(public defaultValue: T) {}
-
-  get(): T {
-    return this.currentValue ?? this.defaultValue;
-  }
+export interface Context<T> extends ScopeContext<T> {
+  Provider: new <R extends Renderer>(props: ProviderProps<T>) => Component<
+    ProviderProps<T>,
+    R
+  >;
 }
 
 export function createContext<T>(): Context<T | undefined>;
 export function createContext<T>(defaultValue: T): Context<T>;
 export function createContext<T>(defaultValue?: T): Context<T | undefined> {
-  return new ContextInner(defaultValue);
-}
+  const context = Scope.context(defaultValue);
 
-export function useContext<T>(context: Context<T>): T {
-  return (context as ContextInner<T>).get();
+  return Object.assign(context, {
+    Provider: (() => {
+      return class Provider<R extends Renderer> extends Component<
+        ProviderProps<T | undefined>,
+        R
+      > {
+        render(s: RendererScope<R>): Rendering<R> {
+          let result: Rendering<R>;
+
+          s.context(context, this.props.value, () => {
+            result = new Fragment<R>({
+              children: this.props.children,
+            }).render(s);
+          });
+
+          return result!;
+        }
+      };
+    })(),
+  });
 }
