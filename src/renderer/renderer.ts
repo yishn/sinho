@@ -17,7 +17,7 @@ export type RendererNode<R extends Renderer> = NonNullable<
   R[typeof nodeTypeSym]
 >;
 
-export abstract class Renderer<in P = any, in out N extends object = any> {
+export abstract class Renderer<in I = any, in out N extends object = any> {
   [nodeTypeSym]?: N;
 
   private _nodeRefSignals = new WeakMap<
@@ -34,7 +34,10 @@ export abstract class Renderer<in P = any, in out N extends object = any> {
   >();
   _mountListeners = new WeakMap<Component<any, this>, (() => void)[]>();
 
-  abstract createSimpleComponent(name: string, props: P): Component<any, this>;
+  abstract createIntrinsicComponent<T extends keyof I & string>(
+    name: T,
+    props: I[T]
+  ): Component<any, this>;
 
   abstract appendNode(parent: N, node: N): void;
   abstract insertNode(node: N, before: N): void;

@@ -16,13 +16,18 @@ export class RendererScope<out R extends Renderer> extends Scope {
   }
 
   createComponent<
-    C extends string | FunctionComponent<any, R> | ComponentConstructor<any, R>
+    C extends
+      | (R extends Renderer<infer I, infer _> ? keyof I & string : never)
+      | FunctionComponent<any, R>
+      | ComponentConstructor<any, R>
   >(
     component: C,
     props: C extends FunctionComponent<any, R> | ComponentConstructor<any, R>
       ? ComponentProps<C>
-      : R extends Renderer<infer P, infer _>
-      ? P
+      : R extends Renderer<infer I, infer _>
+      ? C extends keyof I
+        ? I[C]
+        : never
       : never,
     ...children: Component<any, R>[]
   ): Component<any, R> {
@@ -39,7 +44,10 @@ export class RendererScope<out R extends Renderer> extends Scope {
     };
 
     if (typeof component === "string") {
-      return this.renderer.createSimpleComponent(component, propsWithChildren);
+      return this.renderer.createIntrinsicComponent(
+        component,
+        propsWithChildren
+      );
     } else if (isClassComponent(component)) {
       return new component(propsWithChildren);
     } else {
