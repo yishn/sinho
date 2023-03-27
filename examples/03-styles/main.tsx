@@ -1,12 +1,7 @@
-/** @jsx h */
+/** @jsx s.createComponent */
 
-import { h, DomRenderer, createStyleContext } from "../../src/dom/mod.ts";
-import {
-  mount,
-  FunctionComponent,
-  SignalLike,
-  Children,
-} from "../../src/mod.ts";
+import { DomRenderer, createStyleContext } from "../../src/dom/mod.ts";
+import { FunctionComponent, SignalLike, Children } from "../../src/mod.ts";
 
 type ThemeMode = "light" | "dark";
 
@@ -15,7 +10,7 @@ const StyleContext = createStyleContext<SignalLike<ThemeMode>>(() => "light");
 const Page = StyleContext.createStyledComponent<{
   children?: Children<DomRenderer>;
 }>(
-  (props, _) => <div class="page">{props.children}</div>,
+  (props, s) => <div class="page">{props.children}</div>,
   (mode) => `
     .page {
       padding: 1em 2em;
@@ -29,7 +24,7 @@ const Page = StyleContext.createStyledComponent<{
 const Button = StyleContext.createStyledComponent<
   JSX.IntrinsicElements["button"]
 >(
-  (props, _) => <button class="button" {...props} />,
+  (props, s) => <button class="button" {...props} />,
   (mode) => `
     .button {
       padding: .2em .5em;
@@ -66,4 +61,4 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
   );
 };
 
-mount(new DomRenderer(), <App />, document.getElementById("root")!);
+new DomRenderer().mount(App, document.getElementById("root")!);

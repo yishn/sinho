@@ -1,7 +1,7 @@
-/* @jsx h */
+/* @jsx s.createComponent */
 
-import { h, DomRenderer, Text } from "../../src/dom/mod.ts";
-import { When, For, mount, FunctionComponent } from "../../src/mod.ts";
+import { DomRenderer, Text } from "../../src/dom/mod.ts";
+import { When, For, FunctionComponent } from "../../src/mod.ts";
 
 interface Task {
   id: string;
@@ -121,4 +121,4 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
   );
 };
 
-mount(new DomRenderer(), <App />, document.getElementById("root")!);
+new DomRenderer().mount(App, document.getElementById("root")!);

@@ -1,5 +1,5 @@
 /**
- * @jsx h
+ * @jsx s.createComponent
  * @jsxFrag Fragment
  */
 
@@ -12,7 +12,7 @@ import {
   For,
   When,
 } from "../mod.ts";
-import { h, DomRenderer } from "./dom_renderer.ts";
+import { DomRenderer } from "./dom_renderer.ts";
 
 type ComponentType<P = any> =
   | (new (props: P) => Component<P, DomRenderer>)

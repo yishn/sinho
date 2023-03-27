@@ -1,6 +1,6 @@
 import { RendererScope, Rendering, Fragment, Component } from "../mod.ts";
 import type { SignalLike } from "../scope.ts";
-import { HtmlNodeType, DomRenderer } from "./mod.ts";
+import { DomRenderer } from "./mod.ts";
 import { setAttr, setStyle } from "./dom.ts";
 
 export type TagProps<T extends string> = {
@@ -20,9 +20,9 @@ export class TagComponent<T extends string> extends Component<
       s.renderer.isSvg = true;
     }
 
-    const node = s.renderer.createNode([HtmlNodeType.Element, tagName]) as
-      | HTMLElement
-      | SVGElement;
+    const node = !s.renderer.isSvg
+      ? document.createElement(tagName)
+      : document.createElementNS("http://www.w3.org/2000/svg", tagName);
 
     if (ref != null) {
       s.renderer.linkNodeRef(ref, node);
@@ -91,7 +91,7 @@ export interface TextProps {
 
 export class Text extends Component<TextProps, DomRenderer> {
   render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
-    const node = s.renderer.createNode([HtmlNodeType.Text, ""]);
+    const node = document.createTextNode("");
 
     s.effect(() => {
       const text =

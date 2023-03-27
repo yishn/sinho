@@ -1,18 +1,25 @@
-import { Component } from "./component.ts";
+import {
+  Component,
+  ComponentConstructor,
+  FunctionComponent,
+  FunctionComponentWrapper,
+} from "./component.ts";
 import { Scope, Destructor, Signal, SignalSetter } from "../scope.ts";
+import { RendererScope } from "./renderer_scope.ts";
+
+declare const nodeTypeSym: unique symbol;
 
 type RenderingWithNode<N> = (N | RenderingWithNode<N>)[];
 
 export type Rendering<R extends Renderer> = RenderingWithNode<RendererNode<R>>;
 
-export type RendererNode<R extends Renderer> = R extends Renderer<
-  infer _,
-  infer N
->
-  ? N
-  : never;
+export type RendererNode<R extends Renderer> = NonNullable<
+  R[typeof nodeTypeSym]
+>;
 
 export abstract class Renderer<in P = any, in out N extends object = any> {
+  [nodeTypeSym]?: N;
+
   private _nodeRefSignals = new WeakMap<
     Signal<N | null>,
     SignalSetter<N | null>
@@ -27,7 +34,7 @@ export abstract class Renderer<in P = any, in out N extends object = any> {
   >();
   _mountListeners = new WeakMap<Component<any, this>, (() => void)[]>();
 
-  abstract createNode(arg: P): N;
+  abstract createSimpleComponent(name: string, props: P): Component<any, this>;
 
   abstract appendNode(parent: N, node: N): void;
   abstract insertNode(node: N, before: N): void;
@@ -93,9 +100,7 @@ export abstract class Renderer<in P = any, in out N extends object = any> {
     parent: RenderingWithNode<N>,
     index: number
   ): void {
-    const marker = getMarker(this, parent as Rendering<this>, index) as
-      | N
-      | undefined;
+    const marker = this.getMarkerNode(parent, index);
 
     if (marker != null) {
       this.insertRendering(rendering, marker);
@@ -133,6 +138,25 @@ export abstract class Renderer<in P = any, in out N extends object = any> {
     return result;
   }
 
+  getMarkerNode(
+    rendering: RenderingWithNode<N> | undefined,
+    index: number = 0
+  ): N | undefined {
+    if (rendering == null) {
+      return undefined;
+    } else if (index >= rendering.length) {
+      const parentRendering = this._parentRenderings.get(rendering);
+      return this.getMarkerNode(
+        parentRendering,
+        (parentRendering?.indexOf(rendering) ?? -1) + 1
+      );
+    } else if (Array.isArray(rendering[index])) {
+      return this.getMarkerNode(rendering[index] as RenderingWithNode<N>);
+    }
+
+    return rendering[index] as N;
+  }
+
   nodeRef(s: Scope): Signal<N | null> {
     const [signal, setSignal] = s.signal<N | null>(null);
     this._nodeRefSignals.set(signal, setSignal);
@@ -146,69 +170,21 @@ export abstract class Renderer<in P = any, in out N extends object = any> {
       this._elementNodeRefSetters.set(element, setter);
     }
   }
-}
 
-export function mount<R extends Renderer>(
-  renderer: R,
-  component: Component<any, R>,
-  parent: RendererNode<R>
-): Destructor {
-  const s = new RendererScope(renderer);
-  const [rendering, destructor] = component.renderWithDestructor(s);
+  mount<R extends Renderer>(
+    this: R,
+    component: Component<any, R> | FunctionComponent<{}, R>,
+    parent: N
+  ): Destructor {
+    const s = new RendererScope(this);
+    const [rendering, destructor] = (
+      component instanceof Component
+        ? component
+        : new FunctionComponentWrapper({}, component)
+    ).renderWithDestructor(s);
 
-  s.renderer.appendRendering(rendering, parent);
+    s.renderer.appendRendering(rendering, parent);
 
-  return destructor;
-}
-
-export class RendererScope<out R extends Renderer> extends Scope {
-  _current: Component<any, R> | undefined;
-
-  constructor(public renderer: R) {
-    super();
+    return destructor;
   }
-
-  onMount(f: () => void): void {
-    if (this._current == null) return;
-
-    const currentSubscope = this.currentSubscope;
-    let listeners = this.renderer._mountListeners.get(this._current);
-
-    if (listeners == null) {
-      listeners = [];
-      this.renderer._mountListeners.set(this._current, listeners);
-    }
-
-    listeners.push(() => {
-      const previousSubscope = this.currentSubscope;
-      this.currentSubscope = currentSubscope;
-
-      this.batch(() => {
-        f();
-      });
-
-      this.currentSubscope = previousSubscope;
-    });
-  }
-}
-
-export function getMarker<R extends Renderer>(
-  renderer: R,
-  rendering: Rendering<R> | undefined,
-  index: number = 0
-): RendererNode<R> | undefined {
-  if (rendering == null) {
-    return undefined;
-  } else if (index >= rendering.length) {
-    const parentRendering = renderer._parentRenderings.get(rendering);
-    return getMarker(
-      renderer,
-      parentRendering,
-      (parentRendering?.indexOf(rendering) ?? -1) + 1
-    );
-  } else if (Array.isArray(rendering[index])) {
-    return getMarker(renderer, rendering[index]);
-  }
-
-  return rendering[index] as RendererNode<R>;
 }

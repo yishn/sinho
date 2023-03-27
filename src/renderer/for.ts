@@ -1,12 +1,7 @@
 import { Destructor, Signal, SignalLike, SignalSetter } from "../scope.ts";
 import { Component } from "./component.ts";
-import {
-  getMarker,
-  Renderer,
-  RendererNode,
-  RendererScope,
-  Rendering,
-} from "./renderer.ts";
+import { Renderer, Rendering } from "./renderer.ts";
+import { RendererScope } from "./renderer_scope.ts";
 
 enum ArrayOpType {
   Added,

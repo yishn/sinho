@@ -2,7 +2,11 @@
   "name": "shingo",
   "version": "1.0.0",
   "description": "A signal-based UI framework",
-  "keywords": ["ui", "framework", "signal"],
+  "keywords": [
+    "ui",
+    "framework",
+    "signal"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yishn/shingo.git"

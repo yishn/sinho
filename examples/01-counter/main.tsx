@@ -1,7 +1,7 @@
-/* @jsx h */
+/* @jsx s.createComponent */
 
-import { h, DomRenderer } from "../../src/dom/mod.ts";
-import { mount, When, FunctionComponent } from "../../src/mod.ts";
+import { DomRenderer } from "../../src/dom/mod.ts";
+import { When, FunctionComponent } from "../../src/mod.ts";
 
 const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
   const [counter, setCounter] = s.signal(0);
@@ -53,4 +53,4 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
   );
 };
 
-mount(new DomRenderer(), <App />, document.getElementById("root")!);
+new DomRenderer().mount(App, document.getElementById("root")!);

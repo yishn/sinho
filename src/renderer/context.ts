@@ -1,7 +1,8 @@
 import { ScopeContext, Scope } from "../scope.ts";
 import { Children, Component } from "./component.ts";
 import { Fragment } from "./fragment.ts";
-import { Renderer, RendererScope, Rendering } from "./renderer.ts";
+import { Renderer, Rendering } from "./renderer.ts";
+import { RendererScope } from "./renderer_scope.ts";
 
 export interface ProviderProps<T, R extends Renderer = any> {
   value: T;

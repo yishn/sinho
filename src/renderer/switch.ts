@@ -1,7 +1,8 @@
 import type { SignalLike } from "../scope.ts";
-import type { Renderer, RendererScope, Rendering } from "./renderer.ts";
+import type { Renderer, Rendering } from "./renderer.ts";
 import { Component } from "./component.ts";
 import { Fragment } from "./fragment.ts";
+import { RendererScope } from "./renderer_scope.ts";
 
 export interface SwitchProps<R extends Renderer> {
   cases?: Case<R>[];
