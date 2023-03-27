@@ -171,6 +171,7 @@ export class RendererScope<out R extends Renderer> extends Scope {
   onMount(f: () => void): void {
     if (this._current == null) return;
 
+    const currentSubscope = this.currentSubscope;
     let listeners = this.renderer._mountListeners.get(this._current);
 
     if (listeners == null) {
@@ -179,9 +180,14 @@ export class RendererScope<out R extends Renderer> extends Scope {
     }
 
     listeners.push(() => {
+      const previousSubscope = this.currentSubscope;
+      this.currentSubscope = currentSubscope;
+
       this.batch(() => {
         f();
       });
+
+      this.currentSubscope = previousSubscope;
     });
   }
 }
