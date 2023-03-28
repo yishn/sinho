@@ -14,7 +14,7 @@ export interface Signal<out T> extends SignalLike<T> {
   };
 
   peek(): T;
-  track(): void;
+  track(): T;
 }
 
 export type OptionalSignal<T> = T | SignalLike<T>;
@@ -100,7 +100,11 @@ export class Scope {
     effects: Effect[];
   };
 
-  signal<T>(value: T): [Signal<T>, SignalSetter<T>] {
+  signal<T>(): [Signal<T | undefined>, SignalSetter<T | undefined>];
+  signal<T>(value: T): [Signal<T>, SignalSetter<T>];
+  signal<U>(value?: U): [Signal<U | undefined>, SignalSetter<U | undefined>] {
+    type T = U | undefined;
+
     const signal: Signal<T> = Object.assign(
       (): T => {
         if (!this.currentUntracked) {
@@ -121,6 +125,8 @@ export class Scope {
               this.currentEffect[effectSym].dependencies.push(signal);
             }
           }
+
+          return signal.peek();
         },
         [signalSym]: {
           value,

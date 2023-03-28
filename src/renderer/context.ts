@@ -10,7 +10,7 @@ export interface ProviderProps<T, R extends Renderer = any> {
 }
 
 export interface Context<T> extends ScopeContext<T> {
-  Provider: new <R extends Renderer>(props: ProviderProps<T>) => Component<
+  Provider: new <R extends Renderer>(props: ProviderProps<T, R>) => Component<
     ProviderProps<T>,
     R
   >;

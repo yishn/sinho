@@ -40,6 +40,10 @@ export interface FunctionComponent<P = any, R extends Renderer = any> {
   (props: P, s: RendererScope<R>): Component<any, R>;
 }
 
+export type ComponentType<P = any, R extends Renderer = any> =
+  | ComponentConstructor<P, R>
+  | FunctionComponent<P, R>;
+
 export interface FunctionComponentWrapperProps<R extends Renderer> {
   functionComponent: (s: RendererScope<R>) => Component<any, R>;
 }

@@ -25,12 +25,9 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
   >();
   private _elementNodeRefSetters = new WeakMap<N, SignalSetter<N | null>>();
 
-  _parentRenderings = new WeakMap<RenderingWithNode<N>, RenderingWithNode<N>>();
-  _parentNodes = new WeakMap<N | RenderingWithNode<N>, N>();
-  _renderingComponents = new WeakMap<
-    RenderingWithNode<N>,
-    Component<any, this>
-  >();
+  _parentRenderings = new WeakMap<Rendering<this>, Rendering<this>>();
+  _parentNodes = new WeakMap<N | Rendering<this>, N>();
+  _renderingComponents = new WeakMap<Rendering<this>, Component<any, this>>();
   _mountListeners = new WeakMap<Component<any, this>, (() => void)[]>();
 
   abstract createIntrinsicComponent<T extends keyof I & string>(
@@ -42,7 +39,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
   abstract insertNode(node: N, before: N): void;
   abstract removeNode(node: N): void;
 
-  private _fireMountListeners(rendering: RenderingWithNode<N>) {
+  private _fireMountListeners(rendering: Rendering<this>) {
     const component = this._renderingComponents.get(rendering);
 
     if (component != null) {
@@ -55,7 +52,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     }
   }
 
-  appendRendering(rendering: RenderingWithNode<N>, parent: N): void {
+  appendRendering(rendering: Rendering<this>, parent: N): void {
     this._parentNodes.set(rendering, parent);
 
     for (const node of rendering) {
@@ -72,14 +69,11 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     this._fireMountListeners(rendering);
   }
 
-  appendToRendering(
-    rendering: RenderingWithNode<N>,
-    parent: RenderingWithNode<N>
-  ): void {
+  appendToRendering(rendering: Rendering<this>, parent: Rendering<this>): void {
     this.insertIntoRendering(rendering, parent, parent.length);
   }
 
-  insertRendering(rendering: RenderingWithNode<N>, before: N): void {
+  insertRendering(rendering: Rendering<this>, before: N): void {
     const parent = this._parentNodes.get(before);
     if (parent != null) this._parentNodes.set(rendering, parent);
 
@@ -98,8 +92,8 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
   }
 
   insertIntoRendering(
-    rendering: RenderingWithNode<N>,
-    parent: RenderingWithNode<N>,
+    rendering: Rendering<this>,
+    parent: Rendering<this>,
     index: number
   ): void {
     const marker = this.getMarkerNode(parent, index);
@@ -114,7 +108,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     parent.splice(index, 0, rendering);
   }
 
-  removeRendering(rendering: RenderingWithNode<N>): void {
+  removeRendering(rendering: Rendering<this>): void {
     for (const node of rendering) {
       if (Array.isArray(node)) {
         this.removeRendering(node);
@@ -126,9 +120,9 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
   }
 
   removeFromRendering(
-    parent: RenderingWithNode<N>,
+    parent: Rendering<this>,
     index: number
-  ): N | RenderingWithNode<N> | undefined {
+  ): N | Rendering<this> | undefined {
     const [result] = parent.splice(index, 1);
 
     if (Array.isArray(result)) {
@@ -141,7 +135,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
   }
 
   getMarkerNode(
-    rendering: RenderingWithNode<N> | undefined,
+    rendering: Rendering<this> | undefined,
     index: number = 0
   ): N | undefined {
     if (rendering == null) {
@@ -153,7 +147,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
         (parentRendering?.indexOf(rendering) ?? -1) + 1
       );
     } else if (Array.isArray(rendering[index])) {
-      return this.getMarkerNode(rendering[index] as RenderingWithNode<N>);
+      return this.getMarkerNode(rendering[index] as Rendering<this>);
     }
 
     return rendering[index] as N;

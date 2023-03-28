@@ -3,7 +3,7 @@ import {
   Component,
   ComponentConstructor,
   ComponentProps,
-  FunctionComponent,
+  ComponentType,
   FunctionComponentWrapper,
 } from "./component.ts";
 import { Renderer } from "./renderer.ts";
@@ -18,11 +18,10 @@ export class RendererScope<out R extends Renderer> extends Scope {
   createComponent<
     C extends
       | (R extends Renderer<infer I, infer _> ? keyof I & string : never)
-      | FunctionComponent<any, R>
-      | ComponentConstructor<any, R>
+      | ComponentType<any, R>
   >(
     component: C,
-    props: C extends FunctionComponent<any, R> | ComponentConstructor<any, R>
+    props: C extends ComponentType<any, R>
       ? ComponentProps<C>
       : R extends Renderer<infer I, infer _>
       ? C extends keyof I
@@ -32,7 +31,7 @@ export class RendererScope<out R extends Renderer> extends Scope {
     ...children: Component<any, R>[]
   ): Component<any, R> {
     function isClassComponent(
-      component: FunctionComponent<any, R> | ComponentConstructor<any, R>
+      component: ComponentType<any, R>
     ): component is ComponentConstructor<any, R> {
       return !!component.isClassComponent;
     }
