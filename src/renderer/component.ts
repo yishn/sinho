@@ -40,16 +40,15 @@ export interface FunctionComponent<P = any, R extends Renderer = any> {
   (props: P, s: RendererScope<R>): Component<any, R>;
 }
 
-export class FunctionComponentWrapper<
-  P = any,
-  R extends Renderer = any
-> extends Component<P, R> {
-  constructor(props: P, public functionComponent: FunctionComponent<P, R>) {
-    super(props);
-  }
+export interface FunctionComponentWrapperProps<R extends Renderer> {
+  functionComponent: (s: RendererScope<R>) => Component<any, R>;
+}
 
+export class FunctionComponentWrapper<
+  R extends Renderer = any
+> extends Component<FunctionComponentWrapperProps<R>, R> {
   render(s: RendererScope<R>): Rendering<R> {
-    return this.functionComponent(this.props, s).render(s) ?? [];
+    return this.props.functionComponent(s).render(s) ?? [];
   }
 }
 

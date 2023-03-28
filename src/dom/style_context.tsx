@@ -63,8 +63,7 @@ export function createStyleContext<T>(
               setRefCounts(
                 (map) => {
                   const refCount = map.get(Component) ?? 0;
-                  map.set(Component, mutate(refCount));
-                  return map;
+                  return map.set(Component, mutate(refCount));
                 },
                 { force: true }
               );
@@ -79,11 +78,11 @@ export function createStyleContext<T>(
                 condition={() =>
                   (refCounts().get(componentStyle().component) ?? 0) > 0
                 }
-                then={() => (
+                then={
                   <style>
                     {() => componentStyle().css(props.value ?? defaultValue)}
                   </style>
-                )}
+                }
               />
             )}
           </For>

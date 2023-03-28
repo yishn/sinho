@@ -1,13 +1,12 @@
 import {
   Component,
-  ComponentConstructor,
   FunctionComponent,
   FunctionComponentWrapper,
 } from "./component.ts";
 import { Scope, Destructor, Signal, SignalSetter } from "../scope.ts";
 import { RendererScope } from "./renderer_scope.ts";
 
-declare const nodeTypeSym: unique symbol;
+const nodeTypeSym = Symbol();
 
 type RenderingWithNode<N> = (N | RenderingWithNode<N>)[];
 
@@ -183,7 +182,9 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     const [rendering, destructor] = (
       component instanceof Component
         ? component
-        : new FunctionComponentWrapper({}, component)
+        : new FunctionComponentWrapper({
+            functionComponent: (s) => component({}, s),
+          })
     ).renderWithDestructor(s);
 
     s.renderer.appendRendering(rendering, parent);

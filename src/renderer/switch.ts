@@ -17,7 +17,7 @@ export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
         const memoizedCondition = s.memo(() => when.condition?.());
 
         if (memoizedCondition()) {
-          return when.render?.() ?? new Fragment<R>({});
+          return when.component ?? new Fragment<R>({});
         }
       }
 
@@ -41,34 +41,31 @@ export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
 
 export interface Case<R extends Renderer> {
   condition?: SignalLike<boolean>;
-  render?: () => Component<any, R>;
+  component?: Component<any, R>;
 }
 
 export function when<R extends Renderer>(
   condition: boolean | SignalLike<boolean>,
-  render: () => Component<any, R>
+  component: Component<any, R>
 ): Case<R> {
   return {
     condition: typeof condition === "boolean" ? () => condition : condition,
-    render,
+    component,
   };
 }
 
 export interface WhenProps<R extends Renderer> {
   condition?: SignalLike<boolean>;
-  then?: () => Component<any, R>;
-  otherwise?: () => Component<any, R>;
+  then?: Component<any, R>;
+  otherwise?: Component<any, R>;
 }
 
 export class When<R extends Renderer> extends Component<WhenProps<R>, R> {
   render(s: RendererScope<R>): Rendering<R> {
     return new Switch<R>({
       cases: [
-        when(
-          this.props.condition ?? true,
-          this.props.then ?? (() => new Fragment({}))
-        ),
-        when(true, this.props.otherwise ?? (() => new Fragment({}))),
+        when(this.props.condition ?? true, this.props.then ?? new Fragment({})),
+        when(true, this.props.otherwise ?? new Fragment({})),
       ],
     }).render(s);
   }
