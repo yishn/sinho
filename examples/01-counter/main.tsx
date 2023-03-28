@@ -37,8 +37,8 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
 
       <When
         condition={illegal}
-        then={() => <h3>Counter must be between 0 and 10!</h3>}
-        otherwise={() => (
+        then={<h3>Counter must be between 0 and 10!</h3>}
+        otherwise={
           <p
             ref={okParagraphRef}
             style={{
@@ -47,7 +47,7 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
           >
             Everything ok!
           </p>
-        )}
+        }
       />
     </div>
   );

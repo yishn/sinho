@@ -109,8 +109,8 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
 
                 <When
                   condition={() => task().done}
-                  then={() => <del>{() => task().text}</del>}
-                  otherwise={() => <Text>{() => task().text}</Text>}
+                  then={<del>{() => task().text}</del>}
+                  otherwise={<Text>{() => task().text}</Text>}
                 />
               </label>
             </li>
