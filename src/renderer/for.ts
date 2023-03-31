@@ -93,7 +93,7 @@ class IndexedFor<T, R extends Renderer> extends Component<
     let firstTime = true;
 
     const { source = () => [] } = this.props;
-    const rendering: Rendering<R>[] = [];
+    const rendering = new Rendering(s, []);
     const state: StateEntry<T>[] = [];
 
     s.effect(() => {
@@ -111,10 +111,10 @@ class IndexedFor<T, R extends Renderer> extends Component<
               const value: Signal<T> = s.memo(() =>
                 i < source().length && i >= 0 ? source()[i] : value.peek()
               );
-              const eachRendering: Rendering<R> =
+              const eachRendering =
                 this.props
                   .children?.(value, index)
-                  .renderWithDestructor(s)[0] ?? [];
+                  .renderWithDestructor(s)[0] ?? new Rendering(s, []);
 
               Object.assign(entry, {
                 index,
@@ -122,13 +122,7 @@ class IndexedFor<T, R extends Renderer> extends Component<
                 value,
               });
 
-              if (!firstTime) {
-                // Insert rendering
-
-                s.renderer.insertIntoRendering(eachRendering, rendering, i);
-              } else {
-                rendering.push(eachRendering);
-              }
+              rendering.insert(eachRendering, i);
             },
             { leaked: true }
           );
@@ -139,7 +133,7 @@ class IndexedFor<T, R extends Renderer> extends Component<
         for (let i = length - 1; i >= newLength; i--) {
           const entry = state.pop()!;
 
-          s.renderer.removeFromRendering(rendering, i);
+          rendering.delete(i);
           entry.destructor();
         }
       }
@@ -168,7 +162,7 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
     const { source = () => [], key } = this.props;
     let firstTime = true;
 
-    const rendering: Rendering<R>[] = [];
+    const rendering = new Rendering(s, []);
     const state = new Map<K, StateEntry<T>>();
     let keys: K[] = [];
 
@@ -190,10 +184,10 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
                   ? source()[index()]
                   : value.peek()
               );
-              const eachRendering: Rendering<R> =
+              const eachRendering =
                 this.props
                   .children?.(value, index)
-                  .renderWithDestructor(s)[0] ?? [];
+                  .renderWithDestructor(s)[0] ?? new Rendering(s, []);
 
               Object.assign(entry, {
                 index,
@@ -201,13 +195,7 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
                 value,
               });
 
-              if (!firstTime) {
-                // Insert rendering
-
-                s.renderer.insertIntoRendering(eachRendering, rendering, j);
-              } else {
-                rendering.splice(j, 0, eachRendering);
-              }
+              rendering.insert(eachRendering, j);
             },
             { leaked: true }
           );
@@ -218,8 +206,7 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
           const key = keys[i];
           const entry = state.get(key)!;
 
-          s.renderer.removeFromRendering(rendering, i);
-
+          rendering.delete(i);
           entry.destructor();
           state.delete(key);
         } else if (op[0] === ArrayOpType.Move) {
@@ -228,9 +215,9 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
           const entry = state.get(key)!;
 
           if (tempIndex !== j) {
-            const [eachRendering] = rendering.splice(tempIndex, 1);
+            const eachRendering = rendering.delete(tempIndex) as Rendering<R>;
 
-            s.renderer.insertIntoRendering(eachRendering, rendering, j);
+            rendering.insert(eachRendering, j);
           }
 
           entry.setIndex(j);

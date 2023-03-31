@@ -63,7 +63,7 @@ export class TagComponent<T extends string> extends Component<
         }
       });
     } else {
-      s.renderer.appendRendering(
+      s.renderer.appendRendering2(
         new Fragment({
           children: (Array.isArray(children) ? children : [children]).map(
             (child) => {
@@ -81,7 +81,7 @@ export class TagComponent<T extends string> extends Component<
 
     s.renderer.isSvg = prevIsSvg;
 
-    return [node];
+    return new Rendering(s, [node]);
   }
 }
 
@@ -104,6 +104,6 @@ export class Text extends Component<TextProps, DomRenderer> {
       }
     });
 
-    return [node];
+    return new Rendering(s, [node]);
   }
 }

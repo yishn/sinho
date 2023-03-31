@@ -13,8 +13,11 @@ export class Fragment<R extends Renderer> extends Component<
   render(s: RendererScope<R>): Rendering<R> {
     const { children = [] } = this.props;
 
-    return !Array.isArray(children)
-      ? [children.render(s)]
-      : children.map((component) => component.render(s)) ?? [];
+    return new Rendering(
+      s,
+      !Array.isArray(children)
+        ? [children.render(s)]
+        : children.map((component) => component.render(s)) ?? []
+    );
   }
 }

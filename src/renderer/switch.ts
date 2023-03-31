@@ -1,5 +1,5 @@
 import type { SignalLike } from "../scope.ts";
-import type { Renderer, Rendering } from "./renderer.ts";
+import { Renderer, Rendering } from "./renderer.ts";
 import { Component } from "./component.ts";
 import { Fragment } from "./fragment.ts";
 import { RendererScope } from "./renderer_scope.ts";
@@ -10,7 +10,7 @@ export interface SwitchProps<R extends Renderer> {
 
 export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
   render(s: RendererScope<R>): Rendering<R> {
-    const rendering: Rendering<R> = [];
+    const rendering = new Rendering(s, []);
 
     const result = s.memo(() => {
       for (const when of this.props.cases ?? []) {
@@ -28,11 +28,9 @@ export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
       const component = result();
       const [childRendering] = component.renderWithDestructor(s);
 
-      s.renderer.appendToRendering(childRendering, rendering);
+      rendering.append(childRendering);
 
-      s.cleanup(() => {
-        s.renderer.removeFromRendering(rendering, 0);
-      });
+      s.cleanup(() => rendering.delete(0));
     });
 
     return rendering;

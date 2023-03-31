@@ -7,22 +7,68 @@ import { Scope, Destructor, Signal, SignalSetter } from "../scope.ts";
 import { RendererScope } from "./renderer_scope.ts";
 
 const nodeTypeSym = Symbol();
-const renderingSym = Symbol();
-
-export type Rendering<R extends Renderer> = (
-  | RendererNode<R>
-  | Rendering<R>
-)[] & {
-  [renderingSym]?: {
-    component?: Component<any, R>;
-    parent?: Rendering<R>;
-    node?: RendererNode<R>;
-  };
-};
 
 export type RendererNode<R extends Renderer> = NonNullable<
   R[typeof nodeTypeSym]
 >;
+
+export class Rendering<R extends Renderer> {
+  component?: Component<any, R>;
+  parent?: Rendering<R>;
+  node?: RendererNode<R>;
+
+  constructor(
+    protected s: RendererScope<R>,
+    protected data: (RendererNode<R> | Rendering<R>)[]
+  ) {}
+
+  [Symbol.iterator]() {
+    return this.data[Symbol.iterator]();
+  }
+
+  getMarkerNode(index: number = 0): RendererNode<R> | undefined {
+    if (index >= this.data.length) {
+      const parentRendering = this.parent;
+
+      return parentRendering?.getMarkerNode(
+        (parentRendering?.data.indexOf(this) ?? -1) + 1
+      );
+    } else if (this.data[index] instanceof Rendering) {
+      return (this.data[index] as Rendering<R>).getMarkerNode();
+    }
+
+    return this.data[index];
+  }
+
+  append(rendering: Rendering<R>): void {
+    this.insert(rendering, this.data.length);
+  }
+
+  insert(rendering: Rendering<R>, index: number): void {
+    const marker = this.getMarkerNode(index);
+
+    if (marker != null) {
+      this.s.renderer.insertRendering2(rendering, marker);
+    } else {
+      const node = this.node;
+      if (node != null) this.s.renderer.appendRendering2(rendering, node);
+    }
+
+    this.data.splice(index, 0, rendering);
+  }
+
+  delete(index: number): RendererNode<R> | Rendering<R> | undefined {
+    const [result] = this.data.splice(index, 1);
+
+    if (result instanceof Rendering) {
+      this.s.renderer.removeRendering2(result);
+    } else {
+      this.s.renderer.removeNode(result);
+    }
+
+    return result;
+  }
+}
 
 export abstract class Renderer<in I = any, in out N extends object = any> {
   [nodeTypeSym]?: N;
@@ -48,26 +94,26 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
   abstract insertNode(node: N, before: N): void;
   abstract removeNode(node: N): void;
 
-  private _fireMountListeners(rendering: Rendering<Renderer<I, N>>) {
-    const component = rendering[renderingSym]?.component;
+  _fireMountListeners(rendering: Rendering<Renderer<I, N>>) {
+    const component = rendering.component;
 
     if (component != null) {
       for (const listener of this._mountListeners.get(component) ?? []) {
         listener();
       }
 
-      delete rendering[renderingSym]!.component;
+      delete rendering.component;
       this._mountListeners.delete(component);
     }
   }
 
-  appendRendering(rendering: Rendering<Renderer<I, N>>, parent: N): void {
-    (rendering[renderingSym] ??= {}).node = parent;
+  appendRendering2(rendering: Rendering<Renderer<I, N>>, parent: N): void {
+    rendering.node = parent;
 
     for (const node of rendering) {
-      if (Array.isArray(node)) {
-        (node[renderingSym] ??= {}).parent = rendering;
-        this.appendRendering(node, parent);
+      if (node instanceof Rendering) {
+        node.parent = rendering;
+        this.appendRendering2(node, parent);
       } else {
         this._parentNodes.set(node, parent);
         this.appendNode(parent, node);
@@ -78,25 +124,16 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     this._fireMountListeners(rendering);
   }
 
-  appendToRendering(
-    rendering: Rendering<Renderer<I, N>>,
-    parent: Rendering<Renderer<I, N>>
-  ): void {
-    this.insertIntoRendering(rendering, parent, parent.length);
-  }
-
-  insertRendering(rendering: Rendering<Renderer<I, N>>, before: N): void {
+  insertRendering2(rendering: Rendering<Renderer<I, N>>, before: N): void {
     const parent = this._parentNodes.get(before);
-    if (parent != null) (rendering[renderingSym] ??= {}).node = parent;
+    if (parent != null) rendering.node = parent;
 
     for (const node of rendering) {
-      if (Array.isArray(node)) {
-        (node[renderingSym] ??= {}).parent = rendering;
-
-        this.insertRendering(node, before);
+      if (node instanceof Rendering) {
+        node.parent = rendering;
+        this.insertRendering2(node, before);
       } else {
-        (rendering[renderingSym] ??= {}).node = parent;
-
+        rendering.node = parent;
         this.insertNode(node, before);
         this._elementNodeRefSetters.get(node)?.(node);
       }
@@ -105,67 +142,15 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     this._fireMountListeners(rendering);
   }
 
-  insertIntoRendering(
-    rendering: Rendering<Renderer<I, N>>,
-    parent: Rendering<Renderer<I, N>>,
-    index: number
-  ): void {
-    const marker = this.getMarkerNode(parent, index);
-
-    if (marker != null) {
-      this.insertRendering(rendering, marker);
-    } else {
-      const node = parent[renderingSym]?.node;
-      if (node != null) this.appendRendering(rendering, node);
-    }
-
-    parent.splice(index, 0, rendering);
-  }
-
-  removeRendering(rendering: Rendering<Renderer<I, N>>): void {
+  removeRendering2(rendering: Rendering<Renderer<I, N>>): void {
     for (const node of rendering) {
-      if (Array.isArray(node)) {
-        this.removeRendering(node);
+      if (node instanceof Rendering) {
+        this.removeRendering2(node);
       } else {
         this.removeNode(node);
         this._elementNodeRefSetters.get(node)?.(null);
       }
     }
-  }
-
-  removeFromRendering(
-    parent: Rendering<Renderer<I, N>>,
-    index: number
-  ): N | Rendering<Renderer<I, N>> | undefined {
-    const [result] = parent.splice(index, 1);
-
-    if (Array.isArray(result)) {
-      this.removeRendering(result);
-    } else {
-      this.removeNode(result);
-    }
-
-    return result;
-  }
-
-  getMarkerNode(
-    rendering: Rendering<Renderer<I, N>> | undefined,
-    index: number = 0
-  ): N | undefined {
-    if (rendering == null) {
-      return undefined;
-    } else if (index >= rendering.length) {
-      const parentRendering = rendering[renderingSym]?.parent;
-
-      return this.getMarkerNode(
-        parentRendering,
-        (parentRendering?.indexOf(rendering) ?? -1) + 1
-      );
-    } else if (Array.isArray(rendering[index])) {
-      return this.getMarkerNode(rendering[index] as Rendering<Renderer<I, N>>);
-    }
-
-    return rendering[index] as N;
   }
 
   nodeRef(s: Scope): Signal<N | null> {
@@ -186,7 +171,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     rendering: Rendering<Renderer<I, N>>,
     component: Component<any, Renderer<I, N>>
   ): void {
-    (rendering[renderingSym] ??= {}).component = component;
+    rendering.component = component;
   }
 
   mount<R extends Renderer>(
@@ -203,7 +188,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
           })
     ).renderWithDestructor(s);
 
-    s.renderer.appendRendering(rendering, parent);
+    s.renderer.appendRendering2(rendering, parent);
 
     return destructor;
   }

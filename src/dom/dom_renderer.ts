@@ -12,7 +12,7 @@ export class DomRenderer extends Renderer<DomIntrinsicElements, Node> {
     return new TagComponent({
       tagName: name,
       ...props,
-    });
+    }) as Component<any, this>;
   }
 
   appendNode(parent: Node, node: Node): void {
@@ -20,12 +20,16 @@ export class DomRenderer extends Renderer<DomIntrinsicElements, Node> {
   }
 
   insertNode(node: Node, before: Node): void {
-    before.parentNode!.insertBefore(node, before);
+    if (before.parentNode != null) {
+      before.parentNode.insertBefore(node, before);
+    }
   }
 
   removeNode(node: Node): void {
     try {
-      node.parentNode!.removeChild(node);
+      if (node.parentNode != null) {
+        node.parentNode.removeChild(node);
+      }
     } catch (_) {
       // ignore
     }

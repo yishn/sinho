@@ -19,7 +19,7 @@ export abstract class Component<P = any, R extends Renderer = any> {
       rendering = this.render(s);
 
       s.cleanup(() => {
-        s.renderer.removeRendering(rendering);
+        s.renderer.removeRendering2(rendering);
       });
     });
 
