@@ -23,7 +23,7 @@ export abstract class Component<P = any, R extends Renderer = any> {
       });
     });
 
-    s.renderer._renderingComponents.set(rendering!, this);
+    s.renderer.linkRenderingComponent(rendering!, this);
     s._current = lastComponent;
 
     return [rendering!, destructor];
