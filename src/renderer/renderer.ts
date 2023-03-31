@@ -48,10 +48,10 @@ export class Rendering<R extends Renderer> {
     const marker = this.getMarkerNode(index);
 
     if (marker != null) {
-      this.s.renderer.insertRendering2(rendering, marker);
+      this.s.renderer.insertRendering(rendering, marker);
     } else {
       const node = this.node;
-      if (node != null) this.s.renderer.appendRendering2(rendering, node);
+      if (node != null) this.s.renderer.appendRendering(rendering, node);
     }
 
     this.data.splice(index, 0, rendering);
@@ -61,7 +61,7 @@ export class Rendering<R extends Renderer> {
     const [result] = this.data.splice(index, 1);
 
     if (result instanceof Rendering) {
-      this.s.renderer.removeRendering2(result);
+      this.s.renderer.removeRendering(result);
     } else {
       this.s.renderer.removeNode(result);
     }
@@ -94,7 +94,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
   abstract insertNode(node: N, before: N): void;
   abstract removeNode(node: N): void;
 
-  _fireMountListeners(rendering: Rendering<Renderer<I, N>>) {
+  private _fireMountListeners(rendering: Rendering<Renderer<I, N>>) {
     const component = rendering.component;
 
     if (component != null) {
@@ -107,13 +107,13 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     }
   }
 
-  appendRendering2(rendering: Rendering<Renderer<I, N>>, parent: N): void {
+  appendRendering(rendering: Rendering<Renderer<I, N>>, parent: N): void {
     rendering.node = parent;
 
     for (const node of rendering) {
       if (node instanceof Rendering) {
         node.parent = rendering;
-        this.appendRendering2(node, parent);
+        this.appendRendering(node, parent);
       } else {
         this._parentNodes.set(node, parent);
         this.appendNode(parent, node);
@@ -124,14 +124,14 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     this._fireMountListeners(rendering);
   }
 
-  insertRendering2(rendering: Rendering<Renderer<I, N>>, before: N): void {
+  insertRendering(rendering: Rendering<Renderer<I, N>>, before: N): void {
     const parent = this._parentNodes.get(before);
     if (parent != null) rendering.node = parent;
 
     for (const node of rendering) {
       if (node instanceof Rendering) {
         node.parent = rendering;
-        this.insertRendering2(node, before);
+        this.insertRendering(node, before);
       } else {
         rendering.node = parent;
         this.insertNode(node, before);
@@ -142,10 +142,10 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     this._fireMountListeners(rendering);
   }
 
-  removeRendering2(rendering: Rendering<Renderer<I, N>>): void {
+  removeRendering(rendering: Rendering<Renderer<I, N>>): void {
     for (const node of rendering) {
       if (node instanceof Rendering) {
-        this.removeRendering2(node);
+        this.removeRendering(node);
       } else {
         this.removeNode(node);
         this._elementNodeRefSetters.get(node)?.(null);
@@ -183,12 +183,10 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     const [rendering, destructor] = (
       component instanceof Component
         ? component
-        : new FunctionComponentWrapper({
-            functionComponent: (s) => component({}, s),
-          })
+        : new FunctionComponentWrapper({ functionComponent: component })
     ).renderWithDestructor(s);
 
-    s.renderer.appendRendering2(rendering, parent);
+    s.renderer.appendRendering(rendering, parent);
 
     return destructor;
   }

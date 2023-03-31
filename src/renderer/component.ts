@@ -19,7 +19,7 @@ export abstract class Component<P = any, R extends Renderer = any> {
       rendering = this.render(s);
 
       s.cleanup(() => {
-        s.renderer.removeRendering2(rendering);
+        s.renderer.removeRendering(rendering);
       });
     });
 
@@ -45,14 +45,14 @@ export type ComponentType<P = any, R extends Renderer = any> =
   | FunctionComponent<P, R>;
 
 export interface FunctionComponentWrapperProps<R extends Renderer> {
-  functionComponent: (s: RendererScope<R>) => Component<any, R>;
+  functionComponent: FunctionComponent<{}, R>;
 }
 
 export class FunctionComponentWrapper<
   R extends Renderer = any
 > extends Component<FunctionComponentWrapperProps<R>, R> {
   render(s: RendererScope<R>): Rendering<R> {
-    return this.props.functionComponent(s).render(s) ?? [];
+    return this.props.functionComponent({}, s).render(s) ?? [];
   }
 }
 
@@ -80,6 +80,4 @@ export type ComponentRenderer<
   ? R
   : never;
 
-export type Children<R extends Renderer> =
-  | Component<any, R>
-  | Component<any, R>[];
+export type Children<R extends Renderer> = Component<any, R> | Children<R>[];

@@ -289,7 +289,7 @@ export interface DomIntrinsicElements {
   tspan: SvgProps<SVGTSpanElement> & EventProps<SVGTSpanElement>;
   use: SvgProps<SVGUseElement> & EventProps<SVGUseElement>;
 
-  [tagName: string]: ShingoProps<globalThis.Element> & Record<string, any>;
+  [tagName: string]: DomProps<globalThis.Element> & Record<string, any>;
 }
 
 export type Style = {
@@ -326,17 +326,19 @@ export type DangerousHtml = SignalLike<{
   __html: string;
 }>;
 
-export interface ShingoProps<E> {
+export type DomChildren =
+  | Component<any, DomRenderer>
+  | OptionalSignal<string | number>
+  | DomChildren[];
+
+export interface DomProps<E> {
   ref?: Signal<E | null>;
   style?: Style;
   dangerouslySetInnerHTML?: DangerousHtml;
-  children?:
-    | OptionalSignal<string | number>
-    | Component<any, DomRenderer>
-    | (OptionalSignal<string | number> | Component<any, DomRenderer>)[];
+  children?: DomChildren;
 }
 
-interface HtmlProps<E> extends ShingoProps<E> {
+interface HtmlProps<E> extends DomProps<E> {
   // Standard HTML Attributes
   accept?: OptionalSignal<string>;
   acceptCharset?: OptionalSignal<string>;

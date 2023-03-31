@@ -51,7 +51,7 @@ export class RendererScope<out R extends Renderer> extends Scope {
       return new component(propsWithChildren);
     } else {
       return new FunctionComponentWrapper({
-        functionComponent: (s) => component(propsWithChildren, s),
+        functionComponent: (_, s) => component(propsWithChildren, s),
       });
     }
   }

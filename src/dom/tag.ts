@@ -1,7 +1,13 @@
-import { RendererScope, Rendering, Fragment, Component } from "../mod.ts";
+import {
+  RendererScope,
+  Rendering,
+  Fragment,
+  Component,
+  Children,
+} from "../mod.ts";
 import type { SignalLike } from "../scope.ts";
 import { DomRenderer } from "./mod.ts";
-import { setAttr, setStyle } from "./dom.ts";
+import { DomChildren, setAttr, setStyle } from "./dom.ts";
 
 export type TagProps<T extends string> = {
   tagName: T;
@@ -63,17 +69,16 @@ export class TagComponent<T extends string> extends Component<
         }
       });
     } else {
-      s.renderer.appendRendering2(
+      const fromChildren = (children: DomChildren): Children<DomRenderer> =>
+        !Array.isArray(children)
+          ? children instanceof Component
+            ? children
+            : new Text({ children })
+          : children.map(fromChildren);
+
+      s.renderer.appendRendering(
         new Fragment({
-          children: (Array.isArray(children) ? children : [children]).map(
-            (child) => {
-              if (child instanceof Component) {
-                return child;
-              } else {
-                return new Text({ children: child });
-              }
-            }
-          ),
+          children: fromChildren(children ?? []),
         }).render(s),
         node
       );

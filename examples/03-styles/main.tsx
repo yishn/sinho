@@ -5,17 +5,21 @@ import { FunctionComponent, SignalLike, Children } from "../../src/mod.ts";
 
 type ThemeMode = "light" | "dark";
 
-const StyleContext = createStyleContext<SignalLike<ThemeMode>>(() => "light");
+const StyleContext = createStyleContext<{
+  mode: SignalLike<ThemeMode>;
+}>({
+  mode: () => "light",
+});
 
-const Page = StyleContext.createStyledComponent<{
+const Box = StyleContext.createStyledComponent<{
   children?: Children<DomRenderer>;
 }>(
-  (props, s) => <div class="page">{props.children}</div>,
-  (mode) => `
-    .page {
+  (props, s) => <div class="box">{props.children}</div>,
+  (context) => `
+    .box {
       padding: 1em 2em;
-      background: ${mode() === "dark" ? "#333" : "#eee"};
-      color: ${mode() === "dark" ? "#eee" : "#333"};
+      background: ${context.mode() === "dark" ? "#333" : "#eee"};
+      color: ${context.mode() === "dark" ? "#eee" : "#333"};
       transition: background .2s;
     }
   `
@@ -25,11 +29,11 @@ const Button = StyleContext.createStyledComponent<
   JSX.IntrinsicElements["button"]
 >(
   (props, s) => <button class="button" {...props} />,
-  (mode) => `
+  (context) => `
     .button {
       padding: .2em .5em;
-      background: ${mode() === "dark" ? "#555" : "#ccc"};
-      color: ${mode() === "dark" ? "#eee" : "#333"};
+      background: ${context.mode() === "dark" ? "#555" : "#ccc"};
+      color: ${context.mode() === "dark" ? "#eee" : "#333"};
       transition: background .2s;
     }
   `
@@ -39,9 +43,9 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
   const [themeMode, setThemeMode] = s.signal<ThemeMode>("light");
 
   return (
-    <StyleContext.Provider value={themeMode}>
+    <StyleContext.Provider value={{ mode: themeMode }}>
       <div class="app">
-        <Page>
+        <Box>
           <h1>Styles Demo</h1>
 
           <p>
@@ -55,7 +59,7 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
               Toggle Dark Mode
             </Button>
           </p>
-        </Page>
+        </Box>
       </div>
     </StyleContext.Provider>
   );
