@@ -7,9 +7,7 @@ import {
   createContext,
   Children,
   Component,
-  Fragment,
   FunctionComponent,
-  For,
   When,
 } from "../mod.ts";
 import { DomRenderer } from "./dom_renderer.ts";
@@ -70,22 +68,20 @@ export function createStyleContext<T>(
             },
           }}
         >
-          <>{props.children}</>
+          {props.children}
 
-          <For source={() => componentStyles}>
-            {(componentStyle) => (
-              <When
-                condition={() =>
-                  (refCounts().get(componentStyle().component) ?? 0) > 0
-                }
-                then={
-                  <style>
-                    {() => componentStyle().css(props.value ?? defaultValue)}
-                  </style>
-                }
-              />
-            )}
-          </For>
+          {componentStyles.map((componentStyle) => (
+            <When
+              condition={() =>
+                (refCounts().get(componentStyle.component) ?? 0) > 0
+              }
+              then={
+                <style>
+                  {() => componentStyle.css(props.value ?? defaultValue)}
+                </style>
+              }
+            />
+          ))}
         </StylesContext.Provider>
       );
     },

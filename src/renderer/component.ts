@@ -80,4 +80,8 @@ export type ComponentRenderer<
   ? R
   : never;
 
-export type Children<R extends Renderer> = Component<any, R> | Children<R>[];
+export type Children<R extends Renderer> =
+  | null
+  | undefined
+  | Component<any, R>
+  | Children<R>[];

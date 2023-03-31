@@ -327,6 +327,8 @@ export type DangerousHtml = SignalLike<{
 }>;
 
 export type DomChildren =
+  | null
+  | undefined
   | Component<any, DomRenderer>
   | OptionalSignal<string | number>
   | DomChildren[];

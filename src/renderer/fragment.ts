@@ -17,9 +17,15 @@ export class Fragment<R extends Renderer> extends Component<
       new Rendering(
         s,
         !Array.isArray(children)
-          ? [children.render(s)]
+          ? children == null
+            ? []
+            : [children.render(s)]
           : children.map((entry) =>
-              !Array.isArray(entry) ? entry.render(s) : fromChildren(entry)
+              !Array.isArray(entry)
+                ? entry == null
+                  ? []
+                  : entry.render(s)
+                : fromChildren(entry)
             )
       );
 

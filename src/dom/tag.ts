@@ -71,7 +71,7 @@ export class TagComponent<T extends string> extends Component<
     } else {
       const fromChildren = (children: DomChildren): Children<DomRenderer> =>
         !Array.isArray(children)
-          ? children instanceof Component
+          ? children == null || children instanceof Component
             ? children
             : new Text({ children })
           : children.map(fromChildren);
