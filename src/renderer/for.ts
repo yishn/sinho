@@ -1,7 +1,8 @@
 import { Destructor, Signal, SignalLike, SignalSetter } from "../scope.ts";
 import { Component } from "./component.ts";
-import { Renderer, Rendering } from "./renderer.ts";
+import { Renderer } from "./renderer.ts";
 import { RendererScope } from "./renderer_scope.ts";
+import { Rendering } from "./rendering.ts";
 
 enum ArrayOpType {
   Added,
@@ -156,7 +157,6 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
     type K = string | number;
 
     const { source = () => [], key } = this.props;
-    let firstTime = true;
 
     const rendering = new Rendering(s);
     const state = new Map<K, StateEntry<T>>();
@@ -221,7 +221,6 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
       }
 
       keys = newKeys;
-      firstTime = false;
     });
 
     s.cleanup(() => {

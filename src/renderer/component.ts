@@ -1,6 +1,7 @@
-import { Renderer, Rendering } from "./renderer.ts";
+import { Renderer } from "./renderer.ts";
 import { RendererScope } from "./renderer_scope.ts";
 import type { Destructor } from "../scope.ts";
+import { Rendering } from "./rendering.ts";
 
 export abstract class Component<P = any, R extends Renderer = any> {
   static isClassComponent = true;

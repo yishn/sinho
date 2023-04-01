@@ -1,6 +1,7 @@
 import { Children, Component } from "./component.ts";
-import { Renderer, Rendering } from "./renderer.ts";
+import { Renderer } from "./renderer.ts";
 import { RendererScope } from "./renderer_scope.ts";
+import { Rendering } from "./rendering.ts";
 
 export interface FragmentProps<R extends Renderer> {
   children?: Children<R>;

@@ -7,9 +7,10 @@ import {
 } from "./component.ts";
 import { createContext } from "./context.ts";
 import { When } from "./switch.ts";
-import { Renderer, Rendering } from "./renderer.ts";
+import { Renderer } from "./renderer.ts";
 import { RendererScope } from "./renderer_scope.ts";
 import { Fragment } from "./fragment.ts";
+import { Rendering } from "./rendering.ts";
 
 type PendingComponentsSet = Set<Component>;
 

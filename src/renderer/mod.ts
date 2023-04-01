@@ -1,5 +1,6 @@
 export * from "./context.ts";
 export * from "./component.ts";
+export * from "./rendering.ts";
 export * from "./renderer.ts";
 export * from "./renderer_scope.ts";
 export * from "./suspense.ts";
