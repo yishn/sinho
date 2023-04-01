@@ -30,7 +30,7 @@ export function createContext<T>(defaultValue?: T): Context<T | undefined> {
       render(s: RendererScope<R>): Rendering<R> {
         let result: Rendering<R>;
 
-        s.context(context, this.props.value, () => {
+        context.provide(s, this.props.value, () => {
           result = new Fragment<R>({
             children: this.props.children,
           }).render(s);

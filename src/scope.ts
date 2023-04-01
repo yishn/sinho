@@ -80,6 +80,13 @@ export interface Destructor extends DestructorInner {
 
 export class ScopeContext<T> {
   constructor(public defaultValue: T) {}
+
+  provide(s: Scope, value: T, f: () => void): void {
+    s._subscopeInner((subscope) => {
+      subscope.context = new Map([[this, value]]);
+      f();
+    });
+  }
 }
 
 export class Scope {
@@ -251,7 +258,7 @@ export class Scope {
     });
   }
 
-  private _subscope(
+  _subscopeInner(
     f: (subscope: Subscope) => void,
     opts?: SubscopeOptions
   ): Destructor {
@@ -282,20 +289,7 @@ export class Scope {
   }
 
   subscope(f: () => void, opts?: SubscopeOptions): Destructor {
-    return this._subscope(() => f(), opts);
-  }
-
-  context<T>(
-    context: ScopeContext<T>,
-    value: T,
-    f: () => void,
-    opts?: SubscopeOptions
-  ): Destructor {
-    return this._subscope((subscope) => {
-      subscope.context = new Map([[context, value]]);
-
-      f();
-    }, opts);
+    return this._subscopeInner(() => f(), opts);
   }
 
   get<T>(context: ScopeContext<T>): T;
@@ -412,7 +406,7 @@ export class Scope {
 
   memo<T>(f: () => T, opts?: SignalSetOptions): Signal<T> {
     let firstTime = true;
-    const [signal, setSignal] = this.signal<T>(undefined as T);
+    const [signal, setSignal] = this.signal<T>();
 
     this.effect(() => {
       if (firstTime) {
@@ -423,6 +417,6 @@ export class Scope {
       }
     });
 
-    return signal;
+    return signal as Signal<T>;
   }
 }
