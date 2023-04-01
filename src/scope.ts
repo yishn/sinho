@@ -31,7 +31,6 @@ export interface SignalSetter<in out T> {
 
 interface Effect {
   [effectSym]: {
-    subscope: Subscope;
     clean: Destructor;
     dependencies: Signal<any>[];
     deleted: boolean;
@@ -79,17 +78,15 @@ export interface Destructor extends DestructorInner {
   (): void;
 }
 
-export interface ScopeContext<T> {
-  defaultValue: T;
+export class ScopeContext<T> {
+  constructor(public defaultValue: T) {}
 }
 
 export class Scope {
   static context<T>(): ScopeContext<T | undefined>;
   static context<T>(defaultValue: T): ScopeContext<T>;
   static context<T>(defaultValue?: T): ScopeContext<T | undefined> {
-    return {
-      defaultValue,
-    };
+    return new ScopeContext(defaultValue);
   }
 
   protected currentSubscope: Subscope = new Subscope();
@@ -107,11 +104,7 @@ export class Scope {
 
     const signal: Signal<T> = Object.assign(
       (): T => {
-        if (!this.currentUntracked) {
-          signal.track();
-        }
-
-        return signal.peek();
+        return !this.currentUntracked ? signal.track() : signal.peek();
       },
       {
         peek: () => signal[signalSym].value,
@@ -166,9 +159,41 @@ export class Scope {
     return [signal, setter];
   }
 
+  pin<P extends any[], T>(f: (...args: P) => T): (...args: P) => T {
+    const [currentSubscope, currentEffect, currentUntracked] = [
+      this.currentSubscope,
+      this.currentEffect,
+      this.currentUntracked,
+    ];
+
+    return (...args) => {
+      const [prevSubscope, prevEffect, prevUntracked] = [
+        this.currentSubscope,
+        this.currentEffect,
+        this.currentUntracked,
+      ];
+
+      [this.currentSubscope, this.currentEffect, this.currentUntracked] = [
+        currentSubscope,
+        currentEffect,
+        currentUntracked,
+      ];
+
+      const result = f(...args);
+
+      [this.currentSubscope, this.currentEffect, this.currentUntracked] = [
+        prevSubscope,
+        prevEffect,
+        prevUntracked,
+      ];
+
+      return result;
+    };
+  }
+
   effect(f: () => void, opts?: EffectOptions): void {
     const effect: Effect = Object.assign(
-      () => {
+      this.pin(() => {
         let effectData = effect[effectSym];
         if (effectData.deleted) return;
 
@@ -185,8 +210,6 @@ export class Scope {
 
         // Run effect and make sure states are taken care of
 
-        let prevUntracked = this.currentUntracked;
-        let prevEffect = this.currentEffect;
         this.currentUntracked = !!opts?.untracked;
         this.currentEffect = effect;
 
@@ -195,13 +218,9 @@ export class Scope {
             f();
           });
         });
-
-        this.currentUntracked = prevUntracked;
-        this.currentEffect = prevEffect;
-      },
+      }),
       {
         [effectSym]: {
-          subscope: this.currentSubscope,
           clean: () => {},
           dependencies: [],
           deleted: false,
@@ -266,28 +285,29 @@ export class Scope {
     return this._subscope(() => f(), opts);
   }
 
-  context<T>(context: ScopeContext<T>): T;
   context<T>(
     context: ScopeContext<T>,
     value: T,
     f: () => void,
     opts?: SubscopeOptions
-  ): Destructor;
-  context<T>(
-    context: ScopeContext<T>,
-    value?: T,
-    f?: () => void,
-    opts?: SubscopeOptions
-  ): T | Destructor {
-    if (f != null) {
-      return this._subscope((subscope) => {
-        subscope.context = new Map([[context, value]]);
+  ): Destructor {
+    return this._subscope((subscope) => {
+      subscope.context = new Map([[context, value]]);
 
-        f();
-      }, opts);
-    } else {
-      return this.currentSubscope.getContext(context);
+      f();
+    }, opts);
+  }
+
+  get<T>(context: ScopeContext<T>): T;
+  get<T>(signal: OptionalSignal<T>): T;
+  get<T>(arg: OptionalSignal<T> | ScopeContext<T>): T {
+    if (arg instanceof ScopeContext<T>) {
+      return this.currentSubscope.getContext(arg);
     }
+
+    return typeof arg === "function" && arg.length === 0
+      ? (arg as SignalLike<T>)()
+      : (arg as T);
   }
 
   private _cleanEffect(effect: Effect): void {
@@ -380,12 +400,7 @@ export class Scope {
         // Run effects
 
         for (const effect of effects) {
-          const previousSubscope = this.currentSubscope;
-          this.currentSubscope = effect[effectSym].subscope;
-
           effect();
-
-          this.currentSubscope = previousSubscope;
         }
       }
 

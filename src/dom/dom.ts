@@ -367,7 +367,6 @@ interface HtmlProps<E> extends DomProps<E> {
   checked?: OptionalSignal<boolean>;
   cite?: OptionalSignal<string>;
   class?: OptionalSignal<string | undefined>;
-  className?: OptionalSignal<string | undefined>;
   cols?: OptionalSignal<number>;
   colSpan?: OptionalSignal<number>;
   content?: OptionalSignal<string>;

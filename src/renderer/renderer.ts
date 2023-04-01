@@ -80,10 +80,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
   private _elementNodeRefSetters = new WeakMap<N, SignalSetter<N | null>>();
 
   _parentNodes = new WeakMap<N, N>();
-  _mountListeners = new WeakMap<
-    Component<any, Renderer<I, N>>,
-    (() => void)[]
-  >();
+  _mountListeners = new WeakMap<Component<any, this>, (() => void)[]>();
 
   abstract createIntrinsicComponent<T extends keyof I & string>(
     name: T,
@@ -94,7 +91,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
   abstract insertNode(node: N, before: N): void;
   abstract removeNode(node: N): void;
 
-  private _fireMountListeners(rendering: Rendering<Renderer<I, N>>) {
+  private _fireMountListeners(rendering: Rendering<this>) {
     const component = rendering.component;
 
     if (component != null) {
@@ -107,7 +104,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     }
   }
 
-  appendRendering(rendering: Rendering<Renderer<I, N>>, parent: N): void {
+  appendRendering(rendering: Rendering<this>, parent: N): void {
     rendering.node = parent;
 
     for (const node of rendering) {
@@ -124,7 +121,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     this._fireMountListeners(rendering);
   }
 
-  insertRendering(rendering: Rendering<Renderer<I, N>>, before: N): void {
+  insertRendering(rendering: Rendering<this>, before: N): void {
     const parent = this._parentNodes.get(before);
     if (parent != null) rendering.node = parent;
 
@@ -142,7 +139,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     this._fireMountListeners(rendering);
   }
 
-  removeRendering(rendering: Rendering<Renderer<I, N>>): void {
+  removeRendering(rendering: Rendering<this>): void {
     for (const node of rendering) {
       if (node instanceof Rendering) {
         this.removeRendering(node);
@@ -168,8 +165,8 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
   }
 
   linkRenderingComponent(
-    rendering: Rendering<Renderer<I, N>>,
-    component: Component<any, Renderer<I, N>>
+    rendering: Rendering<this>,
+    component: Component<any, this>
   ): void {
     rendering.component = component;
   }

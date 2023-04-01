@@ -46,13 +46,13 @@ Deno.test("Context test", () => {
 
   let setCount: SignalSetter<number>;
 
-  assertEquals(s.context(messageContext), "fallback");
+  assertEquals(s.get(messageContext), "fallback");
 
   s.subscope(() => {
     s.context(messageContext, "hello world", () => {
       s.subscope(() => {
-        assertEquals(s.context(messageContext), "hello world");
-        assertEquals(s.context(boolContext), true);
+        assertEquals(s.get(messageContext), "hello world");
+        assertEquals(s.get(boolContext), true);
       });
     });
   });
@@ -65,13 +65,13 @@ Deno.test("Context test", () => {
       s.subscope(() => {
         s.effect(() => {
           logs.push(
-            `${count()} ${s.context(messageContext)} ${s.context(boolContext)}`
+            `${count()} ${s.get(messageContext)} ${s.get(boolContext)}`
           );
         });
 
         s.subscope(() => {
-          assertEquals(s.context(messageContext), "goodbye");
-          assertEquals(s.context(boolContext), false);
+          assertEquals(s.get(messageContext), "goodbye");
+          assertEquals(s.get(boolContext), false);
         });
       });
     });

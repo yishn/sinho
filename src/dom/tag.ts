@@ -5,7 +5,7 @@ import {
   Component,
   Children,
 } from "../mod.ts";
-import type { SignalLike } from "../scope.ts";
+import type { OptionalSignal, SignalLike } from "../scope.ts";
 import { DomRenderer } from "./mod.ts";
 import { DomChildren, setAttr, setStyle } from "./dom.ts";
 
@@ -36,7 +36,7 @@ export class TagComponent<T extends string> extends Component<
 
     for (const [name, value] of Object.entries(style ?? {})) {
       s.effect(() => {
-        setStyle(node, name, typeof value === "function" ? value() : value);
+        setStyle(node, name, s.get(value));
       });
     }
 
@@ -44,18 +44,19 @@ export class TagComponent<T extends string> extends Component<
       if (name.startsWith("on") && name.length > 2) {
         // Register event
 
-        node.addEventListener(name.slice(2), (evt) =>
-          s.batch(() => value(evt))
+        node.addEventListener(
+          name.slice(2),
+          s.pin((evt) => {
+            s.batch(() => {
+              value(evt);
+            });
+          })
         );
       } else {
         // Set attribute
 
         s.effect(() => {
-          setAttr(
-            node,
-            name,
-            typeof value === "function" && value.length === 0 ? value() : value
-          );
+          setAttr(node, name, s.get(value));
         });
       }
     }
@@ -91,7 +92,7 @@ export class TagComponent<T extends string> extends Component<
 }
 
 export interface TextProps {
-  children?: string | number | SignalLike<string | number>;
+  children?: OptionalSignal<string | number>;
 }
 
 export class Text extends Component<TextProps, DomRenderer> {
@@ -99,10 +100,7 @@ export class Text extends Component<TextProps, DomRenderer> {
     const node = document.createTextNode("");
 
     s.effect(() => {
-      const text =
-        typeof this.props.children === "function"
-          ? this.props.children().toString()
-          : this.props.children?.toString() ?? "";
+      const text = s.get(this.props.children)?.toString() ?? "";
 
       if (node.textContent !== text) {
         node.textContent = text;

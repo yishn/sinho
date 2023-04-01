@@ -12,11 +12,14 @@ const StyleContext = createStyleContext<{
 });
 
 const Box = StyleContext.createStyledComponent<{
+  class?: SignalLike<string | undefined>;
   children?: Children<DomRenderer>;
 }>(
-  (props, s) => <div class="box">{props.children}</div>,
-  (context) => `
-    .box {
+  (props, s) => (
+    <div class={"box " + (s.get(props.class) ?? "")}>{props.children}</div>
+  ),
+  (context, namespace) => `
+    .${namespace}.box {
       padding: 1em 2em;
       background: ${context.mode() === "dark" ? "#333" : "#eee"};
       color: ${context.mode() === "dark" ? "#eee" : "#333"};
@@ -28,9 +31,11 @@ const Box = StyleContext.createStyledComponent<{
 const Button = StyleContext.createStyledComponent<
   JSX.IntrinsicElements["button"]
 >(
-  (props, s) => <button class="button" {...props} />,
-  (context) => `
-    .button {
+  (props, s) => (
+    <button {...props} class={() => "button " + (s.get(props.class) ?? "")} />
+  ),
+  (context, namespace) => `
+    .${namespace}.button {
       padding: .2em .5em;
       background: ${context.mode() === "dark" ? "#555" : "#ccc"};
       color: ${context.mode() === "dark" ? "#eee" : "#333"};

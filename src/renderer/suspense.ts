@@ -82,7 +82,7 @@ class AsyncComponent<P, R extends Renderer> extends Component<
   R
 > {
   render(s: RendererScope<R>): Rendering<R> {
-    const setComponentStatus = s.context(AsyncContext);
+    const setComponentStatus = s.get(AsyncContext);
     if (setComponentStatus == null) return new Rendering(s, []);
 
     const [component, setComponent] = s.signal<Component<any, R>>();
