@@ -16,15 +16,15 @@ export class Fragment<R extends Renderer> extends Component<
     const fromChildren = (children: Children<R>): Rendering<R> =>
       new Rendering(
         s,
-        !Array.isArray(children)
-          ? children == null
-            ? []
-            : [children.render(s)]
+        children == null
+          ? []
+          : children instanceof Component
+          ? [children.render(s)]
           : children.map((entry) =>
-              !Array.isArray(entry)
-                ? entry == null
-                  ? []
-                  : entry.render(s)
+              entry == null
+                ? []
+                : entry instanceof Component
+                ? entry.render(s)
                 : fromChildren(entry)
             )
       );

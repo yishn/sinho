@@ -10,7 +10,7 @@ export interface SwitchProps<R extends Renderer> {
 
 export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
   render(s: RendererScope<R>): Rendering<R> {
-    const rendering = new Rendering(s, []);
+    const rendering = new Rendering(s);
 
     const result = s.memo(() => {
       for (const when of this.props.cases ?? []) {

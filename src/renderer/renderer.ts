@@ -19,7 +19,7 @@ export class Rendering<R extends Renderer> {
 
   constructor(
     protected s: RendererScope<R>,
-    protected data: (RendererNode<R> | Rendering<R>)[]
+    protected data: (RendererNode<R> | Rendering<R>)[] = []
   ) {}
 
   [Symbol.iterator]() {

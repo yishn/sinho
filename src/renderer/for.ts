@@ -90,10 +90,8 @@ class IndexedFor<T, R extends Renderer> extends Component<
   R
 > {
   render(s: RendererScope<R>): Rendering<R> {
-    let firstTime = true;
-
     const { source = () => [] } = this.props;
-    const rendering = new Rendering(s, []);
+    const rendering = new Rendering(s);
     const state: StateEntry<T>[] = [];
 
     s.effect(() => {
@@ -114,7 +112,7 @@ class IndexedFor<T, R extends Renderer> extends Component<
               const eachRendering =
                 this.props
                   .children?.(value, index)
-                  .renderWithDestructor(s)[0] ?? new Rendering(s, []);
+                  .renderWithDestructor(s)[0] ?? new Rendering(s);
 
               Object.assign(entry, {
                 index,
@@ -137,8 +135,6 @@ class IndexedFor<T, R extends Renderer> extends Component<
           entry.destructor();
         }
       }
-
-      firstTime = false;
     });
 
     s.cleanup(() => {
@@ -162,7 +158,7 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
     const { source = () => [], key } = this.props;
     let firstTime = true;
 
-    const rendering = new Rendering(s, []);
+    const rendering = new Rendering(s);
     const state = new Map<K, StateEntry<T>>();
     let keys: K[] = [];
 
@@ -187,7 +183,7 @@ export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
               const eachRendering =
                 this.props
                   .children?.(value, index)
-                  .renderWithDestructor(s)[0] ?? new Rendering(s, []);
+                  .renderWithDestructor(s)[0] ?? new Rendering(s);
 
               Object.assign(entry, {
                 index,

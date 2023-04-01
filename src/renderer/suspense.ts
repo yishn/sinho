@@ -28,7 +28,7 @@ export class Suspense<R extends Renderer> extends Component<
     const [componentStatus, setComponentStatus] =
       s.signal<PendingComponentsSet>(new Set());
     const [rendering, setRendering] = s.signal<Rendering<R>>(
-      this.props.fallback?.render(s) ?? new Rendering(s, [])
+      this.props.fallback?.render(s) ?? new Rendering(s)
     );
 
     s.effect(
@@ -60,7 +60,7 @@ class SuspenseInner<R extends Renderer> extends Component<
   R
 > {
   render(s: RendererScope<R>): Rendering<R> {
-    const rendering = new Rendering(s, []);
+    const rendering = new Rendering(s);
 
     s.effect(() => {
       rendering.insert(this.props.rendering(), 0);
@@ -83,7 +83,7 @@ class AsyncComponent<P, R extends Renderer> extends Component<
 > {
   render(s: RendererScope<R>): Rendering<R> {
     const setComponentStatus = s.get(AsyncContext);
-    if (setComponentStatus == null) return new Rendering(s, []);
+    if (setComponentStatus == null) return new Rendering(s);
 
     const [component, setComponent] = s.signal<Component<any, R>>();
 
