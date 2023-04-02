@@ -57,11 +57,18 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
             <Button
               onclick={(evt) => {
                 evt.preventDefault();
-
-                setThemeMode((mode) => (mode === "light" ? "dark" : "light"));
+                setThemeMode("dark");
               }}
             >
-              Toggle Dark Mode
+              Dark Mode
+            </Button>{" "}
+            <Button
+              onclick={(evt) => {
+                evt.preventDefault();
+                setThemeMode("light");
+              }}
+            >
+              Light Mode
             </Button>
           </p>
         </Box>

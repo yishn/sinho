@@ -6,7 +6,6 @@
 import {
   createContext,
   Children,
-  Component,
   FunctionComponent,
   When,
   Fragment,
@@ -16,6 +15,7 @@ import { OptionalSignal } from "../scope.ts";
 import { DomRenderer } from "./dom_renderer.ts";
 
 type ComponentStyles<T> = {
+  namespace: string;
   component: ComponentType<any, DomRenderer>;
   css: (value: T, namespace: string) => string;
 }[];
@@ -43,7 +43,6 @@ export function createStyleContext<T>(
   const componentStyles: ComponentStyles<T | undefined> = [];
 
   const StylesContext = createContext<{
-    namespace?: string;
     setRefCount?: (
       Component: ComponentType<any, DomRenderer>,
       mutate: (count: number) => number
@@ -52,7 +51,6 @@ export function createStyleContext<T>(
 
   return {
     Provider: (props, s) => {
-      const namespace = "n" + crypto.randomUUID().replace(/\W/g, "");
       const [refCounts, setRefCounts] = s.signal(
         new Map<ComponentType<any, DomRenderer>, number>()
       );
@@ -67,7 +65,10 @@ export function createStyleContext<T>(
               then={
                 <style>
                   {() =>
-                    componentStyle.css(props.value ?? defaultValue, namespace)
+                    componentStyle.css(
+                      props.value ?? defaultValue,
+                      componentStyle.namespace
+                    )
                   }
                 </style>
               }
@@ -83,7 +84,6 @@ export function createStyleContext<T>(
       return (
         <StylesContext.Provider
           value={{
-            namespace,
             setRefCount: (Component, mutate) => {
               setRefCounts(
                 (map) => {
@@ -100,10 +100,16 @@ export function createStyleContext<T>(
       );
     },
     createStyledComponent(Component, css) {
-      componentStyles.push({ component: Component, css });
+      const namespace = "n" + crypto.randomUUID().replace(/\W/g, "");
+
+      componentStyles.push({
+        namespace,
+        component: Component,
+        css,
+      });
 
       return (props, s) => {
-        const { namespace, setRefCount } = s.get(StylesContext);
+        const { setRefCount } = s.get(StylesContext);
 
         s.effect(() => {
           setRefCount?.(Component, (count) => count + 1);
