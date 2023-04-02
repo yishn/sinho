@@ -24,14 +24,14 @@ export function createContext<T>(defaultValue?: T): Context<T | undefined> {
 
   return Object.assign(context, {
     Provider: class Provider<R extends Renderer> extends Component<
-      ProviderProps<T | undefined>,
+      ProviderProps<T | undefined, R>,
       R
     > {
       render(s: RendererScope<R>): Rendering<R> {
         let result: Rendering<R>;
 
         context.provide(s, this.props.value, () => {
-          result = new Fragment<R>({
+          result = new Fragment({
             children: this.props.children,
           }).render(s);
         });
