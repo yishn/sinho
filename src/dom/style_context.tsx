@@ -1,22 +1,27 @@
-/** @jsx s.createComponent */
+/** @jsx h */
 
 import hash from "https://cdn.skypack.dev/@emotion/hash/dist/emotion-hash.esm.js";
 import {
+  h,
   Children,
   Component,
   For,
   Fragment,
   RendererScope,
   createContext,
+  _globals,
+  getCurrentRendererScope,
 } from "../mod.ts";
 import { DomRenderer } from "./mod.ts";
 import { Rendering } from "../renderer/rendering.ts";
 
 const StylesContext = createContext<{
+  classPrefix: string;
   addStyle: (hash: string, rules: string) => void;
 }>();
 
 export interface StylesProviderProps {
+  classPrefix?: string;
   children?: Children<DomRenderer>;
 }
 
@@ -55,6 +60,7 @@ export class StylesProvider extends Component<
     return (
       <StylesContext.Provider
         value={{
+          classPrefix: this.props.classPrefix ?? "css-",
           addStyle(hash, rules) {
             setStylesState(
               (stylesState) => {
@@ -76,11 +82,8 @@ export class StylesProvider extends Component<
   }
 }
 
-export function css(
-  s: RendererScope<DomRenderer>,
-  rules: (selector: string) => string
-): string {
-  const context = s.get(StylesContext);
+export function style(rules: (selector: string) => string): string {
+  const context = getCurrentRendererScope().get(StylesContext);
 
   if (context == null) {
     throw new Error(
@@ -88,9 +91,9 @@ export function css(
     );
   }
 
-  return s.memo(() => {
+  return getCurrentRendererScope().memo(() => {
     const _hash = hash(rules("&"));
-    const cssName = `css-${_hash}`;
+    const cssName = context.classPrefix + _hash;
     const _rules = rules(`.${cssName}`);
 
     context.addStyle(_hash, _rules);

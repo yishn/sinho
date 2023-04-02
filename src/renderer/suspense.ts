@@ -95,7 +95,7 @@ class AsyncComponent<P, R extends Renderer> extends Component<
         });
 
         try {
-          const component = s.createComponent(
+          const component = s.renderer.createComponent(
             await this.props.asyncComponent(),
             this.props.innerProps
           );

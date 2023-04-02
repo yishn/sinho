@@ -1,12 +1,8 @@
 import { Scope } from "../scope.ts";
-import {
-  Component,
-  ComponentConstructor,
-  ComponentProps,
-  ComponentType,
-  FunctionComponentWrapper,
-} from "./component.ts";
+import { Component } from "./component.ts";
 import { Renderer } from "./renderer.ts";
+
+export const _globals: { s?: RendererScope<Renderer> } = {};
 
 export class RendererScope<out R extends Renderer> extends Scope {
   _current: Component<any, R> | undefined;
@@ -15,45 +11,19 @@ export class RendererScope<out R extends Renderer> extends Scope {
     super();
   }
 
-  createComponent<
-    C extends
-      | (R extends Renderer<infer I, infer _> ? keyof I & string : never)
-      | ComponentType<any, R>
-  >(
-    component: C,
-    props: C extends ComponentType<any, R>
-      ? ComponentProps<C>
-      : R extends Renderer<infer I, infer _>
-      ? C extends keyof I
-        ? I[C]
-        : never
-      : never,
-    ...children: Component<any, R>[]
-  ): Component<any, R> {
-    function isClassComponent(
-      component: ComponentType<any, R>
-    ): component is ComponentConstructor<any, R> {
-      return !!component.isClassComponent;
-    }
+  pin<P extends any[], T>(f: (...args: P) => T): (...args: P) => T {
+    const currentRendererScope = _globals.s;
+    const g = Scope.prototype.pin.call(this, f as any) as (...args: P) => T;
 
-    const childrenOrChild = children.length === 1 ? children[0] : children;
-    const propsWithChildren = {
-      children: childrenOrChild,
-      ...props,
+    return (...args) => {
+      const prevRendererScope = _globals.s;
+      _globals.s = currentRendererScope;
+
+      const result = g(...args);
+
+      _globals.s = prevRendererScope;
+      return result;
     };
-
-    if (typeof component === "string") {
-      return this.renderer.createIntrinsicComponent(
-        component,
-        propsWithChildren
-      );
-    } else if (isClassComponent(component)) {
-      return new component(propsWithChildren);
-    } else {
-      return new FunctionComponentWrapper({
-        functionComponent: (_, s) => component(propsWithChildren, s),
-      });
-    }
   }
 
   onMount(f: () => void): void {
@@ -74,4 +44,14 @@ export class RendererScope<out R extends Renderer> extends Scope {
       })
     );
   }
+}
+
+export function getCurrentRendererScope(): RendererScope<Renderer> {
+  const result = _globals.s;
+
+  if (result == null) {
+    throw new Error("no current renderer scope available");
+  }
+
+  return result;
 }

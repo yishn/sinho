@@ -1,10 +1,10 @@
-/** @jsx s.createComponent */
+/** @jsx h */
 
-import { DomRenderer, StylesProvider, css } from "../../src/dom/mod.ts";
+import { DomRenderer, StylesProvider, style } from "../../src/dom/mod.ts";
 import {
+  h,
   FunctionComponent,
   SignalLike,
-  Children,
   createContext,
 } from "../../src/mod.ts";
 
@@ -16,14 +16,15 @@ const StyleContext = createContext<{
   mode: () => "light",
 });
 
-const Box: FunctionComponent<
-  { children?: Children<DomRenderer> },
-  DomRenderer
-> = (props, s) => (
+const Box: FunctionComponent<JSX.IntrinsicElements["div"], DomRenderer> = (
+  props,
+  s
+) => (
   <div
+    {...props}
     class={() =>
       "box " +
-      css(s, (x) => {
+      style((x) => {
         const mode = s.get(StyleContext).mode();
 
         return `
@@ -33,7 +34,8 @@ const Box: FunctionComponent<
             color: ${mode === "dark" ? "#eee" : "#333"};
             transition: background .2s;
           }`;
-      })
+      }) +
+      s.get(props.class ?? "")
     }
   >
     {props.children}
@@ -48,7 +50,7 @@ const Button: FunctionComponent<
     {...props}
     class={() =>
       "button " +
-      css(s, (x) => {
+      style((x) => {
         const mode = s.get(StyleContext).mode();
 
         return `
@@ -62,7 +64,8 @@ const Button: FunctionComponent<
           ${x}:hover, ${x}:focus {
             background: ${mode === "dark" ? "#777" : "#bbb"}
           }`;
-      })
+      }) +
+      s.get(props.class ?? "")
     }
   />
 );
@@ -79,6 +82,7 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
 
             <p>
               <Button
+                class="dark"
                 onclick={(evt) => {
                   evt.preventDefault();
                   setThemeMode("dark");
@@ -87,6 +91,7 @@ const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
                 Dark Mode
               </Button>{" "}
               <Button
+                class="light"
                 onclick={(evt) => {
                   evt.preventDefault();
                   setThemeMode("light");

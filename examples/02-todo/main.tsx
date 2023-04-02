@@ -1,7 +1,7 @@
-/* @jsx s.createComponent */
+/** @jsx h */
 
+import { h, When, For, FunctionComponent } from "../../src/mod.ts";
 import { DomRenderer, Text } from "../../src/dom/mod.ts";
-import { When, For, FunctionComponent } from "../../src/mod.ts";
 
 interface Task {
   id: string;

@@ -1,10 +1,18 @@
 import {
+  Children,
   Component,
+  ComponentConstructor,
+  ComponentProps,
+  ComponentType,
   FunctionComponent,
   FunctionComponentWrapper,
 } from "./component.ts";
 import { Scope, Destructor, Signal, SignalSetter } from "../scope.ts";
-import { RendererScope } from "./renderer_scope.ts";
+import {
+  RendererScope,
+  _globals,
+  getCurrentRendererScope,
+} from "./renderer_scope.ts";
 import { Rendering } from "./rendering.ts";
 
 const nodeTypeSym = Symbol();
@@ -33,6 +41,43 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
   abstract appendNode(parent: N, node: N): void;
   abstract insertNode(node: N, before: N): void;
   abstract removeNode(node: N): void;
+
+  createComponent<C extends (keyof I & string) | ComponentType<any, this>>(
+    component: C,
+    props: C extends ComponentType<any, this>
+      ? ComponentProps<C>
+      : C extends keyof I
+      ? I[C]
+      : never,
+    ...children: Children<this>[]
+  ): Component<any, this> {
+    type Self = this;
+
+    function isClassComponent(
+      component: ComponentType<any, Self>
+    ): component is ComponentConstructor<any, Self> {
+      return !!component.isClassComponent;
+    }
+
+    const childrenOrChild = children.length === 1 ? children[0] : children;
+    const propsWithChildren = {
+      children: childrenOrChild,
+      ...props,
+    };
+
+    if (typeof component === "string") {
+      return this.createIntrinsicComponent(
+        component as keyof I & string,
+        propsWithChildren
+      );
+    } else if (isClassComponent(component)) {
+      return new component(propsWithChildren);
+    } else {
+      return new FunctionComponentWrapper({
+        functionComponent: (_, s) => component(propsWithChildren, s),
+      });
+    }
+  }
 
   private _fireMountListeners(rendering: Rendering<this>) {
     const component = rendering.component;
@@ -120,6 +165,8 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     parent: N
   ): Destructor {
     const s = new RendererScope(this);
+    _globals.s = s;
+
     const [rendering, destructor] = (
       component instanceof Component
         ? component
@@ -127,7 +174,20 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     ).renderWithDestructor(s);
 
     s.renderer.appendRendering(rendering, parent);
+    _globals.s = undefined;
 
     return destructor;
   }
+}
+
+export function h<C extends string | ComponentType>(
+  component: C,
+  props: C extends ComponentType ? ComponentProps<C> : unknown,
+  ...children: Children<any>[]
+): Component {
+  return getCurrentRendererScope().renderer.createComponent(
+    component,
+    props as any,
+    ...children
+  );
 }

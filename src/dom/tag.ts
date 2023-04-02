@@ -5,7 +5,7 @@ import {
   Component,
   Children,
 } from "../mod.ts";
-import type { OptionalSignal, SignalLike } from "../scope.ts";
+import type { OptionalSignal } from "../scope.ts";
 import { DomRenderer } from "./mod.ts";
 import { DomChildren, setAttr, setStyle } from "./dom.ts";
 

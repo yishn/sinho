@@ -1,7 +1,7 @@
-/* @jsx s.createComponent */
+/* @jsx h */
 
+import { h, When, FunctionComponent } from "../../src/mod.ts";
 import { DomRenderer } from "../../src/dom/mod.ts";
-import { When, FunctionComponent } from "../../src/mod.ts";
 
 const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
   const [counter, setCounter] = s.signal(0);
