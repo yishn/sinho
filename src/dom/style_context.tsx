@@ -1,6 +1,6 @@
 /** @jsx h */
 
-import hash from "https://cdn.skypack.dev/@emotion/hash/dist/emotion-hash.esm.js";
+import generateHash from "https://cdn.skypack.dev/@emotion/hash/dist/emotion-hash.esm.js";
 import {
   h,
   Children,
@@ -15,10 +15,13 @@ import {
 import { DomRenderer } from "./mod.ts";
 import { Rendering } from "../renderer/rendering.ts";
 
+const selectorSym = Symbol("selector");
 const StylesContext = createContext<{
-  classPrefix: string;
+  prefix: string;
   addStyle: (hash: string, rules: string) => void;
 }>();
+
+type Selector = typeof selectorSym;
 
 export interface StylesProviderProps {
   classPrefix?: string;
@@ -60,13 +63,16 @@ export class StylesProvider extends Component<
     return (
       <StylesContext.Provider
         value={{
-          classPrefix: this.props.classPrefix ?? "css-",
+          prefix: this.props.classPrefix ?? "css-",
           addStyle(hash, rules) {
             setStylesState(
               (stylesState) => {
                 if (!stylesState.hashs.has(hash)) {
                   stylesState.hashs.set(hash, stylesState.styles.length);
                   stylesState.styles.push({ hash, rules });
+                } else {
+                  const i = stylesState.hashs.get(hash)!;
+                  stylesState.styles[i] = { hash, rules };
                 }
 
                 return stylesState;
@@ -82,7 +88,56 @@ export class StylesProvider extends Component<
   }
 }
 
-export function style(rules: (selector: string) => string): string {
+export interface CssInfo {
+  css: string;
+  className: string;
+  strings: TemplateStringsArray;
+  values: (Selector | string)[];
+  variables: [string, string][];
+}
+
+function cssInner(
+  prefix: string,
+  hash: string,
+  strings: TemplateStringsArray,
+  ...values: (Selector | string)[]
+): CssInfo {
+  let css = "";
+  const variables = [] as [string, string][];
+  const className = prefix + hash;
+
+  for (let i = 0; i < strings.length; i++) {
+    css += strings[i];
+
+    const value = values[i];
+    if (value == null) continue;
+
+    if (value === selectorSym) {
+      css += `.${className}`;
+    } else {
+      const variableName = `--${className}-${variables.length}`;
+      variables.push([variableName, value]);
+      css += `var(${variableName})`;
+    }
+  }
+
+  return {
+    css,
+    className,
+    strings,
+    values,
+    variables,
+  };
+}
+
+export function css(
+  strings: TemplateStringsArray,
+  ...values: (Selector | string)[]
+): CssInfo {
+  return cssInner("", "&", strings, ...values);
+}
+
+export function style(rules: (selector: Selector) => CssInfo): string {
   const context = getCurrentRendererScope().get(StylesContext);
 
   if (context == null) {
@@ -92,12 +147,28 @@ export function style(rules: (selector: string) => string): string {
   }
 
   return getCurrentRendererScope().memo(() => {
-    const _hash = hash(rules("&"));
-    const cssName = context.classPrefix + _hash;
-    const _rules = rules(`.${cssName}`);
+    const genericRulesInfo = rules(selectorSym);
+    const hash = generateHash(genericRulesInfo.css);
+    const rulesInfo = cssInner(
+      context.prefix,
+      hash,
+      genericRulesInfo.strings,
+      ...genericRulesInfo.values
+    );
+    let varsClassName = "";
 
-    context.addStyle(_hash, _rules);
+    context.addStyle(hash, rulesInfo.css);
 
-    return cssName + " ";
+    if (rulesInfo.variables.length > 0) {
+      varsClassName = `${rulesInfo.className}-vars`;
+      context.addStyle(
+        `${hash}-vars`,
+        `.${varsClassName}{${rulesInfo.variables
+          .map(([name, value]) => `${name}:${value};`)
+          .join("")}}`
+      );
+    }
+
+    return [rulesInfo.className, varsClassName].join(" ");
   })();
 }

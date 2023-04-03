@@ -1,6 +1,6 @@
 /** @jsx h */
 
-import { DomRenderer, StylesProvider, style } from "../../src/dom/mod.ts";
+import { DomRenderer, StylesProvider, style, css } from "../../src/dom/mod.ts";
 import {
   h,
   FunctionComponent,
@@ -27,13 +27,14 @@ const Box: FunctionComponent<JSX.IntrinsicElements["div"], DomRenderer> = (
       style((x) => {
         const mode = s.get(StyleContext).mode();
 
-        return `
+        return css`
           ${x} {
             padding: 1em 2em;
             background: ${mode === "dark" ? "#333" : "#eee"};
             color: ${mode === "dark" ? "#eee" : "#333"};
-            transition: background .2s;
-          }`;
+            transition: background 0.2s;
+          }
+        `;
       }) +
       s.get(props.class ?? "")
     }
@@ -53,17 +54,18 @@ const Button: FunctionComponent<
       style((x) => {
         const mode = s.get(StyleContext).mode();
 
-        return `
+        return css`
           ${x} {
-            padding: .2em .5em;
+            padding: 0.2em 0.5em;
             background: ${mode === "dark" ? "#555" : "#ccc"};
             color: ${mode === "dark" ? "#eee" : "#333"};
-            transition: background .2s;
+            transition: background 0.2s;
           }
 
           ${x}:hover, ${x}:focus {
-            background: ${mode === "dark" ? "#777" : "#bbb"}
-          }`;
+            background: ${mode === "dark" ? "#777" : "#bbb"};
+          }
+        `;
       }) +
       s.get(props.class ?? "")
     }
