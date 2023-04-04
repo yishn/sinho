@@ -21,7 +21,7 @@ const Box: FunctionComponent<JSX.IntrinsicElements["div"], DomRenderer> = (
   s
 ) => {
   const styleContext = s.get(StyleContext);
-  const ref = props.ref ?? s.renderer.nodeRef<HTMLDivElement>(s);
+  const ref = props.ref ?? s.nodeRef<HTMLDivElement>();
 
   return (
     <div {...props} ref={ref} class={() => "box " + s.get(props.class ?? "")}>
@@ -46,7 +46,7 @@ const Button: FunctionComponent<
   DomRenderer
 > = (props, s) => {
   const styleContext = s.get(StyleContext);
-  const ref = props.ref ?? s.renderer.nodeRef<HTMLButtonElement>(s);
+  const ref = props.ref ?? s.nodeRef<HTMLButtonElement>();
 
   return (
     <button

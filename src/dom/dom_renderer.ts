@@ -34,8 +34,4 @@ export class DomRenderer extends Renderer<DomIntrinsicElements, Node> {
       // ignore
     }
   }
-
-  nodeRef<E extends Element>(s: Scope): Signal<E | null> {
-    return Renderer.prototype.nodeRef.call(this, s);
-  }
 }

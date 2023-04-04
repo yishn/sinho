@@ -26,6 +26,12 @@ export class RendererScope<out R extends Renderer> extends Scope {
     };
   }
 
+  nodeRef<N extends RendererNode<R>>(): Signal<N | null> {
+    const [signal, setSignal] = this.signal<N | null>(null);
+    this.renderer._nodeRefSignals.set(signal, setSignal);
+    return signal;
+  }
+
   onMount(f: () => void): void {
     if (this._current == null) return;
 

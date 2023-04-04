@@ -24,10 +24,7 @@ export type RendererNode<R extends Renderer> = NonNullable<
 export abstract class Renderer<in I = any, in out N extends object = any> {
   [nodeTypeSym]?: N;
 
-  private _nodeRefSignals = new WeakMap<
-    Signal<N | null>,
-    SignalSetter<N | null>
-  >();
+  _nodeRefSignals = new WeakMap<Signal<N | null>, SignalSetter<N | null>>();
   private _elementNodeRefSetters = new WeakMap<N, SignalSetter<N | null>>();
 
   _parentNodes = new WeakMap<N, N>();
@@ -137,12 +134,6 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
         this._elementNodeRefSetters.get(node)?.(null);
       }
     }
-  }
-
-  nodeRef(s: Scope): Signal<N | null> {
-    const [signal, setSignal] = s.signal<N | null>(null);
-    this._nodeRefSignals.set(signal, setSignal);
-    return signal;
   }
 
   linkNodeRef(signal: Signal<N | null>, element: N): void {
