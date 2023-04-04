@@ -1,6 +1,6 @@
 /** @jsx h */
 
-import { DomRenderer, StylesProvider, style, css } from "../../src/dom/mod.ts";
+import { DomRenderer, StylesProvider, Style, css } from "../../src/dom/mod.ts";
 import {
   h,
   FunctionComponent,
@@ -19,58 +19,60 @@ const StyleContext = createContext<{
 const Box: FunctionComponent<JSX.IntrinsicElements["div"], DomRenderer> = (
   props,
   s
-) => (
-  <div
-    {...props}
-    class={() =>
-      "box " +
-      style((x) => {
-        const mode = s.get(StyleContext).mode();
+) => {
+  const styleContext = s.get(StyleContext);
+  const ref = props.ref ?? s.renderer.nodeRef<HTMLDivElement>(s);
 
-        return css`
+  return (
+    <div {...props} ref={ref} class={() => "box " + s.get(props.class ?? "")}>
+      {props.children}
+
+      <Style targetRef={ref}>
+        {(x) => css`
           ${x} {
             padding: 1em 2em;
-            background: ${mode === "dark" ? "#333" : "#eee"};
-            color: ${mode === "dark" ? "#eee" : "#333"};
+            background: ${styleContext.mode() === "dark" ? "#333" : "#eee"};
+            color: ${styleContext.mode() === "dark" ? "#eee" : "#333"};
             transition: background 0.2s;
           }
-        `;
-      }) +
-      s.get(props.class ?? "")
-    }
-  >
-    {props.children}
-  </div>
-);
+        `}
+      </Style>
+    </div>
+  );
+};
 
 const Button: FunctionComponent<
   JSX.IntrinsicElements["button"],
   DomRenderer
-> = (props, s) => (
-  <button
-    {...props}
-    class={() =>
-      "button " +
-      style((x) => {
-        const mode = s.get(StyleContext).mode();
+> = (props, s) => {
+  const styleContext = s.get(StyleContext);
+  const ref = props.ref ?? s.renderer.nodeRef<HTMLButtonElement>(s);
 
-        return css`
+  return (
+    <button
+      {...props}
+      ref={ref}
+      class={() => "button " + s.get(props.class ?? "")}
+    >
+      {props.children}
+
+      <Style targetRef={ref}>
+        {(x) => css`
           ${x} {
             padding: 0.2em 0.5em;
-            background: ${mode === "dark" ? "#555" : "#ccc"};
-            color: ${mode === "dark" ? "#eee" : "#333"};
+            background: ${styleContext.mode() === "dark" ? "#555" : "#ccc"};
+            color: ${styleContext.mode() === "dark" ? "#eee" : "#333"};
             transition: background 0.2s;
           }
 
           ${x}:hover, ${x}:focus {
-            background: ${mode === "dark" ? "#777" : "#bbb"};
+            background: ${styleContext.mode() === "dark" ? "#777" : "#bbb"};
           }
-        `;
-      }) +
-      s.get(props.class ?? "")
-    }
-  />
-);
+        `}
+      </Style>
+    </button>
+  );
+};
 
 const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
   const [themeMode, setThemeMode] = s.signal<ThemeMode>("light");

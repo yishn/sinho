@@ -46,6 +46,7 @@ export type ComponentType<P = any, R extends Renderer = any> =
   | FunctionComponent<P, R>;
 
 export interface FunctionComponentWrapperProps<R extends Renderer> {
+  name: string;
   functionComponent: FunctionComponent<{}, R>;
 }
 
@@ -53,7 +54,7 @@ export class FunctionComponentWrapper<
   R extends Renderer = any
 > extends Component<FunctionComponentWrapperProps<R>, R> {
   render(s: RendererScope<R>): Rendering<R> {
-    return this.props.functionComponent({}, s).render(s) ?? [];
+    return this.props.functionComponent({}, s).render(s) ?? new Rendering(s);
   }
 }
 

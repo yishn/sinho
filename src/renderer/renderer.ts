@@ -61,8 +61,8 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
 
     const childrenOrChild = children.length === 1 ? children[0] : children;
     const propsWithChildren = {
-      children: childrenOrChild,
       ...props,
+      children: childrenOrChild,
     };
 
     if (typeof component === "string") {
@@ -74,6 +74,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
       return new component(propsWithChildren);
     } else {
       return new FunctionComponentWrapper({
+        name: component.name,
         functionComponent: (_, s) => component(propsWithChildren, s),
       });
     }
@@ -170,7 +171,10 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     const [rendering, destructor] = (
       component instanceof Component
         ? component
-        : new FunctionComponentWrapper({ functionComponent: component })
+        : new FunctionComponentWrapper({
+            name: component.name,
+            functionComponent: component,
+          })
     ).renderWithDestructor(s);
 
     s.renderer.appendRendering(rendering, parent);

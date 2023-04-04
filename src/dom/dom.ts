@@ -25,13 +25,7 @@
  * SOFTWARE.
  */
 
-import type {
-  Children,
-  Component,
-  OptionalSignal,
-  Signal,
-  SignalLike,
-} from "../mod.ts";
+import type { Component, OptionalSignal, Signal, SignalLike } from "../mod.ts";
 import type { DomRenderer } from "./mod.ts";
 
 const IS_NON_DIMENSIONAL =

@@ -1,6 +1,6 @@
-import { Scope } from "../scope.ts";
+import { Scope, Signal } from "../scope.ts";
 import { Component } from "./component.ts";
-import { Renderer } from "./renderer.ts";
+import { Renderer, RendererNode } from "./renderer.ts";
 
 export const _globals: { s?: RendererScope<Renderer> } = {};
 

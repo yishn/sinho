@@ -1,4 +1,7 @@
-/** @jsx h */
+/**
+ * @jsx h
+ * @jsxFrag Fragment
+ */
 
 import generateHash from "https://cdn.skypack.dev/@emotion/hash/dist/emotion-hash.esm.js";
 import {
@@ -8,23 +11,25 @@ import {
   For,
   Fragment,
   RendererScope,
+  Rendering,
   createContext,
   _globals,
-  getCurrentRendererScope,
+  FunctionComponent,
+  Signal,
 } from "../mod.ts";
 import { DomRenderer } from "./mod.ts";
-import { Rendering } from "../renderer/rendering.ts";
+import { setAttr } from "./dom.ts";
 
 const selectorSym = Symbol("selector");
 const StylesContext = createContext<{
   prefix: string;
-  addStyle: (hash: string, rules: string) => void;
+  insertStyle: (hash: string, css: string) => void;
 }>();
 
 type Selector = typeof selectorSym;
 
 export interface StylesProviderProps {
-  classPrefix?: string;
+  prefix?: string;
   children?: Children<DomRenderer>;
 }
 
@@ -49,9 +54,7 @@ export class StylesProvider extends Component<
     s.onMount(() => {
       const stylesRendering = (
         <For source={() => stylesState().styles}>
-          {(style) => (
-            <style data-hash={style().hash}>{() => style().rules}</style>
-          )}
+          {(style) => <style data-hash={style().hash}>{style().rules}</style>}
         </For>
       ).render(s);
 
@@ -63,22 +66,19 @@ export class StylesProvider extends Component<
     return (
       <StylesContext.Provider
         value={{
-          prefix: this.props.classPrefix ?? "css-",
-          addStyle(hash, rules) {
-            setStylesState(
-              (stylesState) => {
-                if (!stylesState.hashs.has(hash)) {
+          prefix: this.props.prefix ?? "css-",
+          insertStyle(hash, rules) {
+            if (!stylesState().hashs.has(hash)) {
+              setStylesState(
+                (stylesState) => {
                   stylesState.hashs.set(hash, stylesState.styles.length);
                   stylesState.styles.push({ hash, rules });
-                } else {
-                  const i = stylesState.hashs.get(hash)!;
-                  stylesState.styles[i] = { hash, rules };
-                }
 
-                return stylesState;
-              },
-              { force: true }
-            );
+                  return stylesState;
+                },
+                { force: true }
+              );
+            }
           },
         }}
       >
@@ -90,8 +90,8 @@ export class StylesProvider extends Component<
 
 export interface CssInfo {
   css: string;
-  className: string;
-  strings: TemplateStringsArray;
+  id: string;
+  strings: ReadonlyArray<string>;
   values: (Selector | string)[];
   variables: [string, string][];
 }
@@ -99,12 +99,12 @@ export interface CssInfo {
 function cssInner(
   prefix: string,
   hash: string,
-  strings: TemplateStringsArray,
+  strings: ReadonlyArray<string>,
   ...values: (Selector | string)[]
 ): CssInfo {
   let css = "";
   const variables = [] as [string, string][];
-  const className = prefix + hash;
+  const id = prefix + hash;
 
   for (let i = 0; i < strings.length; i++) {
     css += strings[i];
@@ -113,9 +113,9 @@ function cssInner(
     if (value == null) continue;
 
     if (value === selectorSym) {
-      css += `.${className}`;
+      css += `[data-${id}]`;
     } else {
-      const variableName = `--${className}-${variables.length}`;
+      const variableName = `--${id}-${variables.length}`;
       variables.push([variableName, value]);
       css += `var(${variableName})`;
     }
@@ -123,7 +123,7 @@ function cssInner(
 
   return {
     css,
-    className,
+    id,
     strings,
     values,
     variables,
@@ -131,14 +131,22 @@ function cssInner(
 }
 
 export function css(
-  strings: TemplateStringsArray,
+  strings: ReadonlyArray<string>,
   ...values: (Selector | string)[]
 ): CssInfo {
   return cssInner("", "&", strings, ...values);
 }
 
-export function style(rules: (selector: Selector) => CssInfo): string {
-  const context = getCurrentRendererScope().get(StylesContext);
+export interface StyleProps {
+  children?: (selector: Selector) => CssInfo;
+  targetRef?: Signal<ElementCSSInlineStyle | null>;
+}
+
+export const Style: FunctionComponent<StyleProps, DomRenderer> = (props, s) => {
+  const getGenericCssInfo = props.children;
+  if (getGenericCssInfo == null) return <></>;
+
+  const context = s.get(StylesContext);
 
   if (context == null) {
     throw new Error(
@@ -146,29 +154,42 @@ export function style(rules: (selector: Selector) => CssInfo): string {
     );
   }
 
-  return getCurrentRendererScope().memo(() => {
-    const genericRulesInfo = rules(selectorSym);
-    const hash = generateHash(genericRulesInfo.css);
-    const rulesInfo = cssInner(
-      context.prefix,
-      hash,
-      genericRulesInfo.strings,
-      ...genericRulesInfo.values
-    );
-    let varsClassName = "";
+  let hash: string | undefined;
 
-    context.addStyle(hash, rulesInfo.css);
+  s.effect(() => {
+    const element = props.targetRef?.();
 
-    if (rulesInfo.variables.length > 0) {
-      varsClassName = `${rulesInfo.className}-vars`;
-      context.addStyle(
-        `${hash}-vars`,
-        `.${varsClassName}{${rulesInfo.variables
-          .map(([name, value]) => `${name}:${value};`)
-          .join("")}}`
+    if (element === undefined || element != null) {
+      const genericCssInfo = getGenericCssInfo(selectorSym);
+      hash ??= generateHash(genericCssInfo.css);
+
+      const cssInfo = cssInner(
+        context.prefix,
+        hash,
+        genericCssInfo.strings,
+        ...genericCssInfo.values
       );
-    }
 
-    return [rulesInfo.className, varsClassName].join(" ");
-  })();
-}
+      const variablesCss = cssInfo.variables
+        .map(([name, value]) => `${name}:${value};`)
+        .join("");
+      const variablesHash = generateHash(variablesCss);
+      const variablesId = context.prefix + variablesHash;
+
+      context.insertStyle(hash, cssInfo.css);
+      context.insertStyle(
+        variablesHash,
+        `[data-${variablesId}]{${variablesCss}}`
+      );
+
+      setAttr(element, `data-${cssInfo.id}`, "");
+      setAttr(element, `data-${variablesId}`, "");
+
+      s.cleanup(() => {
+        setAttr(element, `data-${variablesId}`, undefined);
+      });
+    }
+  });
+
+  return <></>;
+};
