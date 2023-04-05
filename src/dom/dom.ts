@@ -82,18 +82,6 @@ export function setAttr(node: any, name: string, value: unknown): void {
   }
 }
 
-declare global {
-  namespace JSX {
-    interface Element extends Component<any, DomRenderer> {}
-
-    interface ElementChildrenAttribute {
-      children: {};
-    }
-
-    interface IntrinsicElements extends DomIntrinsicElements {}
-  }
-}
-
 export interface DomIntrinsicElements {
   // HTML
   a: HtmlProps<HTMLAnchorElement> & EventProps<HTMLAnchorElement>;
@@ -516,6 +504,8 @@ interface HtmlProps<E> extends DomProps<E> {
   itemType?: OptionalSignal<string>;
   itemID?: OptionalSignal<string>;
   itemRef?: OptionalSignal<string>;
+
+  [name: string]: any;
 }
 
 interface SvgProps<E> extends HtmlProps<E> {

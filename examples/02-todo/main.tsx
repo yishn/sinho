@@ -1,6 +1,6 @@
-/** @jsx h */
+/** @jsxImportSource shingo/dom */
 
-import { h, When, For, FunctionComponent } from "../../src/mod.ts";
+import { When, For, FunctionComponent } from "../../src/mod.ts";
 import { DomRenderer, Text } from "../../src/dom/mod.ts";
 
 interface Task {

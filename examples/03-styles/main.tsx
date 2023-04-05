@@ -1,12 +1,8 @@
-/** @jsx h */
+/** @jsxImportSource shingo/dom */
 
+import { JSX } from "shingo/dom/jsx-runtime";
+import { FunctionComponent, SignalLike, createContext } from "../../src/mod.ts";
 import { DomRenderer, StylesProvider, Style, css } from "../../src/dom/mod.ts";
-import {
-  h,
-  FunctionComponent,
-  SignalLike,
-  createContext,
-} from "../../src/mod.ts";
 
 type ThemeMode = "light" | "dark";
 

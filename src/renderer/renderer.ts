@@ -41,14 +41,18 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
 
   createComponent<C extends (keyof I & string) | ComponentType<any, this>>(
     component: C,
-    props: C extends ComponentType<any, this>
-      ? ComponentProps<C>
-      : C extends keyof I
-      ? I[C]
-      : never,
+    props?:
+      | null
+      | (C extends ComponentType<any, this>
+          ? ComponentProps<C>
+          : C extends keyof I
+          ? I[C]
+          : never),
     ...children: Children<this>[]
   ): Component<any, this> {
     type Self = this;
+
+    props ??= {} as any;
 
     function isClassComponent(
       component: ComponentType<any, Self>
@@ -56,23 +60,22 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
       return !!component.isClassComponent;
     }
 
-    const childrenOrChild = children.length === 1 ? children[0] : children;
-    const propsWithChildren = {
-      ...props,
-      children: childrenOrChild,
-    };
+    if (children.length > 0) {
+      const childrenOrChild = children.length === 1 ? children[0] : children;
+      props!.children = childrenOrChild;
+    }
 
     if (typeof component === "string") {
       return this.createIntrinsicComponent(
         component as keyof I & string,
-        propsWithChildren
+        props!
       );
     } else if (isClassComponent(component)) {
-      return new component(propsWithChildren);
+      return new component(props);
     } else {
       return new FunctionComponentWrapper({
         name: component.name,
-        functionComponent: (_, s) => component(propsWithChildren, s),
+        functionComponent: (_, s) => component(props, s),
       });
     }
   }
@@ -177,7 +180,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
 
 export function h<C extends string | ComponentType>(
   component: C,
-  props: C extends ComponentType ? ComponentProps<C> : unknown,
+  props?: null | (C extends ComponentType ? ComponentProps<C> : unknown),
   ...children: Children<any>[]
 ): Component {
   return getCurrentRendererScope().renderer.createComponent(

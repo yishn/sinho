@@ -1,11 +1,5 @@
-/**
- * @jsx h
- * @jsxFrag Fragment
- */
-
 import generateHash from "https://cdn.skypack.dev/@emotion/hash/dist/emotion-hash.esm.js";
 import {
-  h,
   Children,
   Component,
   For,
@@ -19,6 +13,7 @@ import {
 } from "../mod.ts";
 import { DomRenderer } from "./mod.ts";
 import { setAttr } from "./dom.ts";
+import { jsx } from "./jsx-runtime.ts";
 
 const selectorSym = Symbol("selector");
 const StylesContext = createContext<{
@@ -52,39 +47,39 @@ export class StylesProvider extends Component<
     });
 
     s.onMount(() => {
-      const stylesRendering = (
-        <For source={() => stylesState().styles}>
-          {(style) => <style data-hash={style().hash}>{style().rules}</style>}
-        </For>
-      ).render(s);
+      const stylesRendering = new For({
+        source: () => stylesState().styles,
+        children: (style) =>
+          jsx("style", {
+            "data-hash": style().hash,
+            children: style().rules,
+          }),
+      }).render(s);
 
       s.renderer.appendRendering(stylesRendering, document.head);
 
       s.cleanup(() => s.renderer.removeRendering(stylesRendering));
     });
 
-    return (
-      <StylesContext.Provider
-        value={{
-          prefix: this.props.prefix ?? "css-",
-          insertStyle(hash, rules) {
-            if (!stylesState().hashs.has(hash)) {
-              setStylesState(
-                (stylesState) => {
-                  stylesState.hashs.set(hash, stylesState.styles.length);
-                  stylesState.styles.push({ hash, rules });
+    return new StylesContext.Provider({
+      value: {
+        prefix: this.props.prefix ?? "css-",
+        insertStyle(hash, rules) {
+          if (!stylesState().hashs.has(hash)) {
+            setStylesState(
+              (stylesState) => {
+                stylesState.hashs.set(hash, stylesState.styles.length);
+                stylesState.styles.push({ hash, rules });
 
-                  return stylesState;
-                },
-                { force: true }
-              );
-            }
-          },
-        }}
-      >
-        {this.props.children}
-      </StylesContext.Provider>
-    ).render(s);
+                return stylesState;
+              },
+              { force: true }
+            );
+          }
+        },
+      },
+      children: this.props.children,
+    }).render(s);
   }
 }
 
@@ -144,7 +139,7 @@ export interface StyleProps {
 
 export const Style: FunctionComponent<StyleProps, DomRenderer> = (props, s) => {
   const getGenericCssInfo = props.children;
-  if (getGenericCssInfo == null) return <></>;
+  if (getGenericCssInfo == null) return new Fragment({});
 
   const context = s.get(StylesContext);
 
@@ -191,5 +186,5 @@ export const Style: FunctionComponent<StyleProps, DomRenderer> = (props, s) => {
     }
   });
 
-  return <></>;
+  return new Fragment({});
 };

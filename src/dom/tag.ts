@@ -8,6 +8,7 @@ import {
 import type { OptionalSignal } from "../scope.ts";
 import { DomRenderer } from "./mod.ts";
 import { DomChildren, setAttr, setStyle } from "./dom.ts";
+import { JSX } from "./jsx-runtime.ts";
 
 export type TagProps<T extends string> = {
   tagName: T;

@@ -5,14 +5,19 @@ await emptyDir("./dist");
 
 await build({
   entryPoints: [
-    "./mod.ts",
+    "./src/mod.ts",
+    {
+      name: "./jsx-runtime",
+      path: "./src/jsx-runtime.ts",
+    },
     {
       name: "./dom",
       path: "./src/dom/mod.ts",
     },
-    ...["01-counter", "02-todo", "03-styles"].map(
-      (example) => `./examples/${example}/main.tsx`
-    ),
+    {
+      name: "./dom/jsx-runtime",
+      path: "./src/dom/jsx-runtime.ts",
+    },
   ],
   outDir: "./dist",
   shims: {

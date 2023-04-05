@@ -1,6 +1,6 @@
-/* @jsx h */
+/** @jsxImportSource shingo/dom */
 
-import { h, When, FunctionComponent } from "../../src/mod.ts";
+import { When, FunctionComponent } from "../../src/mod.ts";
 import { DomRenderer } from "../../src/dom/mod.ts";
 
 const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
