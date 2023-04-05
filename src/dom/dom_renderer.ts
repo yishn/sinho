@@ -10,8 +10,8 @@ export class DomRenderer extends Renderer<DomIntrinsicElements, Node> {
     props: DomIntrinsicElements[T]
   ): Component<any, this> {
     return new TagComponent({
-      tagName: name,
       ...props,
+      tagName: name,
     }) as Component<any, this>;
   }
 
