@@ -3,18 +3,15 @@ import { Renderer } from "./renderer.ts";
 import { RendererScope } from "./renderer_scope.ts";
 import { Rendering } from "./rendering.ts";
 
-export interface FragmentProps<R extends Renderer> {
-  children?: Children<R>;
+export interface FragmentProps {
+  children?: Children;
 }
 
-export class Fragment<R extends Renderer> extends Component<
-  FragmentProps<R>,
-  R
-> {
-  render(s: RendererScope<R>): Rendering<R> {
+export class Fragment extends Component<FragmentProps> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
     const { children = [] } = this.props;
 
-    const fromChildren = (children: Children<R>): Rendering<R> =>
+    const fromChildren = (children: Children): Rendering<R> =>
       new Rendering(
         s,
         children == null

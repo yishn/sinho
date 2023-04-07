@@ -5,12 +5,12 @@ import { Fragment } from "./fragment.ts";
 import { RendererScope } from "./renderer_scope.ts";
 import { Rendering } from "./rendering.ts";
 
-export interface SwitchProps<R extends Renderer> {
-  cases?: Case<R>[];
+export interface SwitchProps {
+  cases?: Case[];
 }
 
-export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
-  render(s: RendererScope<R>): Rendering<R> {
+export class Switch extends Component<SwitchProps> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
     const rendering = new Rendering(s);
 
     const result = s.memo(() => {
@@ -18,11 +18,11 @@ export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
         const memoizedCondition = s.memo(() => when.condition?.());
 
         if (memoizedCondition()) {
-          return when.component ?? new Fragment<R>({});
+          return when.component ?? new Fragment({});
         }
       }
 
-      return new Fragment<R>({});
+      return new Fragment({});
     });
 
     s.effect(() => {
@@ -38,30 +38,30 @@ export class Switch<R extends Renderer> extends Component<SwitchProps<R>, R> {
   }
 }
 
-export interface Case<R extends Renderer> {
+export interface Case {
   condition?: SignalLike<boolean>;
-  component?: Component<any, R>;
+  component?: Component;
 }
 
-export function when<R extends Renderer>(
+export function when(
   condition: boolean | SignalLike<boolean>,
-  component: Component<any, R>
-): Case<R> {
+  component: Component
+): Case {
   return {
     condition: typeof condition === "boolean" ? () => condition : condition,
     component,
   };
 }
 
-export interface WhenProps<R extends Renderer> {
+export interface WhenProps {
   condition?: SignalLike<boolean>;
-  then?: Component<any, R>;
-  otherwise?: Component<any, R>;
+  then?: Component;
+  otherwise?: Component;
 }
 
-export class When<R extends Renderer> extends Component<WhenProps<R>, R> {
-  render(s: RendererScope<R>): Rendering<R> {
-    return new Switch<R>({
+export class When extends Component<WhenProps> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
+    return new Switch({
       cases: [
         when(this.props.condition ?? true, this.props.then ?? new Fragment({})),
         when(true, this.props.otherwise ?? new Fragment({})),

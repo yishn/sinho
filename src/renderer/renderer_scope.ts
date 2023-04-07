@@ -5,7 +5,7 @@ import { Renderer, RendererNode } from "./renderer.ts";
 export const _globals: { s?: RendererScope<Renderer> } = {};
 
 export class RendererScope<out R extends Renderer> extends Scope {
-  _current: Component<any, R> | undefined;
+  _current: Component | undefined;
 
   constructor(public renderer: R) {
     super();
@@ -13,7 +13,7 @@ export class RendererScope<out R extends Renderer> extends Scope {
 
   pin<P extends any[], T>(f: (...args: P) => T): (...args: P) => T {
     const currentRendererScope = _globals.s;
-    const g = Scope.prototype.pin.call(this, f as any) as (...args: P) => T;
+    const g = Scope.prototype.pin.call(this, f) as (...args: P) => T;
 
     return (...args) => {
       const prevRendererScope = _globals.s;

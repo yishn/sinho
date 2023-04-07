@@ -1,13 +1,6 @@
-import {
-  Fragment,
-  Renderer,
-  Children,
-  Component,
-  RendererScope,
-  Rendering,
-  OptionalSignal,
-} from "../mod.ts";
+import { Renderer, Component } from "../mod.ts";
 import { DomIntrinsicElements } from "./dom.ts";
+import { TagComponent } from "./tag.ts";
 
 export class ServerRendererNode {
   parent?: ServerRendererNode;
@@ -25,65 +18,18 @@ export class ServerRendererNode {
   }
 }
 
-type ServerChildren =
-  | null
-  | undefined
-  | Component<any, ServerRenderer>
-  | OptionalSignal<string | number>
-  | ServerChildren[];
-
-class Text extends Component<
-  { children: OptionalSignal<string | number> },
-  ServerRenderer
-> {
-  render(s: RendererScope<ServerRenderer>): Rendering<ServerRenderer> {
-    const node = new ServerRendererNode();
-    node.html = s.get(`${this.props.children}` ?? "");
-    return new Rendering(s, [node]);
-  }
-}
-
-class IntrinsicComponent extends Component<
-  { tagName: string; children: ServerChildren } & Omit<
-    DomIntrinsicElements[any],
-    "children"
-  >,
-  ServerRenderer
-> {
-  render(s: RendererScope<ServerRenderer>): Rendering<ServerRenderer> {
-    const node = new ServerRendererNode(this.props.tagName);
-
-    const fromChildren = (children: ServerChildren): Children<ServerRenderer> =>
-      !Array.isArray(children)
-        ? children == null || children instanceof Component
-          ? children
-          : new Text({ children })
-        : children.map(fromChildren);
-
-    s.renderer.appendRendering(
-      new Fragment({ children: fromChildren(this.props.children) }).render(s),
-      node
-    );
-
-    return new Rendering(s, [node]);
-  }
-}
-
 export class ServerRenderer extends Renderer<
   DomIntrinsicElements,
   ServerRendererNode
 > {
   createIntrinsicComponent<T extends string>(
     name: T,
-    props: { children: ServerChildren } & Omit<
-      DomIntrinsicElements[T],
-      "children"
-    >
-  ): Component<any, this> {
-    return new IntrinsicComponent({
+    props: DomIntrinsicElements[T]
+  ): Component {
+    return new TagComponent({
       ...props,
       tagName: name,
-    }) as Component<any, this>;
+    });
   }
 
   appendNode(parent: ServerRendererNode, node: ServerRendererNode): void {

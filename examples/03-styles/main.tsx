@@ -12,10 +12,7 @@ const StyleContext = createContext<{
   mode: () => "light",
 });
 
-const Box: FunctionComponent<JSX.IntrinsicElements["div"], DomRenderer> = (
-  props,
-  s
-) => {
+const Box: FunctionComponent<JSX.IntrinsicElements["div"]> = (props, s) => {
   const styleContext = s.get(StyleContext);
   const ref = props.ref ?? s.nodeRef<HTMLDivElement>();
 
@@ -37,10 +34,10 @@ const Box: FunctionComponent<JSX.IntrinsicElements["div"], DomRenderer> = (
   );
 };
 
-const Button: FunctionComponent<
-  JSX.IntrinsicElements["button"],
-  DomRenderer
-> = (props, s) => {
+const Button: FunctionComponent<JSX.IntrinsicElements["button"]> = (
+  props,
+  s
+) => {
   const styleContext = s.get(StyleContext);
   const ref = props.ref ?? s.nodeRef<HTMLButtonElement>();
 
@@ -70,7 +67,7 @@ const Button: FunctionComponent<
   );
 };
 
-const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
+const App: FunctionComponent<{}> = (_, s) => {
   const [themeMode, setThemeMode] = s.signal<ThemeMode>("light");
 
   return (

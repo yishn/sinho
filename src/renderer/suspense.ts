@@ -16,16 +16,13 @@ type PendingComponentsSet = Set<Component>;
 
 const AsyncContext = createContext<SignalSetter<PendingComponentsSet>>();
 
-export interface SuspenseProps<R extends Renderer> {
-  fallback?: Component<any, R>;
-  children?: Children<R>;
+export interface SuspenseProps {
+  fallback?: Component;
+  children?: Children;
 }
 
-export class Suspense<R extends Renderer> extends Component<
-  SuspenseProps<R>,
-  R
-> {
-  render(s: RendererScope<R>): Rendering<R> {
+export class Suspense extends Component<SuspenseProps> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
     const [componentStatus, setComponentStatus] =
       s.signal<PendingComponentsSet>(new Set());
     const [rendering, setRendering] = s.signal<Rendering<R>>(
@@ -52,19 +49,16 @@ export class Suspense<R extends Renderer> extends Component<
   }
 }
 
-interface SuspenseInnerProps<R extends Renderer> {
-  rendering: SignalLike<Rendering<R>>;
+interface SuspenseInnerProps {
+  rendering: SignalLike<Rendering<Renderer>>;
 }
 
-class SuspenseInner<R extends Renderer> extends Component<
-  SuspenseInnerProps<R>,
-  R
-> {
-  render(s: RendererScope<R>): Rendering<R> {
+class SuspenseInner extends Component<SuspenseInnerProps> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
     const rendering = new Rendering(s);
 
     s.effect(() => {
-      rendering.insert(this.props.rendering(), 0);
+      rendering.insert(this.props.rendering() as Rendering<R>, 0);
 
       s.cleanup(() => rendering.delete(0));
     });
@@ -73,20 +67,17 @@ class SuspenseInner<R extends Renderer> extends Component<
   }
 }
 
-interface AsyncComponentProps<P, R extends Renderer> {
+interface AsyncComponentProps<P> {
   innerProps: P;
-  asyncComponent: () => Promise<ComponentType<P, R>>;
+  asyncComponent: () => Promise<ComponentType<P>>;
 }
 
-class AsyncComponent<P, R extends Renderer> extends Component<
-  AsyncComponentProps<P, R>,
-  R
-> {
-  render(s: RendererScope<R>): Rendering<R> {
+class AsyncComponent<P> extends Component<AsyncComponentProps<P>> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
     const setComponentStatus = s.get(AsyncContext);
     if (setComponentStatus == null) return new Rendering(s);
 
-    const [component, setComponent] = s.signal<Component<any, R>>();
+    const [component, setComponent] = s.signal<Component>();
 
     s.effect(
       async () => {
@@ -116,16 +107,16 @@ class AsyncComponent<P, R extends Renderer> extends Component<
       { untracked: true }
     );
 
-    return new When<R>({
+    return new When({
       condition: () => component() != null,
       then: component()!,
     }).render(s);
   }
 }
 
-export function lazy<P, R extends Renderer>(
-  asyncComponent: () => Promise<{ default: ComponentType<P, R> }>
-): FunctionComponent<P, R> {
+export function lazy<P>(
+  asyncComponent: () => Promise<{ default: ComponentType<P> }>
+): FunctionComponent<P> {
   return (props) =>
     new AsyncComponent({
       innerProps: props,

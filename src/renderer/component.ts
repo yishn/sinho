@@ -3,14 +3,53 @@ import { RendererScope } from "./renderer_scope.ts";
 import type { Destructor } from "../scope.ts";
 import { Rendering } from "./rendering.ts";
 
-export abstract class Component<P = any, R extends Renderer = any> {
+type RenderFunction<C extends Component, R extends Renderer> = (
+  component: C,
+  s: RendererScope<R>
+) => Rendering<R>;
+
+const renderMap = new WeakMap<
+  ComponentConstructor,
+  WeakMap<new (...args: any) => Renderer, RenderFunction<Component, Renderer>>
+>();
+
+export abstract class Component<P = any> {
   static isClassComponent = true;
 
-  constructor(protected props: P) {}
+  static implRender<T extends ComponentConstructor, R extends Renderer>(
+    this: T,
+    renderer: new (...args: any) => R,
+    render: RenderFunction<InstanceType<T>, R>
+  ): void {
+    const map =
+      renderMap.get(this) ??
+      new WeakMap<
+        new (...args: any) => Renderer,
+        RenderFunction<Component, Renderer>
+      >();
+    renderMap.set(this, map);
 
-  abstract render(s: RendererScope<R>): Rendering<R>;
+    map.set(renderer, render as any);
+  }
 
-  renderWithDestructor(s: RendererScope<R>): [Rendering<R>, Destructor] {
+  constructor(public props: P) {}
+
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
+    const rendering = renderMap
+      .get(this.constructor as ComponentConstructor)
+      ?.get(s.renderer.constructor as new (...args: any) => Renderer)
+      ?.call(this, this, s) as Rendering<R> | undefined;
+
+    if (rendering != null) {
+      return rendering;
+    }
+
+    throw new Error("unsupported renderer");
+  }
+
+  renderWithDestructor<R extends Renderer>(
+    s: RendererScope<R>
+  ): [Rendering<R>, Destructor] {
     const lastComponent = s._current;
     s._current = this;
 
@@ -31,29 +70,27 @@ export abstract class Component<P = any, R extends Renderer = any> {
   }
 }
 
-export interface ComponentConstructor<P = any, R extends Renderer = any> {
+export interface ComponentConstructor<P = any> {
   isClassComponent?: boolean;
-  new (props: P): Component<P, R>;
+  new (props: P): Component<P>;
 }
 
-export interface FunctionComponent<P = any, R extends Renderer = any> {
+export interface FunctionComponent<P = any> {
   isClassComponent?: false;
-  (props: P, s: RendererScope<R>): Component<any, R>;
+  (props: P, s: RendererScope<Renderer>): Component<any>;
 }
 
-export type ComponentType<P = any, R extends Renderer = any> =
-  | ComponentConstructor<P, R>
-  | FunctionComponent<P, R>;
+export type ComponentType<P = any> =
+  | ComponentConstructor<P>
+  | FunctionComponent<P>;
 
-export interface FunctionComponentWrapperProps<R extends Renderer> {
+export interface FunctionComponentWrapperProps {
   name: string;
-  functionComponent: FunctionComponent<{}, R>;
+  functionComponent: FunctionComponent<{}>;
 }
 
-export class FunctionComponentWrapper<
-  R extends Renderer = any
-> extends Component<FunctionComponentWrapperProps<R>, R> {
-  render(s: RendererScope<R>): Rendering<R> {
+export class FunctionComponentWrapper extends Component<FunctionComponentWrapperProps> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
     return this.props.functionComponent({}, s).render(s) ?? new Rendering(s);
   }
 }
@@ -67,23 +104,10 @@ export function isClassComponent(
 export type ComponentProps<
   C extends ComponentConstructor | Component | FunctionComponent
 > = C extends
-  | ComponentConstructor<infer P, infer _>
-  | Component<infer P, infer _>
-  | FunctionComponent<infer P, infer _>
+  | ComponentConstructor<infer P>
+  | Component<infer P>
+  | FunctionComponent<infer P>
   ? P
   : never;
 
-export type ComponentRenderer<
-  C extends ComponentConstructor | Component | FunctionComponent
-> = C extends
-  | ComponentConstructor<infer _, infer R>
-  | Component<infer _, infer R>
-  | FunctionComponent<infer _, infer R>
-  ? R
-  : never;
-
-export type Children<R extends Renderer> =
-  | null
-  | undefined
-  | Component<any, R>
-  | Children<R>[];
+export type Children = null | undefined | Component | Children[];

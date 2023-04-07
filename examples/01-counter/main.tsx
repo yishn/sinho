@@ -3,7 +3,7 @@
 import { When, FunctionComponent } from "../../src/mod.ts";
 import { DomRenderer } from "../../src/dom/mod.ts";
 
-const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
+const App: FunctionComponent<{}> = (_, s) => {
   const [counter, setCounter] = s.signal(0);
   const illegal = s.memo(() => counter() < 0 || counter() > 10);
   const okParagraphRef = s.nodeRef<HTMLParagraphElement>();

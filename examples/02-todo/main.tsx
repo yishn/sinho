@@ -9,7 +9,7 @@ interface Task {
   text: string;
 }
 
-const App: FunctionComponent<{}, DomRenderer> = (_, s) => {
+const App: FunctionComponent<{}> = (_, s) => {
   const [newTaskText, setNewTaskText] = s.signal("");
   const [tasks, setTasks] = s.signal<Task[]>([
     {

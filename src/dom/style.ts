@@ -4,16 +4,14 @@ import {
   Component,
   For,
   Fragment,
-  RendererScope,
   Rendering,
   createContext,
   _globals,
-  FunctionComponent,
   Signal,
 } from "../mod.ts";
-import { DomRenderer } from "./mod.ts";
 import { setAttr } from "./dom.ts";
 import { jsx } from "./jsx-runtime.ts";
+import { DomRenderer } from "./dom_renderer.ts";
 
 const selectorSym = Symbol("selector");
 const StylesContext = createContext<{
@@ -25,63 +23,60 @@ type Selector = typeof selectorSym;
 
 export interface StylesProviderProps {
   prefix?: string;
-  children?: Children<DomRenderer>;
+  children?: Children;
 }
 
-export class StylesProvider extends Component<
-  StylesProviderProps,
-  DomRenderer
-> {
-  render(s: RendererScope<DomRenderer>): Rendering<DomRenderer> {
-    if (s.get(StylesContext) != null) {
-      // StylesProvider is already an ancestor component, do nothing
-      return new Fragment({ children: this.props.children }).render(s);
-    }
+export class StylesProvider extends Component<StylesProviderProps> {}
 
-    const [stylesState, setStylesState] = s.signal({
-      hashs: new Map<string, number>(),
-      styles: [] as {
-        hash: string;
-        rules: string;
-      }[],
-    });
-
-    s.onMount(() => {
-      const stylesRendering = new For({
-        source: () => stylesState().styles,
-        children: (style) =>
-          jsx("style", {
-            "data-hash": style().hash,
-            children: style().rules,
-          }),
-      }).render(s);
-
-      s.renderer.appendRendering(stylesRendering, document.head);
-
-      s.cleanup(() => s.renderer.removeRendering(stylesRendering));
-    });
-
-    return new StylesContext.Provider({
-      value: {
-        prefix: this.props.prefix ?? "css-",
-        insertStyle(hash, rules) {
-          if (!stylesState().hashs.has(hash)) {
-            setStylesState(
-              (stylesState) => {
-                stylesState.hashs.set(hash, stylesState.styles.length);
-                stylesState.styles.push({ hash, rules });
-
-                return stylesState;
-              },
-              { force: true }
-            );
-          }
-        },
-      },
-      children: this.props.children,
-    }).render(s);
+StylesProvider.implRender(DomRenderer, (component, s) => {
+  if (s.get(StylesContext) != null) {
+    // StylesProvider is already an ancestor component, do nothing
+    return new Fragment({ children: component.props.children }).render(s);
   }
-}
+
+  const [stylesState, setStylesState] = s.signal({
+    hashs: new Map<string, number>(),
+    styles: [] as {
+      hash: string;
+      rules: string;
+    }[],
+  });
+
+  s.onMount(() => {
+    const stylesRendering = new For({
+      source: () => stylesState().styles,
+      children: (style) =>
+        jsx("style", {
+          "data-hash": style().hash,
+          children: style().rules,
+        }),
+    }).render(s);
+
+    s.renderer.appendRendering(stylesRendering, document.head);
+
+    s.cleanup(() => s.renderer.removeRendering(stylesRendering));
+  });
+
+  return new StylesContext.Provider({
+    value: {
+      prefix: component.props.prefix ?? "css-",
+      insertStyle(hash, rules) {
+        if (!stylesState().hashs.has(hash)) {
+          setStylesState(
+            (stylesState) => {
+              stylesState.hashs.set(hash, stylesState.styles.length);
+              stylesState.styles.push({ hash, rules });
+
+              return stylesState;
+            },
+            { force: true }
+          );
+        }
+      },
+    },
+    children: component.props.children,
+  }).render(s);
+});
 
 export interface CssInfo {
   css: string;
@@ -133,13 +128,15 @@ export function css(
 }
 
 export interface StyleProps {
-  children?: (selector: Selector) => CssInfo;
   targetRef?: Signal<ElementCSSInlineStyle | null>;
+  children?: (selector: Selector) => CssInfo;
 }
 
-export const Style: FunctionComponent<StyleProps, DomRenderer> = (props, s) => {
-  const getGenericCssInfo = props.children;
-  if (getGenericCssInfo == null) return new Fragment({});
+export class Style extends Component<StyleProps> {}
+
+Style.implRender(DomRenderer, (component, s) => {
+  const getGenericCssInfo = component.props.children;
+  if (getGenericCssInfo == null) return new Rendering(s);
 
   const context = s.get(StylesContext);
 
@@ -152,7 +149,7 @@ export const Style: FunctionComponent<StyleProps, DomRenderer> = (props, s) => {
   let hash: string | undefined;
 
   s.effect(() => {
-    const element = props.targetRef?.();
+    const element = component.props.targetRef?.();
 
     if (element === undefined || element != null) {
       const genericCssInfo = getGenericCssInfo(selectorSym);
@@ -186,5 +183,5 @@ export const Style: FunctionComponent<StyleProps, DomRenderer> = (props, s) => {
     }
   });
 
-  return new Fragment({});
-};
+  return new Rendering(s);
+});

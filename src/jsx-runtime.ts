@@ -3,27 +3,29 @@ import {
   ComponentProps,
   ComponentType,
   Fragment,
-  h,
+  getCurrentRendererScope,
 } from "./mod.ts";
 
 export function jsx<C extends string | ComponentType>(
   component: C,
   props?: null | (C extends ComponentType ? ComponentProps<C> : unknown),
-  _key?: string
+  key?: string
 ): Component {
-  return h(component, props);
+  if (props != null && key != null) {
+    (props as any).key = key;
+  }
+
+  return getCurrentRendererScope().renderer.createComponent(component, props);
 }
 
 export namespace JSX {
-  export interface Element extends Component {}
+  export type Element = Component;
 
   export interface ElementChildrenAttribute {
     children: {};
   }
 
-  export interface IntrinsicElements {
-    [name: string]: any;
-  }
+  export type IntrinsicElements = Record<string, any>;
 }
 
 export { Fragment, jsx as jsxs, jsx as jsxDEV };

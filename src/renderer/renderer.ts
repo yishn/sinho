@@ -8,55 +8,55 @@ import {
   FunctionComponentWrapper,
 } from "./component.ts";
 import { Scope, Destructor, Signal, SignalSetter } from "../scope.ts";
-import {
-  RendererScope,
-  _globals,
-  getCurrentRendererScope,
-} from "./renderer_scope.ts";
+import { RendererScope, _globals } from "./renderer_scope.ts";
 import { Rendering } from "./rendering.ts";
 
-const nodeTypeSym = Symbol();
+const typesSym = Symbol();
 
 export type RendererNode<R extends Renderer> = NonNullable<
-  R[typeof nodeTypeSym]
+  NonNullable<R[typeof typesSym]>[0]
 >;
 
 export abstract class Renderer<in I = any, in out N extends object = any> {
-  [nodeTypeSym]?: N;
+  static renderSymbol<T extends new (...args: any) => Renderer>(
+    this: T & { _renderSym?: symbol }
+  ): symbol {
+    return (this._renderSym ??= Symbol());
+  }
+
+  [typesSym]?: [N, (x: I) => void];
 
   _nodeRefSignals = new WeakMap<Signal<N | null>, SignalSetter<N | null>>();
   private _elementNodeRefSetters = new WeakMap<N, SignalSetter<N | null>>();
 
   _parentNodes = new WeakMap<N, N>();
-  _mountListeners = new WeakMap<Component<any, this>, (() => void)[]>();
+  _mountListeners = new WeakMap<Component, (() => void)[]>();
 
   abstract createIntrinsicComponent<T extends keyof I & string>(
     name: T,
     props: I[T]
-  ): Component<any, this>;
+  ): Component;
 
   abstract appendNode(parent: N, node: N): void;
   abstract insertNode(node: N, before: N): void;
   abstract removeNode(node: N): void;
 
-  createComponent<C extends (keyof I & string) | ComponentType<any, this>>(
+  createComponent<C extends (keyof I & string) | ComponentType>(
     component: C,
     props?:
       | null
-      | (C extends ComponentType<any, this>
+      | (C extends ComponentType
           ? ComponentProps<C>
           : C extends keyof I
           ? I[C]
           : never),
-    ...children: Children<this>[]
-  ): Component<any, this> {
-    type Self = this;
-
+    ...children: Children[]
+  ): Component {
     props ??= {} as any;
 
     function isClassComponent(
-      component: ComponentType<any, Self>
-    ): component is ComponentConstructor<any, Self> {
+      component: ComponentType
+    ): component is ComponentConstructor {
       return !!component.isClassComponent;
     }
 
@@ -149,26 +149,21 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
 
   linkRenderingComponent(
     rendering: Rendering<this>,
-    component: Component<any, this>
+    component: Component
   ): void {
     rendering.component = component;
   }
 
   mount<R extends Renderer>(
     this: R,
-    component: Component<any, R> | FunctionComponent<{}, R>,
+    component: Component | FunctionComponent<{}>,
     parent: N
   ): Destructor {
     const s = new RendererScope(this);
     _globals.s = s;
 
     const [rendering, destructor] = (
-      component instanceof Component
-        ? component
-        : new FunctionComponentWrapper({
-            name: component.name,
-            functionComponent: component,
-          })
+      component instanceof Component ? component : component({}, s)
     ).renderWithDestructor(s);
 
     s.renderer.appendRendering(rendering, parent);
@@ -176,16 +171,4 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
 
     return destructor;
   }
-}
-
-export function h<C extends string | ComponentType>(
-  component: C,
-  props?: null | (C extends ComponentType ? ComponentProps<C> : unknown),
-  ...children: Children<any>[]
-): Component {
-  return getCurrentRendererScope().renderer.createComponent(
-    component,
-    props as any,
-    ...children
-  );
 }

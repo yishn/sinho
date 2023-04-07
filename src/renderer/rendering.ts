@@ -3,7 +3,7 @@ import { Renderer, RendererNode } from "./renderer.ts";
 import { RendererScope } from "./renderer_scope.ts";
 
 export class Rendering<R extends Renderer> {
-  component?: Component<any, R>;
+  component?: Component;
   parent?: Rendering<R>;
   node?: RendererNode<R>;
 

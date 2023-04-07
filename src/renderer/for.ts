@@ -80,17 +80,14 @@ interface StateEntry<T> {
   destructor: Destructor;
 }
 
-export interface ForProps<T, R extends Renderer> {
+export interface ForProps<T> {
   source?: SignalLike<T[]>;
   key?: (value: T, index: number) => string | number;
-  children?: (value: Signal<T>, index: Signal<number>) => Component<any, R>;
+  children?: (value: Signal<T>, index: Signal<number>) => Component;
 }
 
-class IndexedFor<T, R extends Renderer> extends Component<
-  Omit<ForProps<T, R>, "key">,
-  R
-> {
-  render(s: RendererScope<R>): Rendering<R> {
+class IndexedFor<T> extends Component<Omit<ForProps<T>, "key">> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
     const { source = () => [] } = this.props;
     const rendering = new Rendering(s);
     const state: StateEntry<T>[] = [];
@@ -148,8 +145,8 @@ class IndexedFor<T, R extends Renderer> extends Component<
   }
 }
 
-export class For<T, R extends Renderer> extends Component<ForProps<T, R>, R> {
-  render(s: RendererScope<R>): Rendering<R> {
+export class For<T> extends Component<ForProps<T>> {
+  render<R extends Renderer>(s: RendererScope<R>): Rendering<R> {
     if (this.props.key == null) {
       return new IndexedFor(this.props).render(s);
     }

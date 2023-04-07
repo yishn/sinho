@@ -8,11 +8,11 @@ export class DomRenderer extends Renderer<DomIntrinsicElements, Node> {
   createIntrinsicComponent<T extends keyof DomIntrinsicElements>(
     name: T & string,
     props: DomIntrinsicElements[T]
-  ): Component<any, this> {
+  ): Component {
     return new TagComponent({
       ...props,
       tagName: name,
-    }) as Component<any, this>;
+    });
   }
 
   appendNode(parent: Node, node: Node): void {
