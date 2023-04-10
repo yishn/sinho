@@ -154,11 +154,7 @@ export abstract class Renderer<in I = any, in out N extends object = any> {
     rendering.component = component;
   }
 
-  mount<R extends Renderer>(
-    this: R,
-    component: Component | FunctionComponent<{}>,
-    parent: N
-  ): Destructor {
+  mount(component: Component | FunctionComponent<{}>, parent: N): Destructor {
     const s = new RendererScope(this);
     _globals.s = s;
 

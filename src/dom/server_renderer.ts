@@ -1,6 +1,6 @@
-import { Renderer, Component } from "../mod.ts";
+import { Renderer, Component, FunctionComponent } from "../mod.ts";
 import { DomIntrinsicElements } from "./dom.ts";
-import { TagComponent } from "./tag.ts";
+import { DomRenderer } from "./dom_renderer.ts";
 
 export class ServerRendererNode {
   parent?: ServerRendererNode;
@@ -12,8 +12,10 @@ export class ServerRendererNode {
   toString(): string {
     return this.tagName == null
       ? this.html ?? ""
+      : (this.children?.length ?? 0) === 0
+      ? `<${this.tagName}/>`
       : `<${this.tagName}>${
-          this.children?.map((child) => child.toString()) ?? ""
+          this.children?.map((child) => child.toString()).join("") ?? ""
         }</${this.tagName}>`;
   }
 }
@@ -26,10 +28,7 @@ export class ServerRenderer extends Renderer<
     name: T,
     props: DomIntrinsicElements[T]
   ): Component {
-    return new TagComponent({
-      ...props,
-      tagName: name,
-    });
+    return DomRenderer.prototype.createIntrinsicComponent(name, props);
   }
 
   appendNode(parent: ServerRendererNode, node: ServerRendererNode): void {
@@ -55,5 +54,17 @@ export class ServerRenderer extends Renderer<
         node.parent.children!.splice(index, 1);
       }
     }
+  }
+
+  renderToString(component: Component | FunctionComponent<{}>): string {
+    const serverNode = new ServerRendererNode("root");
+    const destructor = this.mount(component, serverNode);
+    const result = (serverNode.children ?? [])
+      .map((node) => node.toString())
+      .join("");
+
+    destructor();
+
+    return result;
   }
 }

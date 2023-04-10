@@ -1,24 +1,22 @@
 import {
-  RendererScope,
   Rendering,
   Fragment,
   Component,
   Children,
+  OptionalSignal,
 } from "../mod.ts";
-import type { OptionalSignal } from "../scope.ts";
-import { DomRenderer } from "./mod.ts";
-import { DomChildren, setAttr, setStyle } from "./dom.ts";
-import { JSX } from "./jsx-runtime.ts";
+import { DomRenderer, ServerRenderer, ServerRendererNode } from "./mod.ts";
+import { DomChildren, setAttr, setStyle, DomIntrinsicElements } from "./dom.ts";
 
 export type TagProps<T extends string> = {
   tagName: T;
-} & JSX.IntrinsicElements[T];
+} & DomIntrinsicElements[T];
 
 export class TagComponent<T extends string> extends Component<TagProps<T>> {}
 
-TagComponent.implRender(DomRenderer, (component, s) => {
+TagComponent.implRender(DomRenderer, function (s) {
   const { tagName, ref, style, children, dangerouslySetInnerHTML, ...attrs } =
-    component.props;
+    this.props;
   const prevIsSvg = s.renderer.isSvg;
 
   if (tagName === "svg") {
@@ -89,22 +87,55 @@ TagComponent.implRender(DomRenderer, (component, s) => {
   return new Rendering(s, [node]);
 });
 
+TagComponent.implRender(ServerRenderer, function (s) {
+  const node = new ServerRendererNode(this.props.tagName);
+
+  const fromChildren = (children: DomChildren): Children =>
+    !Array.isArray(children)
+      ? children == null || children instanceof Component
+        ? children
+        : new Text({ children })
+      : children.map(fromChildren);
+
+  s.renderer.appendRendering(
+    new Fragment({
+      children: fromChildren(this.props.children ?? []),
+    }).render(s),
+    node
+  );
+
+  return new Rendering(s, [node]);
+});
+
 export interface TextProps {
   children?: OptionalSignal<string | number>;
 }
 
 export class Text extends Component<TextProps> {}
 
-Text.implRender(DomRenderer, (component, s) => {
+Text.implRender(DomRenderer, function (s) {
   const node = document.createTextNode("");
 
   s.effect(() => {
-    const text = s.get(component.props.children)?.toString() ?? "";
+    const text = s.get(this.props.children)?.toString() ?? "";
 
     if (node.textContent !== text) {
       node.textContent = text;
     }
   });
+
+  return new Rendering(s, [node]);
+});
+
+Text.implRender(ServerRenderer, function (s) {
+  const node = new ServerRendererNode();
+
+  node.html = s
+    .get(this.props.children ?? "")
+    .toString()
+    .replace(/[&<>]/g, (c) =>
+      c === "&" ? "&amp;" : c === "<" ? "&lt;" : c === ">" ? "&gt;" : ""
+    );
 
   return new Rendering(s, [node]);
 });

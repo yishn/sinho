@@ -1,12 +1,12 @@
-import { Component, Renderer, Scope, Signal } from "../mod.ts";
+import { Component, Renderer } from "../mod.ts";
 import type { DomIntrinsicElements } from "./dom.ts";
 import { TagComponent } from "./tag.ts";
 
 export class DomRenderer extends Renderer<DomIntrinsicElements, Node> {
   isSvg = false;
 
-  createIntrinsicComponent<T extends keyof DomIntrinsicElements>(
-    name: T & string,
+  createIntrinsicComponent<T extends string>(
+    name: T,
     props: DomIntrinsicElements[T]
   ): Component {
     return new TagComponent({

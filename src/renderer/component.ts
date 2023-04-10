@@ -4,7 +4,7 @@ import type { Destructor } from "../scope.ts";
 import { Rendering } from "./rendering.ts";
 
 type RenderFunction<C extends Component, R extends Renderer> = (
-  component: C,
+  this: C,
   s: RendererScope<R>
 ) => Rendering<R>;
 
@@ -38,7 +38,7 @@ export abstract class Component<P = any> {
     const rendering = renderMap
       .get(this.constructor as ComponentConstructor)
       ?.get(s.renderer.constructor as new (...args: any) => Renderer)
-      ?.call(this, this, s) as Rendering<R> | undefined;
+      ?.call(this, s) as Rendering<R> | undefined;
 
     if (rendering != null) {
       return rendering;

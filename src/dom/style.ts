@@ -28,10 +28,10 @@ export interface StylesProviderProps {
 
 export class StylesProvider extends Component<StylesProviderProps> {}
 
-StylesProvider.implRender(DomRenderer, (component, s) => {
+StylesProvider.implRender(DomRenderer, function (s) {
   if (s.get(StylesContext) != null) {
     // StylesProvider is already an ancestor component, do nothing
-    return new Fragment({ children: component.props.children }).render(s);
+    return new Fragment({ children: this.props.children }).render(s);
   }
 
   const [stylesState, setStylesState] = s.signal({
@@ -59,7 +59,7 @@ StylesProvider.implRender(DomRenderer, (component, s) => {
 
   return new StylesContext.Provider({
     value: {
-      prefix: component.props.prefix ?? "css-",
+      prefix: this.props.prefix ?? "css-",
       insertStyle(hash, rules) {
         if (!stylesState().hashs.has(hash)) {
           setStylesState(
@@ -74,7 +74,7 @@ StylesProvider.implRender(DomRenderer, (component, s) => {
         }
       },
     },
-    children: component.props.children,
+    children: this.props.children,
   }).render(s);
 });
 
@@ -134,8 +134,8 @@ export interface StyleProps {
 
 export class Style extends Component<StyleProps> {}
 
-Style.implRender(DomRenderer, (component, s) => {
-  const getGenericCssInfo = component.props.children;
+Style.implRender(DomRenderer, function (s) {
+  const getGenericCssInfo = this.props.children;
   if (getGenericCssInfo == null) return new Rendering(s);
 
   const context = s.get(StylesContext);
@@ -149,7 +149,7 @@ Style.implRender(DomRenderer, (component, s) => {
   let hash: string | undefined;
 
   s.effect(() => {
-    const element = component.props.targetRef?.();
+    const element = this.props.targetRef?.();
 
     if (element === undefined || element != null) {
       const genericCssInfo = getGenericCssInfo(selectorSym);

@@ -26,7 +26,6 @@
  */
 
 import type { Component, OptionalSignal, Signal, SignalLike } from "../mod.ts";
-import type { DomRenderer } from "./mod.ts";
 
 const IS_NON_DIMENSIONAL =
   /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
@@ -372,6 +371,7 @@ interface HtmlProps<E> extends DomProps<E> {
   enterkeyhint?: OptionalSignal<
     "enter" | "done" | "go" | "next" | "previous" | "search" | "send"
   >;
+  for?: OptionalSignal<string>;
   form?: OptionalSignal<string>;
   formAction?: OptionalSignal<string>;
   formEncType?: OptionalSignal<string>;
@@ -385,7 +385,6 @@ interface HtmlProps<E> extends DomProps<E> {
   high?: OptionalSignal<number>;
   href?: OptionalSignal<string>;
   hrefLang?: OptionalSignal<string>;
-  for?: OptionalSignal<string>;
   httpEquiv?: OptionalSignal<string>;
   icon?: OptionalSignal<string>;
   id?: OptionalSignal<string>;
