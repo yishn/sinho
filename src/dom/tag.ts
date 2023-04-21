@@ -130,12 +130,21 @@ Text.implRender(DomRenderer, function (s) {
 Text.implRender(ServerRenderer, function (s) {
   const node = new ServerRendererNode();
 
-  node.html = s
-    .get(this.props.children ?? "")
-    .toString()
-    .replace(/[&<>]/g, (c) =>
-      c === "&" ? "&amp;" : c === "<" ? "&lt;" : c === ">" ? "&gt;" : ""
-    );
+  node.html = escapeHtml(s.get(this.props.children ?? "").toString());
 
   return new Rendering(s, [node]);
 });
+
+function escapeHtml(text: string): string {
+  return text.replace(/[&<>"]/g, (c) =>
+    c === "&"
+      ? "&amp;"
+      : c === "<"
+      ? "&lt;"
+      : c === ">"
+      ? "&gt;"
+      : c === '"'
+      ? "&quot;"
+      : ""
+  );
+}
