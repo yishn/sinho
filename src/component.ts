@@ -26,7 +26,8 @@ type OmitNever<T> = Omit<
   { [K in keyof T]: T[K] extends never ? K : never }[keyof T]
 >;
 
-interface PropMeta<T> extends PropOptions<T>, Tagged<"prop"> {
+/** @ignore */
+export interface PropMeta<T> extends PropOptions<T>, Tagged<"prop"> {
   _type?: [T];
   _init: T;
 }
@@ -66,7 +67,8 @@ type Props<M> = OmitNever<{
 
 export type EventConstructor<T = any> = new (name: string, arg: T) => Event;
 
-interface EventMeta<out E extends EventConstructor> extends Tagged<"event"> {
+/** @ignore */
+export interface EventMeta<out E extends EventConstructor> extends Tagged<"event"> {
   _event: E;
 }
 

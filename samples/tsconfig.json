@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "jsxImportSource": "shingo",
+    "declaration": false,
+  },
+  "include": ["./**/*"]
+}

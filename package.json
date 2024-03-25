@@ -19,25 +19,43 @@
   },
   "type": "module",
   "homepage": "https://github.com/yishn/shingo#readme",
+  "types": "./dist/mod.d.ts",
+  "main": "./dist/mod.js",
+  "module": "./dist/mod.js",
   "exports": {
     ".": {
-      "import": "./dist/mod.js"
+      "import": {
+        "types": "./dist/mod.d.ts",
+        "default": "./dist/mod.js"
+      }
+    },
+    "./min": {
+      "import": {
+        "types": "./dist/mod.d.ts",
+        "default": "./dist/bundle.min.js"
+      }
     },
     "./jsx-runtime": {
-      "import": "./dist/jsx-runtime.js"
+      "import": {
+        "types": "./dist/jsx-runtime/mod.d.ts",
+        "default": "./dist/jsx-runtime/mod.js"
+      }
     }
   },
   "scripts": {
     "format": "prettier --write .",
     "format-check": "prettier --check .",
     "build": "tsc && npm run bundle && npm run minify",
-    "bundle": "rollup ./dist/mod.js --file ./dist/bundle.js --format es",
+    "bundle": "rollup ./dist/mod.js --file ./dist/bundle.js --format es --plugin @rollup/plugin-node-resolve",
     "minify": "terser ./dist/bundle.js --output ./dist/bundle.min.js --config-file ./terser.config.json",
-    "docs": "typedoc ./src/mod.ts"
+    "docs": "typedoc ./src/mod.ts",
+    "build-samples": "cd ./samples && npm install && npm run build"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "prettier": "^3.2.5",
     "rollup": "^4.13.0",
+    "serve": "^14.2.1",
     "terser": "^5.29.2",
     "typedoc": "^0.25.12",
     "typescript": "^5.4.3"
