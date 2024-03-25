@@ -6,7 +6,7 @@ import {
   useEffect,
   useSignal,
   useSubscope,
-} from "../mod.js";
+} from "../scope.js";
 import { createTemplate, Template, useRenderer } from "../renderer.js";
 
 interface KeyMeta {

@@ -1,14 +1,13 @@
 import { DomProps, setAttr, setStyle } from "../dom.js";
 import { jsxPropNameToEventName } from "../utils.js";
-import {
-  MaybeSignal,
-  Template,
-  useBatch,
-  useEffect,
-  useScope,
-} from "../mod.js";
+import { MaybeSignal, useBatch, useEffect, useScope } from "../scope.js";
 import { Fragment } from "./Fragment.js";
-import { createTemplate, runWithRenderer, useRenderer } from "../renderer.js";
+import {
+  createTemplate,
+  Template,
+  runWithRenderer,
+  useRenderer,
+} from "../renderer.js";
 
 export const hydrateElement = <E extends HTMLElement | SVGElement>(
   node: E,

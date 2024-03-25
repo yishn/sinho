@@ -1,15 +1,9 @@
-import {
-  Children,
-  createContext,
-  FunctionalComponent,
-  If,
-  Signal,
-  useContext,
-  useScope,
-  useSignal,
-} from "../mod.js";
+import { Signal, useScope, useSignal } from "../scope.js";
+import { FunctionalComponent } from "../component.js";
 import { createTemplate } from "../renderer.js";
-import { Fragment } from "./Fragment.js";
+import { Children, Fragment } from "./Fragment.js";
+import { createContext, useContext } from "../context.js";
+import { If } from "./If.js";
 
 const ErrorContext = createContext([
   (err: unknown): void => {

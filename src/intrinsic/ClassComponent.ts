@@ -1,12 +1,11 @@
-import { _jsxPropsSym } from "../component.js";
-import { createContext } from "../context.js";
 import {
+  _jsxPropsSym,
   ComponentConstructor,
   defineComponents,
   JsxProps,
   Metadata,
-  useContext,
-} from "../mod.js";
+} from "../component.js";
+import { createContext, useContext } from "../context.js";
 import { createTemplate, Template, useRenderer } from "../renderer.js";
 
 const tagPrefixContext = createContext<string>();
