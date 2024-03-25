@@ -1,0 +1,14 @@
+{
+  "compress": {
+    "ecma": "2023",
+    "pure_new": true,
+    "toplevel": true
+  },
+  "mangle": {
+    "toplevel": true,
+    "module": true,
+    "properties": {
+      "regex": "^_"
+    }
+  }
+}

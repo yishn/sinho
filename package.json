@@ -1,0 +1,42 @@
+{
+  "name": "shingo",
+  "version": "1.0.0",
+  "description": "A signal-based web component framework",
+  "keywords": [
+    "ui",
+    "framework",
+    "signal",
+    "webcomponent"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yishn/shingo.git"
+  },
+  "author": "Yichuan Shen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yishn/shingo/issues"
+  },
+  "type": "module",
+  "homepage": "https://github.com/yishn/shingo#readme",
+  "exports": {
+    ".": {
+      "import": "./dist/mod.js"
+    },
+    "./jsx-runtime": {
+      "import": "./dist/jsx-runtime.js"
+    }
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format-check": "prettier --check .",
+    "build": "tsc",
+    "bundle": "rollup ./dist/mod.js --file ./dist/bundle.js --format es && terser ./dist/bundle.js --output ./dist/bundle.min.js --config-file ./terser.config.json"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "rollup": "^4.13.0",
+    "terser": "^5.29.2",
+    "typescript": "^5.4.3"
+  }
+}
