@@ -30,13 +30,16 @@
   "scripts": {
     "format": "prettier --write .",
     "format-check": "prettier --check .",
-    "build": "tsc",
-    "bundle": "rollup ./dist/mod.js --file ./dist/bundle.js --format es && terser ./dist/bundle.js --output ./dist/bundle.min.js --config-file ./terser.config.json"
+    "build": "tsc && npm run bundle && npm run minify",
+    "bundle": "rollup ./dist/mod.js --file ./dist/bundle.js --format es",
+    "minify": "terser ./dist/bundle.js --output ./dist/bundle.min.js --config-file ./terser.config.json",
+    "docs": "typedoc ./src/mod.ts"
   },
   "devDependencies": {
     "prettier": "^3.2.5",
     "rollup": "^4.13.0",
     "terser": "^5.29.2",
+    "typedoc": "^0.25.12",
     "typescript": "^5.4.3"
   }
 }
