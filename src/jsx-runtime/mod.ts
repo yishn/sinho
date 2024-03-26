@@ -1,8 +1,8 @@
-import { createElement } from "./create_element.js";
-import { Template } from "./renderer.js";
-import type { DomIntrinsicElements } from "./dom.js";
-import type { RefIn } from "./ref.js";
-import type { _jsxPropsSym, Component } from "./component.js";
+import { createElement } from "../create_element.js";
+import { Template } from "../renderer.js";
+import type { DomIntrinsicElements } from "../dom.js";
+import type { RefIn } from "../ref.js";
+import type { _jsxPropsSym, Component } from "../component.js";
 
 export const jsx = (
   type: any,
@@ -36,5 +36,5 @@ export namespace JSX {
   }
 }
 
-export { Fragment } from "./intrinsic/Fragment.js";
+export { Fragment } from "../intrinsic/Fragment.js";
 export { jsx as jsxDEV, jsx as jsxs };

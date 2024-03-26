@@ -42,17 +42,36 @@
       }
     }
   },
+  "imports": {
+    "#shingo": {
+      "node": {
+        "types": "./dist/mod.d.ts",
+        "default": "./dist/mod.js"
+      }
+    },
+    "#shingo/jsx-runtime": {
+      "node": {
+        "types": "./dist/jsx-runtime/mod.d.ts",
+        "default": "./dist/jsx-runtime/mod.js"
+      }
+    }
+  },
   "scripts": {
     "format": "prettier --write .",
     "format-check": "prettier --check .",
     "build": "tsc && npm run bundle && npm run minify",
     "bundle": "rollup ./dist/mod.js --file ./dist/bundle.js --format es --plugin @rollup/plugin-node-resolve",
     "minify": "terser ./dist/bundle.js --output ./dist/bundle.min.js --config-file ./terser.config.json",
+    "test": "node --test --experimental-test-coverage",
+    "build-test": "npm run build && npm test",
     "docs": "typedoc ./src/mod.ts",
-    "build-samples": "cd ./samples && npm install && npm run build"
+    "build-samples": "tsc --project ./samples/tsconfig.json && rollup ./samples/dist/counter/mod.js --file ./samples/dist/counter/bundle.js --format es --plugin @rollup/plugin-node-resolve && rollup ./samples/dist/todo/mod.js --file ./samples/dist/todo/bundle.js --format es --plugin @rollup/plugin-node-resolve"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@types/jsdom": "^21.1.6",
+    "@types/node": "^20.11.30",
+    "jsdom": "^24.0.0",
     "prettier": "^3.2.5",
     "rollup": "^4.13.0",
     "serve": "^14.2.1",
