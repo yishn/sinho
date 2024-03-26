@@ -68,7 +68,8 @@ type Props<M> = OmitNever<{
 export type EventConstructor<T = any> = new (name: string, arg: T) => Event;
 
 /** @ignore */
-export interface EventMeta<out E extends EventConstructor> extends Tagged<"event"> {
+export interface EventMeta<out E extends EventConstructor>
+  extends Tagged<"event"> {
   _event: E;
 }
 
@@ -194,9 +195,9 @@ export const prop: (<T>(initValue: T, opts?: PropOptions<T>) => PropMeta<T>) &
  * });
  * ```
  */
-export const event: (() => EventMeta<typeof Event>) &
+export const event: (<T>() => EventMeta<typeof CustomEvent<T>>) &
   (<E extends EventConstructor>(eventConstructor: E) => EventMeta<E>) = ((
-  eventConstructor: EventConstructor = Event,
+  eventConstructor: EventConstructor = CustomEvent,
 ): EventMeta<EventConstructor> => ({
   _tag: "event",
   _event: eventConstructor,

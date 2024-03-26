@@ -23,11 +23,9 @@ const HostDisplayBlock: FunctionalComponent = () => (
 class TaskList extends Component({
   newTaskText: prop<string>(""),
   children: true,
-  onTaskItemAdd: event(
-    CustomEvent<{
-      text: string;
-    }>,
-  ),
+  onTaskItemAdd: event<{
+    text: string;
+  }>(),
 }) {
   static tagName = "task-list";
 
@@ -75,7 +73,7 @@ class TaskItem extends Component({
     attribute: (value) => value != null,
   }),
   children: true,
-  onTaskItemCompletedChange: event(CustomEvent<boolean>),
+  onTaskItemCompletedChange: event<boolean>(),
   onTaskItemDelete: event(MouseEvent),
 }) {
   static tagName = "task-item";
@@ -123,72 +121,70 @@ class App extends Component({}, { shadowDOM: false }) {
 
     return autoDefine(
       "todo-",
-      (
-        <>
-          <p>
-            <button
-              onclick={() => {
-                setTasks((tasks) => tasks.filter((task) => !task.completed));
-              }}
-            >
-              Delete Completed
-            </button>{" "}
-            <button
-              onclick={() => {
-                setTasks((tasks) =>
-                  [...tasks].sort((a, b) => a.text.localeCompare(b.text))
-                );
-              }}
-            >
-              Sort
-            </button>
-          </p>
-
-          <TaskList
-            onTaskItemAdd={(evt) => {
-              setTasks((tasks) => [
-                ...tasks,
-                {
-                  id: Date.now(),
-                  text: evt.detail.text,
-                  completed: false,
-                },
-              ]);
+      <>
+        <p>
+          <button
+            onclick={() => {
+              setTasks((tasks) => tasks.filter((task) => !task.completed));
             }}
           >
-            <For
-              each={tasks}
-              key={(task) => task.id}
-              render={(task, i) => (
-                <li>
-                  <TaskItem
-                    completed={() => task().completed}
-                    onTaskItemCompletedChange={(evt) => {
-                      setTasks((tasks) => [
-                        ...tasks.slice(0, i()),
-                        {
-                          ...tasks[i()],
-                          completed: evt.detail,
-                        },
-                        ...tasks.slice(i() + 1),
-                      ]);
-                    }}
-                    onTaskItemDelete={() => {
-                      setTasks((tasks) =>
-                        tasks.filter((_, index) => index != i())
-                      );
-                    }}
-                  >
-                    {task().text}
-                  </TaskItem>
-                </li>
-              )}
-            />
-          </TaskList>
+            Delete Completed
+          </button>{" "}
+          <button
+            onclick={() => {
+              setTasks((tasks) =>
+                [...tasks].sort((a, b) => a.text.localeCompare(b.text)),
+              );
+            }}
+          >
+            Sort
+          </button>
+        </p>
 
-          <HostDisplayBlock />
-        </>
-      ),
+        <TaskList
+          onTaskItemAdd={(evt) => {
+            setTasks((tasks) => [
+              ...tasks,
+              {
+                id: Date.now(),
+                text: evt.detail.text,
+                completed: false,
+              },
+            ]);
+          }}
+        >
+          <For
+            each={tasks}
+            key={(task) => task.id}
+            render={(task, i) => (
+              <li>
+                <TaskItem
+                  completed={() => task().completed}
+                  onTaskItemCompletedChange={(evt) => {
+                    setTasks((tasks) => [
+                      ...tasks.slice(0, i()),
+                      {
+                        ...tasks[i()],
+                        completed: evt.detail,
+                      },
+                      ...tasks.slice(i() + 1),
+                    ]);
+                  }}
+                  onTaskItemDelete={() => {
+                    setTasks((tasks) =>
+                      tasks.filter((_, index) => index != i()),
+                    );
+                  }}
+                >
+                  {() => task().text}
+                </TaskItem>
+              </li>
+            )}
+          />
+        </TaskList>
+
+        <HostDisplayBlock />
+      </>,
     );
   }
 }
