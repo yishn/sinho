@@ -65,27 +65,17 @@ interface Scope {
   readonly _parent?: Scope;
   _effects: Effect[];
   _subscopes: Scope[];
-  _onError: ((err: unknown) => void) | undefined;
+  _onError?: ((err: unknown) => void) | undefined;
 
   _run<T>(fn: () => T): T | void;
   _cleanup(): void;
 }
 
 const createScope = (parent?: Scope): Scope => {
-  let onError: ((err: unknown) => void) | undefined;
-
   return {
     _parent: parent,
     _effects: [],
     _subscopes: [],
-
-    get _onError(): ((err: unknown) => void) | undefined {
-      return onError ?? parent?._onError;
-    },
-
-    set _onError(value: ((err: unknown) => void) | undefined) {
-      onError = value;
-    },
 
     _run<T>(fn: () => T): T | void {
       const prevScope = currScope;
@@ -346,7 +336,7 @@ export const useSubscope = (
   const parent = currScope;
   const scope = createScope(parent);
 
-  scope._onError = opts?.onError;
+  scope._onError = opts?.onError ?? parent._onError;
   parent._subscopes.push(scope);
   scope._run(fn);
 
