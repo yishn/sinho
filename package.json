@@ -42,20 +42,6 @@
       }
     }
   },
-  "imports": {
-    "#shingo": {
-      "default": {
-        "types": "./dist/mod.d.ts",
-        "default": "./dist/mod.js"
-      }
-    },
-    "#shingo/jsx-runtime": {
-      "default": {
-        "types": "./dist/jsx-runtime/mod.d.ts",
-        "default": "./dist/jsx-runtime/mod.js"
-      }
-    }
-  },
   "scripts": {
     "format": "prettier --write .",
     "format-check": "prettier --check .",

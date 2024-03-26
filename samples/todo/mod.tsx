@@ -1,5 +1,5 @@
-import { autoDefine } from "shingo";
 import {
+  autoDefine,
   Component,
   event,
   For,
@@ -74,7 +74,7 @@ class TaskItem extends Component({
   }),
   children: true,
   onTaskItemCompletedChange: event<boolean>(),
-  onTaskItemDelete: event(MouseEvent),
+  onTaskItemDelete: event(() => MouseEvent),
 }) {
   static tagName = "task-item";
 

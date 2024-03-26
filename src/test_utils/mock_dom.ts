@@ -7,7 +7,6 @@ export function prepare(): void {
     "HTMLElement",
     "Node",
     "CustomEvent",
-    "MouseEvent",
     "customElements",
   ];
 

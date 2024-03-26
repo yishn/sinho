@@ -70,7 +70,7 @@ export type EventConstructor<T = any> = new (name: string, arg: T) => Event;
 /** @ignore */
 export interface EventMeta<out E extends EventConstructor>
   extends Tagged<"event"> {
-  _event: E;
+  _event: () => E;
 }
 
 type Events<M> = OmitNever<
@@ -146,7 +146,7 @@ type EventEmitters<M> = OmitNever<
  *   }),
  * }) {
  *   render() {
- *     return ‹h1›{this.props.greetingMessage}‹/h1›;
+ *     return <h1>{this.props.greetingMessage}</h1>;
  *   }
  * }
  *
@@ -180,7 +180,7 @@ export const prop: (<T>(initValue: T, opts?: PropOptions<T>) => PropMeta<T>) &
  * @example
  * ```tsx
  * class App extends Component({
- *   onSomethingHappen: event(CustomEvent<string>),
+ *   onSomethingHappen: event<string>(),
  *   // Event name will be `something-happen`
  * }) {
  *   render() {
@@ -191,13 +191,32 @@ export const prop: (<T>(initValue: T, opts?: PropOptions<T>) => PropMeta<T>) &
  *
  * const app = new App();
  * app.addEventListener("something-happen", (evt) => {
+ *   // `evt` is `CustomEvent<string>`
  *   console.log(evt.detail);
  * });
  * ```
+ *
+ * You can also provide a custom event constructor:
+ *
+ * @example
+ * ```tsx
+ * class App extends Component({
+ *   onSomethingClick: event(() => MouseEvent),
+ * }) {
+ *   render() {
+ *     return (
+ *       <button onclick={evt => this.events.onSomethingClick(evt)}>
+ *         Click me!
+ *       </button>
+ *     );
+ *   }
+ * }
+ * ```
  */
-export const event: (<T>() => EventMeta<typeof CustomEvent<T>>) &
-  (<E extends EventConstructor>(eventConstructor: E) => EventMeta<E>) = ((
-  eventConstructor: EventConstructor = CustomEvent,
+export const event: (() => EventMeta<typeof CustomEvent<undefined>>) &
+  (<T>() => EventMeta<typeof CustomEvent<T>>) &
+  (<E extends EventConstructor>(eventConstructor: () => E) => EventMeta<E>) = ((
+  eventConstructor: () => EventConstructor = () => CustomEvent,
 ): EventMeta<EventConstructor> => ({
   _tag: "event",
   _event: eventConstructor,
@@ -302,15 +321,15 @@ export const useMountEffect = (
  * @example
  * ```tsx
  * class MyComponent extends Component({
- *   myProp: prop‹string›("Hello, world!"),
+ *   myProp: prop<string>("Hello, world!"),
  *   onMyEvent: event(),
  * }) {
  *   render() {
  *     return (
- *       ‹›
- *         ‹h1›{this.props.myProp}‹/h1›
- *         ‹button onclick={() => this.events.onMyEvent()}›Click me‹/button›
- *       ‹/›
+ *       <>
+ *         <h1>{this.props.myProp}</h1>
+ *         <button onclick={() => this.events.onMyEvent()}>Click me</button>
+ *       </>
  *     );
  *   },
  * }
@@ -455,7 +474,7 @@ export const Component: (() => ComponentConstructor<{}>) &
           const eventName = jsxPropNameToEventName(name as `on${string}`);
 
           this.events[name] = (arg: unknown) => {
-            this.dispatchEvent(new meta._event(eventName, arg));
+            this.dispatchEvent(new (meta._event())(eventName, arg));
           };
         }
       }
@@ -581,10 +600,10 @@ export const isComponent = (
  *
  * @example
  * ```tsx
- * const MyComponent: FunctionalComponent‹{
- *   name: MaybeSignal‹string›;
- * }› = ({ name }) => {
- *   return ‹h1›Hello, {name}!‹/h1›;
+ * const MyComponent: FunctionalComponent<{
+ *   name: MaybeSignal<string>;
+ * }> = ({ name }) => {
+ *   return <h1>Hello, {name}!</h1>;
  * };
  * ```
  */
