@@ -15,10 +15,10 @@ export type Children =
  * @example
  * ```tsx
  * const App = () => (
- *   ‹›
- *     ‹h1›Hello World‹/h1›
- *     ‹p›This is a paragraph.‹/p›
- *   ‹/›
+ *   <>
+ *     <h1>Hello World</h1>
+ *     <p>This is a paragraph.</p>
+ *   </>
  * );
  * ```
  */

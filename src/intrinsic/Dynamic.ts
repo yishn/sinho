@@ -12,20 +12,20 @@ import { createTemplate, Template, useRenderer } from "../renderer.js";
  * const App = () => (
  *   const [count, setCount] = useSignal(100);
  *
- *   ‹Dynamic
+ *   <Dynamic
  *     render={() =>
  *       count() === 1 ? (
- *        ‹›
- *          ‹h3›Details‹/h3›
+ *        <>
+ *          <h3>Details</h3>
  *          { … }
- *        ‹/›
+ *        </>
  *       ) : count() > 1 ? (
- *        ‹p›Multiple items selected‹/p›
+ *        <p>Multiple items selected</p>
  *       ) : (
- *        ‹p›No items‹/p›
+ *        <p>No items</p>
  *       )
  *     }
- *   /›
+ *   />
  * );
  * ```
  */
