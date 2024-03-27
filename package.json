@@ -19,11 +19,14 @@
   },
   "type": "module",
   "homepage": "https://github.com/yishn/shingo#readme",
-  "types": "./dist/mod.d.ts",
-  "main": "./dist/mod.js",
-  "module": "./dist/mod.js",
   "exports": {
     ".": {
+      "import": {
+        "types": "./dist/mod.d.ts",
+        "default": "./dist/mod.js"
+      }
+    },
+    "./jsx-runtime": {
       "import": {
         "types": "./dist/mod.d.ts",
         "default": "./dist/mod.js"
@@ -35,10 +38,10 @@
         "default": "./dist/bundle.min.js"
       }
     },
-    "./jsx-runtime": {
+    "./min/jsx-runtime": {
       "import": {
-        "types": "./dist/jsx-runtime/mod.d.ts",
-        "default": "./dist/jsx-runtime/mod.js"
+        "types": "./dist/mod.d.ts",
+        "default": "./dist/bundle.min.js"
       }
     }
   },

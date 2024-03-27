@@ -35,3 +35,4 @@ export {
 } from "./scope.js";
 
 export * from "./intrinsic/mod.js";
+export * from "./jsx-runtime/mod.js";
