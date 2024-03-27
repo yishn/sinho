@@ -1,4 +1,4 @@
-import { Signal, SignalSetter, useSignal } from "./scope.js";
+import { SetSignalOptions, Signal, SignalSetter, useSignal } from "./scope.js";
 
 /**
  * Provide write capabilities to a signal.
@@ -23,11 +23,12 @@ export interface RefIn<in T> {
 /**
  * Creates a new signal with write capabilities.
  */
-export const useRef: (<T>(value: T) => Ref<T>) &
-  (<T>(value?: T) => Ref<T | undefined>) = <T>(
+export const useRef: (<T>(value: T, opts?: SetSignalOptions) => Ref<T>) &
+  (<T>(value?: T, opts?: SetSignalOptions) => Ref<T | undefined>) = <T>(
   value?: T,
+  opts?: SetSignalOptions,
 ): Ref<T> & Ref<T | undefined> => {
-  const [signal, setter] = useSignal(value);
+  const [signal, setter] = useSignal(value, opts);
   (signal as Ref<T | undefined>).set = setter;
   return signal as Ref<T> & Ref<T | undefined>;
 };
