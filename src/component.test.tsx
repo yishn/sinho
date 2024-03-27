@@ -1,4 +1,4 @@
-import { prepare } from "./test_utils/mock_dom.js";
+import { prepare } from "./_test_utils/mock_dom.js";
 import assert from "node:assert";
 import { beforeEach, test } from "node:test";
 import { Component, Template, prop, useRef, useSignal } from "./mod.js";
