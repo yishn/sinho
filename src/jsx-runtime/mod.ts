@@ -4,6 +4,7 @@ import type { DomIntrinsicElements } from "../dom.js";
 import type { RefIn } from "../ref.js";
 import type { _jsxPropsSym, Component } from "../component.js";
 
+/** @ignore */
 export const jsx = (
   type: any,
   props?: object & { key?: unknown },
@@ -16,6 +17,7 @@ export const jsx = (
   return createElement(type, props);
 };
 
+/** @ignore */
 export namespace JSX {
   export type Element = Template;
 

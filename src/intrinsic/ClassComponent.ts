@@ -5,8 +5,9 @@ import {
   JsxProps,
   Metadata,
 } from "../component.js";
-import { createContext, useContext } from "../context.js";
+import { createContext, provideContext, useContext } from "../context.js";
 import { createTemplate, Template, useRenderer } from "../renderer.js";
+import { useEffect, useSubscope } from "../scope.js";
 
 const tagPrefixContext = createContext<string>();
 
@@ -21,16 +22,24 @@ export const autoDefine: ((prefix: string, template: Template) => Template) &
   ((template: Template) => Template) = (
   prefixOrTemplate: string | Template,
   optionalTemplate?: Template,
-): Template => {
-  const [prefix, template] = optionalTemplate
-    ? [prefixOrTemplate as string, optionalTemplate]
-    : ["", prefixOrTemplate as Template];
+): Template =>
+  createTemplate(() => {
+    const [prefix, template] = optionalTemplate
+      ? [prefixOrTemplate as string, optionalTemplate]
+      : ["", prefixOrTemplate as Template];
 
-  return tagPrefixContext.Provider({
-    value: prefix,
-    children: template,
+    let result!: Node[];
+
+    const destroy = useSubscope(() => {
+      provideContext(tagPrefixContext, prefix);
+
+      result = template.build();
+    });
+
+    useEffect(() => destroy);
+
+    return result;
   });
-};
 
 export const ClassComponent = <M extends Metadata>(
   type: ComponentConstructor<M>,

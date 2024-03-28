@@ -1,9 +1,8 @@
 import {
-  autoDefine,
   Component,
+  defineComponents,
   event,
   For,
-  FunctionalComponent,
   If,
   prop,
   Template,
@@ -15,10 +14,6 @@ interface Task {
   text: string;
   completed: boolean;
 }
-
-const HostDisplayBlock: FunctionalComponent = () => (
-  <style>{`:host { display: block; }`}</style>
-);
 
 class TaskList extends Component({
   newTaskText: prop<string>(""),
@@ -61,8 +56,6 @@ class TaskList extends Component({
         <ul>
           <slot></slot>
         </ul>
-
-        <HostDisplayBlock />
       </>
     );
   }
@@ -119,8 +112,7 @@ class App extends Component({}, { shadowDOM: false }) {
       },
     ]);
 
-    return autoDefine(
-      "todo-",
+    return (
       <>
         <p>
           <button
@@ -182,11 +174,10 @@ class App extends Component({}, { shadowDOM: false }) {
             )}
           />
         </TaskList>
-
-        <HostDisplayBlock />
-      </>,
+      </>
     );
   }
 }
 
+defineComponents("todo-", TaskList, TaskItem);
 customElements.define("app-component", App);

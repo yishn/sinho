@@ -2,7 +2,6 @@ import {
   Component,
   defineComponents,
   event,
-  FunctionalComponent,
   If,
   prop,
   Template,
@@ -10,10 +9,6 @@ import {
   useRef,
   useSignal,
 } from "shingo";
-
-const HostDisplayBlock: FunctionalComponent = () => (
-  <style>{`:host { display: block; }`}</style>
-);
 
 export class Counter extends Component({
   count: prop<number>(0, {
@@ -43,8 +38,6 @@ export class Counter extends Component({
             Increment
           </button>
         </p>
-
-        <HostDisplayBlock />
       </>
     );
   }
@@ -88,8 +81,6 @@ class App extends Component({}, { shadowDOM: false }) {
             />
           }
         />
-
-        <HostDisplayBlock />
       </>
     );
   }

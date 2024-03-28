@@ -2,7 +2,7 @@ import { Signal, useScope, useSignal } from "../scope.js";
 import { FunctionalComponent } from "../component.js";
 import { createTemplate } from "../renderer.js";
 import { Children, Fragment } from "./Fragment.js";
-import { createContext, useContext } from "../context.js";
+import { createContext, provideContext, useContext } from "../context.js";
 import { If } from "./If.js";
 
 const ErrorContext = createContext([
@@ -35,14 +35,12 @@ export const ErrorBoundary: FunctionalComponent<{
   return If({
     condition: showError,
     then: fallback?.({ error, reset }),
-    else: ErrorContext.Provider({
-      value: [show, reset],
-      children: createTemplate(() => {
-        const s = useScope();
-        s._onError = show;
+    else: createTemplate(() => {
+      provideContext(ErrorContext, [show, reset]);
+      const s = useScope();
+      s._onError = show;
 
-        return Fragment({ children });
-      }),
+      return Fragment({ children });
     }),
   });
 };

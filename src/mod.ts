@@ -14,7 +14,12 @@ export {
   type PropOptions,
   useMountEffect,
 } from "./component.js";
-export { type Context, createContext, useContext } from "./context.js";
+export {
+  type Context,
+  createContext,
+  useContext,
+  provideContext,
+} from "./context.js";
 export { createElement, h } from "./create_element.js";
 export { type Ref, type RefIn, useRef } from "./ref.js";
 export { type Template } from "./renderer.js";

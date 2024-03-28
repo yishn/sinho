@@ -16,6 +16,7 @@ import {
   jsxPropNameToEventName,
 } from "./utils.js";
 import { useScope } from "./scope.js";
+import { Context, getContextInfo, isContext } from "./context.js";
 
 interface Tagged<in out T> {
   _tag: T;
@@ -29,7 +30,7 @@ type OmitNever<T> = Omit<
 /** @ignore */
 export interface PropMeta<T> extends PropOptions<T>, Tagged<"prop"> {
   _type?: [T];
-  _init: T;
+  _initOrContext: T;
 }
 
 export interface AttributeOptions<T> {
@@ -154,15 +155,14 @@ type EventEmitters<M> = OmitNever<
  * app.greetingMessage = "Hello, universe!";
  * ```
  */
-export const prop: (<T>(initValue: T, opts?: PropOptions<T>) => PropMeta<T>) &
-  (<T>(initValue?: T, opts?: PropOptions<T | null>) => PropMeta<T | null>) = <
-  T,
->(
-  initValue: T | null = null,
+export const prop: (<T>(init: T, opts?: PropOptions<T>) => PropMeta<T>) &
+  (<T>(init?: T, opts?: PropOptions<T | null>) => PropMeta<T | null>) &
+  (<T>(context?: Context<T>, opts?: PropOptions<T>) => PropMeta<T>) = <T>(
+  initOrContext: Context<T> | T | null = null,
   opts?: PropOptions<T>,
 ): PropMeta<any> => ({
   _tag: "prop",
-  _init: initValue,
+  _initOrContext: initOrContext,
   ...opts,
 });
 
@@ -406,7 +406,7 @@ export const Component: (() => ComponentConstructor<{}>) &
     static readonly tagName?: string;
     static readonly observedAttributes: readonly string[] = observedAttributes;
 
-    protected props: Record<string, Signal<any>> = {};
+    protected props: Record<string, Ref<any>> = {};
     protected events: Record<string, (arg: unknown) => any> = {};
 
     [componentSym]: {
@@ -457,15 +457,16 @@ export const Component: (() => ComponentConstructor<{}>) &
         if (typeof meta == "boolean") {
           // Do nothing
         } else if (meta._tag == "prop") {
-          const defaultValue = meta._init;
-          const ref = useRef<unknown>(defaultValue);
+          const ref = useRef<unknown>(
+            isContext(meta._initOrContext)
+              ? meta._initOrContext._init
+              : meta._initOrContext,
+          );
 
           this.props[name] = ref;
 
           Object.defineProperty(this, name, {
-            get() {
-              return this.props[name].peek();
-            },
+            get: () => ref.peek(),
             set(value) {
               ref.set(() => value, { force: true });
             },
@@ -481,21 +482,37 @@ export const Component: (() => ComponentConstructor<{}>) &
     }
 
     connectedCallback(): void {
-      // Set properties from attributes
-
-      for (const [attrName, prop] of attributePropMap.entries()) {
-        this[prop.name as keyof this] = prop.meta.attribute.transform(
-          this.getAttribute(attrName),
-        );
-      }
-
       const props = { ...this[_jsxPropsSym] };
 
       this[componentSym]._destroy = useSubscope(() => {
         this[componentSym]._scope = useScope();
 
+        // Set properties from attributes
+
+        for (const [attrName, prop] of attributePropMap.entries()) {
+          this[prop.name as keyof this] = prop.meta.attribute.transform(
+            this.getAttribute(attrName),
+          );
+        }
+
         for (const name in this.props) {
-          // Make properties reactive
+          const meta = metadata[name] as PropMeta<unknown>;
+
+          // Propagate context changes
+
+          if (isContext(meta._initOrContext)) {
+            const contextInfo = getContextInfo(useScope(), meta._initOrContext);
+
+            const oldSet = this.props[name].set;
+            this.props[name].set = contextInfo._override.set;
+            useEffect(() => () => (this.props[name].set = oldSet));
+
+            useEffect(() => {
+              oldSet(() => contextInfo._signal());
+            });
+          }
+
+          // Make JSX props reactive
 
           if (name in props) {
             const maybeSignal = props[name];
@@ -593,7 +610,7 @@ export const Component: (() => ComponentConstructor<{}>) &
  */
 export const isComponent = (
   value: any,
-): value is ComponentConstructor | Component => !!(value as any)[componentSym];
+): value is ComponentConstructor | Component => !!value?.[componentSym];
 
 /**
  * Represents a functional component.
