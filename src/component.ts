@@ -9,7 +9,7 @@ import type { DomProps } from "./dom.js";
 import { runWithRenderer, Template } from "./renderer.js";
 import { hydrateElement } from "./intrinsic/TagComponent.js";
 import { Fragment } from "./intrinsic/Fragment.js";
-import { Ref, useRef } from "./ref.js";
+import { RefSignal, useRef } from "./ref.js";
 import {
   camelCaseToKebabCase,
   JsxPropNameToEventName,
@@ -57,13 +57,15 @@ type PartialPartial<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export interface PropOptions<T> {
   attribute?:
     | ((value: string | null) => T)
-    | (string | null extends T
+    | (string extends T
         ? boolean | PartialPartial<AttributeOptions<T>, "transform">
         : AttributeOptions<T>);
 }
 
 type Props<M> = OmitNever<{
-  readonly [K in keyof M]: M[K] extends PropMeta<infer T> ? Ref<T> : never;
+  readonly [K in keyof M]: M[K] extends PropMeta<infer T>
+    ? RefSignal<T>
+    : never;
 }>;
 
 export type EventConstructor<T = any> = new (name: string, arg: T) => Event;
@@ -127,7 +129,7 @@ type EventEmitters<M> = OmitNever<
  *
  * Make sure to avoid conflicts with native `HTMLElement` properties.
  *
- * You can get and set properties by accessing the {@link Signal} or {@link Ref}
+ * You can get and set properties by accessing the {@link Signal} or {@link RefSignal}
  * in `this.props`. It's also possible to set the properties directly on the
  * component instance.
  *
@@ -370,14 +372,22 @@ export const Component: (() => ComponentConstructor<{}>) &
         meta.attribute = {};
       }
 
-      const attribute = meta.attribute;
-
-      meta.attribute = {
+      const attribute: AttributeOptions<any> = (meta.attribute = {
         name: camelCaseToKebabCase(name),
         static: false,
-        transform: (x) => x,
-        ...attribute,
-      };
+        transform: function (this: _Component, x) {
+          return (
+            x ??
+            (isContext(meta._initOrContext)
+              ? MaybeSignal.peek(
+                  getContextInfo(this[componentSym]._scope, meta._initOrContext)
+                    ._signal,
+                )
+              : meta._initOrContext)
+          );
+        },
+        ...meta.attribute,
+      });
 
       attributePropMap.set(attribute.name!, {
         name,
@@ -406,7 +416,7 @@ export const Component: (() => ComponentConstructor<{}>) &
     static readonly tagName?: string;
     static readonly observedAttributes: readonly string[] = observedAttributes;
 
-    protected props: Record<string, Ref<any>> = {};
+    protected props: Record<string, RefSignal<any>> = {};
     protected events: Record<string, (arg: unknown) => any> = {};
 
     [componentSym]: {
@@ -490,7 +500,8 @@ export const Component: (() => ComponentConstructor<{}>) &
         // Set properties from attributes
 
         for (const [attrName, prop] of attributePropMap.entries()) {
-          this[prop.name as keyof this] = prop.meta.attribute.transform(
+          this[prop.name as keyof this] = prop.meta.attribute.transform.call(
+            this,
             this.getAttribute(attrName),
           );
         }
@@ -594,7 +605,10 @@ export const Component: (() => ComponentConstructor<{}>) &
       const prop = attributePropMap.get(name);
 
       if (prop) {
-        this[prop.name as keyof this] = prop.meta.attribute.transform(value);
+        this[prop.name as keyof this] = prop.meta.attribute.transform.call(
+          this,
+          value,
+        );
       }
     }
 
