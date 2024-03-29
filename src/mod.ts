@@ -21,7 +21,7 @@ export {
   provideContext,
 } from "./context.js";
 export { createElement, h } from "./create_element.js";
-export { type Ref, type RefIn, useRef } from "./ref.js";
+export { type RefSignal, type RefSignalSetter, useRef } from "./ref.js";
 export { type Template } from "./renderer.js";
 export {
   type Cleanup,

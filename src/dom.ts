@@ -25,7 +25,7 @@
  * SOFTWARE.
  */
 
-import type { Children, MaybeSignal, RefIn, SignalLike } from "./mod.js";
+import type { Children, MaybeSignal, RefSignalSetter, SignalLike } from "./mod.js";
 
 const IS_NON_DIMENSIONAL =
   /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
@@ -327,7 +327,7 @@ export type DangerousHtml = SignalLike<{
 }>;
 
 export interface DomProps<in E> {
-  ref?: RefIn<E | undefined>;
+  ref?: RefSignalSetter<E | undefined>;
   id?: MaybeSignal<string>;
   class?: MaybeSignal<string | undefined>;
   style?: Style;

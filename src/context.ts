@@ -1,5 +1,5 @@
 import { SignalLike, useScope } from "./scope.js";
-import { Ref, useRef } from "./ref.js";
+import { RefSignal, useRef } from "./ref.js";
 
 const contextSym = Symbol("Context");
 
@@ -16,7 +16,7 @@ export interface Context<in out T> {
 type Scope = ReturnType<typeof useScope>;
 type ScopeExt<S extends symbol, T> = Scope & {
   [_ in S]?: {
-    _override: Ref<T | undefined>;
+    _override: RefSignal<T | undefined>;
     _signal: SignalLike<T>;
   };
 };
@@ -44,9 +44,16 @@ export const provideContext = <T>(context: Context<T>, value: T): void => {
 };
 
 export const getContextInfo = <T>(
-  scope: Scope,
+  scope: Scope | undefined,
   context: Context<T>,
 ): NonNullable<ScopeExt<symbol, T>[symbol]> => {
+  if (!scope) {
+    return {
+      _override: useRef<T | undefined>(),
+      _signal: () => context._init,
+    };
+  }
+
   const sym: unique symbol = context[contextSym] as never;
   const scopeExt = scope as ScopeExt<typeof sym, T>;
 
