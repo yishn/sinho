@@ -157,9 +157,12 @@ type EventEmitters<M> = OmitNever<
  * app.greetingMessage = "Hello, universe!";
  * ```
  */
-export const prop: (<T>(init: T, opts?: PropOptions<T>) => PropMeta<T>) &
-  (<T>(init?: T, opts?: PropOptions<T | null>) => PropMeta<T | null>) &
-  (<T>(context?: Context<T>, opts?: PropOptions<T>) => PropMeta<T>) = <T>(
+export const prop: (<T>(
+  context?: Context<T>,
+  opts?: PropOptions<T>,
+) => PropMeta<T>) &
+  (<T>(init: T, opts?: PropOptions<T>) => PropMeta<T>) &
+  (<T>(init?: T, opts?: PropOptions<T | null>) => PropMeta<T | null>) = <T>(
   initOrContext: Context<T> | T | null = null,
   opts?: PropOptions<T>,
 ): PropMeta<any> => ({
