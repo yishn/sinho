@@ -31,6 +31,6 @@ export const Fragment: FunctionalComponent<{
         ? []
         : typeof children == "object"
           ? children
-          : Text({ children })
+          : Text({ text: children })
       : children.flatMap((children) => Fragment({ children }).build());
   });

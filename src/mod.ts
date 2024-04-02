@@ -17,7 +17,6 @@ export {
 } from "./component.js";
 export { type Context, createContext, useContext } from "./context.js";
 export { createElement, h } from "./create_element.js";
-export {} from "./ref.js";
 export { type Template } from "./renderer.js";
 export {
   type Cleanup,

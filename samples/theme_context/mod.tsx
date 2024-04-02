@@ -5,6 +5,8 @@ import {
   defineComponents,
   event,
   prop,
+  Style,
+  css,
 } from "shingo";
 
 enum Theme {
@@ -30,29 +32,32 @@ class ThemedButton extends Component({
           <slot></slot>
         </button>
 
-        <style>
-          {() => `
+        <Style
+          css={css`
             :host {
               display: inline-block;
             }
 
             button {
-              border: 2px solid ${dark() ? "#777" : "#bbb"};
-              background-color: ${dark() ? "#555" : "#ddd"};
-              color: ${dark() ? "#fff" : "#333"};
-              padding: .2em .5em;
-              transition: background-color .2s, color .2s, border-color .2s;
+              border: 2px solid ${() => (dark() ? "#777" : "#bbb")};
+              background-color: ${() => (dark() ? "#555" : "#ddd")};
+              color: ${() => (dark() ? "#fff" : "#333")};
+              padding: 0.2em 0.5em;
+              transition:
+                background-color 0.2s,
+                color 0.2s,
+                border-color 0.2s;
             }
 
             button:hover {
-              background-color: ${dark() ? "#666" : "#ccc"};
+              background-color: ${() => (dark() ? "#666" : "#ccc")};
             }
 
             button:active {
-              background-color: ${dark() ? "#444" : "#bbb"};
+              background-color: ${() => (dark() ? "#444" : "#bbb")};
             }
           `}
-        </style>
+        />
       </>
     );
   }
@@ -80,11 +85,13 @@ class ThemedCheckbox extends Component({
           <slot></slot>
         </label>
 
-        <style>{`
-          :host {
-            display: inline-block;
-          }
-        `}</style>
+        <Style
+          css={css`
+            :host {
+              display: inline-block;
+            }
+          `}
+        />
       </>
     );
   }
@@ -119,17 +126,19 @@ class App extends Component({
           <ThemedButton>OK</ThemedButton> <ThemedButton>Cancel</ThemedButton>
         </p>
 
-        <style>
-          {() => `
+        <Style
+          css={css`
             :host {
               display: block;
               padding: 1em;
-              background-color: ${dark() ? "#333" : "#fff"};
-              color: ${dark() ? "#fff" : "#333"};
-              transition: background-color .2s, color .2s;
+              background-color: ${() => (dark() ? "#333" : "#fff")};
+              color: ${() => (dark() ? "#fff" : "#333")};
+              transition:
+                background-color 0.2s,
+                color 0.2s;
             }
           `}
-        </style>
+        />
       </>
     );
   }
