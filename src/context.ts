@@ -1,5 +1,4 @@
-import { SignalLike, useScope } from "./scope.js";
-import { RefSignal, useRef } from "./ref.js";
+import { SignalLike, useScope, RefSignal, useRef } from "./scope.js";
 
 const contextSym = Symbol("Context");
 

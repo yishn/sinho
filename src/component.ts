@@ -4,12 +4,13 @@ import {
   Signal,
   useEffect,
   useSubscope,
+  RefSignal,
+  useRef,
 } from "./scope.js";
 import type { DomProps } from "./dom.js";
 import { runWithRenderer, Template } from "./renderer.js";
 import { hydrateElement } from "./intrinsic/TagComponent.js";
 import { Fragment } from "./intrinsic/Fragment.js";
-import { RefSignal, useRef } from "./ref.js";
 import {
   camelCaseToKebabCase,
   JsxPropNameToEventName,
@@ -153,10 +154,14 @@ type EventEmitters<M> = OmitNever<
  *     }
  *   }),
  * }) {
+ *   static tagName = "app-component";
+ *
  *   render() {
  *     return <h1>{this.props.greetingMessage}</h1>;
  *   }
  * }
+ *
+ * defineComponents(App);
  *
  * const app = new App();
  * app.greetingMessage = "Hello, universe!";

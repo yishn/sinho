@@ -1,7 +1,7 @@
 import { createElement } from "../create_element.js";
 import type { Template } from "../renderer.js";
 import type { DomIntrinsicElements } from "../dom.js";
-import type { RefSignalSetter } from "../ref.js";
+import type { RefSignalSetter } from "../scope.js";
 import type { _jsxPropsSym, Component } from "../component.js";
 
 /** @ignore */

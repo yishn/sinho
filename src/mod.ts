@@ -17,7 +17,7 @@ export {
 } from "./component.js";
 export { type Context, createContext, useContext } from "./context.js";
 export { createElement, h } from "./create_element.js";
-export { type RefSignal, type RefSignalSetter, useRef } from "./ref.js";
+export {} from "./ref.js";
 export { type Template } from "./renderer.js";
 export {
   type Cleanup,
@@ -27,12 +27,15 @@ export {
   type SignalLike,
   type SignalSetter,
   type SubscopeOptions,
+  type RefSignal,
+  type RefSignalSetter,
   useBatch,
   useEffect,
   useMemo,
   useScope,
   useSignal,
   useSubscope,
+  useRef,
 } from "./scope.js";
 
 export * from "./intrinsic/mod.js";
