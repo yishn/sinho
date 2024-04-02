@@ -21,20 +21,20 @@ const getIndexMap = <T>(
 
 export type ArrayMutation =
   | {
-      type: "add" | "remove";
-      key: unknown;
-      index: number;
+      _type: "a" | "r"; // add | remove
+      _key: unknown;
+      _index: number;
     }
   | {
-      type: "move";
-      key: unknown;
-      from: number;
-      to: number;
+      _type: "m"; // move
+      _key: unknown;
+      _from: number;
+      _to: number;
     };
 
 export interface ArrayMutationResult {
-  mutations: ArrayMutation[];
-  map: Map<unknown, number>;
+  _mutations: ArrayMutation[];
+  _map: Map<unknown, number>;
 }
 
 export const useArrayMutation = <T extends unknown>(
@@ -42,8 +42,8 @@ export const useArrayMutation = <T extends unknown>(
   keyFn: (entry: T, index: number) => unknown,
 ): Signal<ArrayMutationResult> => {
   const [result, setResult] = useSignal<ArrayMutationResult>({
-    mutations: [],
-    map: new Map(),
+    _mutations: [],
+    _map: new Map(),
   });
 
   let indexMap = new Map<unknown, number>();
@@ -56,17 +56,17 @@ export const useArrayMutation = <T extends unknown>(
     const transformToOldIndex = (i: number = NaN) =>
       mutations
         .map((mutation): ((i: number) => number) =>
-          mutation.type == "remove"
+          mutation._type == "r"
             ? (j) =>
-                j < mutation.index ? j : j == mutation.index ? NaN : j - 1
-            : mutation.type == "add"
-              ? (j) => (j < mutation.index ? j : j + 1)
-              : mutation.type == "move"
+                j < mutation._index ? j : j == mutation._index ? NaN : j - 1
+            : mutation._type == "a"
+              ? (j) => (j < mutation._index ? j : j + 1)
+              : mutation._type == "m"
                 ? (j) =>
-                    mutation.to <= j && j < mutation.from
+                    mutation._to <= j && j < mutation._from
                       ? j + 1
-                      : j == mutation.from
-                        ? mutation.to
+                      : j == mutation._from
+                        ? mutation._to
                         : j
                 : (j) => j,
         )
@@ -77,9 +77,9 @@ export const useArrayMutation = <T extends unknown>(
 
       if (!newIndexMap.has(key)) {
         mutations.push({
-          type: "remove",
-          key,
-          index: i,
+          _type: "r",
+          _key: key,
+          _index: i,
         });
       }
     }
@@ -90,24 +90,24 @@ export const useArrayMutation = <T extends unknown>(
 
       if (isNaN(oldIndex)) {
         mutations.push({
-          type: "add",
-          key,
-          index: i,
+          _type: "a",
+          _key: key,
+          _index: i,
         });
       } else if (oldIndex != i) {
         mutations.push({
-          type: "move",
-          key,
-          from: oldIndex,
-          to: i,
+          _type: "m",
+          _key: key,
+          _from: oldIndex,
+          _to: i,
         });
       }
     }
 
     if (mutations.length > 0) {
       setResult({
-        mutations,
-        map: newIndexMap,
+        _mutations: mutations,
+        _map: newIndexMap,
       });
     }
 

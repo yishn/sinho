@@ -27,29 +27,29 @@ test("Basic usage of useArrayMutation", () => {
   const mutationResult = useArrayMutation(array, (entry) => entry.name);
 
   useEffect(() => {
-    mutationsLog.push(...mutationResult().mutations);
+    mutationsLog.push(...mutationResult()._mutations);
   });
 
   assert.deepStrictEqual(mutationsLog, [
     {
-      type: "add",
-      index: 0,
-      key: "Book 1",
+      _type: "a",
+      _index: 0,
+      _key: "Book 1",
     },
     {
-      type: "add",
-      index: 1,
-      key: "Book 2",
+      _type: "a",
+      _index: 1,
+      _key: "Book 2",
     },
     {
-      type: "add",
-      index: 2,
-      key: "Book 3",
+      _type: "a",
+      _index: 2,
+      _key: "Book 3",
     },
     {
-      type: "add",
-      index: 3,
-      key: "Book 4",
+      _type: "a",
+      _index: 3,
+      _key: "Book 4",
     },
   ]);
 
@@ -75,11 +75,11 @@ test("Basic usage of useArrayMutation", () => {
   ]);
 
   assert.deepStrictEqual(mutationsLog, [
-    { type: "remove", key: "Book 2", index: 1 },
-    { type: "remove", key: "Book 4", index: 2 },
-    { type: "move", key: "Book 3", from: 1, to: 0 },
-    { type: "add", key: "Book 6", index: 1 },
-    { type: "add", key: "Book 5", index: 3 },
+    { _type: "r", _key: "Book 2", _index: 1 },
+    { _type: "r", _key: "Book 4", _index: 2 },
+    { _type: "m", _key: "Book 3", _from: 1, _to: 0 },
+    { _type: "a", _key: "Book 6", _index: 1 },
+    { _type: "a", _key: "Book 5", _index: 3 },
   ]);
 
   mutationsLog.length = 0;
@@ -89,7 +89,7 @@ test("Basic usage of useArrayMutation", () => {
   );
 
   assert.deepStrictEqual(mutationsLog, [
-    { type: "move", key: "Book 1", from: 2, to: 0 },
-    { type: "move", key: "Book 5", from: 3, to: 2 },
+    { _type: "m", _key: "Book 1", _from: 2, _to: 0 },
+    { _type: "m", _key: "Book 5", _from: 3, _to: 2 },
   ]);
 });

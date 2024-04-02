@@ -36,11 +36,7 @@ export const hydrateElement = <E extends HTMLElement | SVGElement>(
       node.addEventListener(
         jsxPropNameToEventName(name as `on${string}`),
         (evt) => {
-          s._run(() =>
-            useBatch(() => {
-              listener(evt);
-            }),
-          );
+          s._run(() => useBatch(() => listener(evt)));
         },
       );
     } else {
