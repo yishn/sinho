@@ -63,7 +63,7 @@ class TaskList extends Component({
 
 class TaskItem extends Component({
   completed: prop<boolean>(false, {
-    attribute: (value) => value != null,
+    attribute: () => true,
   }),
   children: true,
   onTaskItemCompletedChange: event<boolean>(),

@@ -43,6 +43,14 @@ class ThemedButton extends Component({
               padding: .2em .5em;
               transition: background-color .2s, color .2s, border-color .2s;
             }
+
+            button:hover {
+              background-color: ${dark() ? "#666" : "#ccc"};
+            }
+
+            button:active {
+              background-color: ${dark() ? "#444" : "#bbb"};
+            }
           `}
         </style>
       </>
@@ -83,7 +91,9 @@ class ThemedCheckbox extends Component({
 }
 
 class App extends Component({
-  theme: prop(ThemeContext),
+  theme: prop(ThemeContext, {
+    attribute: (value) => (value == "dark" ? Theme.Dark : Theme.Light),
+  }),
 }) {
   static tagName = "app-component";
 

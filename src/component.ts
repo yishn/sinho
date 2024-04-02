@@ -16,7 +16,12 @@ import {
   jsxPropNameToEventName,
 } from "./utils.js";
 import { useScope } from "./scope.js";
-import { Context, getContextInfo, isContext } from "./context.js";
+import {
+  Context,
+  getContextInfo,
+  isContext,
+  provideContext,
+} from "./context.js";
 
 interface Tagged<in out T> {
   _tag: T;
@@ -43,7 +48,7 @@ export interface AttributeOptions<T> {
   /**
    * A function to transform the attribute value to the prop value.
    */
-  transform: (value: string | null) => T;
+  transform: (value: string) => T;
   /**
    * Set to `true` to not observe the attribute for changes.
    *
@@ -56,7 +61,7 @@ type PartialPartial<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export interface PropOptions<T> {
   attribute?:
-    | ((value: string | null) => T)
+    | ((value: string) => T)
     | (string extends T
         ? boolean | PartialPartial<AttributeOptions<T>, "transform">
         : AttributeOptions<T>);
@@ -160,7 +165,7 @@ type EventEmitters<M> = OmitNever<
 export const prop: (<T>(
   context?: Context<T>,
   opts?: PropOptions<T>,
-) => PropMeta<T>) &
+) => PropMeta<T | undefined>) &
   (<T>(init: T, opts?: PropOptions<T>) => PropMeta<T>) &
   (<T>(init?: T, opts?: PropOptions<T | null>) => PropMeta<T | null>) = <T>(
   initOrContext: Context<T> | T | null = null,
@@ -319,6 +324,13 @@ export const useMountEffect = (
 };
 
 /**
+ * Runs the given function when the component is unmounted.
+ */
+export const useUnmountEffect = (fn: () => void): void => {
+  useEffect(() => fn);
+};
+
+/**
  * Creates a new web component class.
  *
  * Specify props and events using the `metadata` parameter.
@@ -378,17 +390,7 @@ export const Component: (() => ComponentConstructor<{}>) &
       const attribute: AttributeOptions<any> = (meta.attribute = {
         name: camelCaseToKebabCase(name),
         static: false,
-        transform: function (this: _Component, x) {
-          return (
-            x ??
-            (isContext(meta._initOrContext)
-              ? MaybeSignal.peek(
-                  getContextInfo(this[componentSym]._scope, meta._initOrContext)
-                    ._signal,
-                )
-              : meta._initOrContext)
-          );
-        },
+        transform: (x) => x,
         ...meta.attribute,
       });
 
@@ -471,18 +473,14 @@ export const Component: (() => ComponentConstructor<{}>) &
           // Do nothing
         } else if (meta._tag == "prop") {
           const ref = useRef<unknown>(
-            isContext(meta._initOrContext)
-              ? meta._initOrContext._init
-              : meta._initOrContext,
+            isContext(meta._initOrContext) ? undefined : meta._initOrContext,
           );
 
           this.props[name] = ref;
 
           Object.defineProperty(this, name, {
-            get: () => ref.peek(),
-            set(value) {
-              ref.set(() => value, { force: true });
-            },
+            get: () => this.props[name].peek(),
+            set: (value) => this.props[name].set(() => value, { force: true }),
           });
         } else if (meta._tag == "event" && name.startsWith("on")) {
           const eventName = jsxPropNameToEventName(name as `on${string}`);
@@ -500,13 +498,13 @@ export const Component: (() => ComponentConstructor<{}>) &
       this[componentSym]._destroy = useSubscope(() => {
         this[componentSym]._scope = useScope();
 
-        // Set properties from attributes
+        // Set default properties from attributes
+        // This is needed in case of context changes
 
-        for (const [attrName, prop] of attributePropMap.entries()) {
-          this[prop.name as keyof this] = prop.meta.attribute.transform.call(
-            this,
-            this.getAttribute(attrName),
-          );
+        for (const attrName of attributePropMap.keys()) {
+          if (this.getAttribute(attrName) == null) {
+            this.attributeChangedCallback(attrName, null, null);
+          }
         }
 
         for (const name in this.props) {
@@ -515,14 +513,19 @@ export const Component: (() => ComponentConstructor<{}>) &
           // Propagate context changes
 
           if (isContext(meta._initOrContext)) {
-            const contextInfo = getContextInfo(useScope(), meta._initOrContext);
+            const contextInfo = provideContext(meta._initOrContext);
+            contextInfo._override.set(this.props[name].peek());
 
             const oldSet = this.props[name].set;
             this.props[name].set = contextInfo._override.set;
-            useEffect(() => () => (this.props[name].set = oldSet));
 
             useEffect(() => {
               oldSet(() => contextInfo._signal());
+            });
+
+            useUnmountEffect(() => {
+              this.props[name].set = oldSet;
+              oldSet(() => contextInfo._override());
             });
           }
 
@@ -608,10 +611,12 @@ export const Component: (() => ComponentConstructor<{}>) &
       const prop = attributePropMap.get(name);
 
       if (prop) {
-        this[prop.name as keyof this] = prop.meta.attribute.transform.call(
-          this,
-          value,
-        );
+        this[prop.name as keyof this] =
+          value != null
+            ? prop.meta.attribute.transform.call(this, value)
+            : isContext(prop.meta._initOrContext)
+              ? undefined
+              : prop.meta._initOrContext;
       }
     }
 
