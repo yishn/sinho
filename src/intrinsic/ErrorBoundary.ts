@@ -18,23 +18,23 @@ const ErrorContext = createContext([
  */
 export const ErrorBoundary: FunctionalComponent<{
   fallback?: FunctionalComponent<{
-    error: Signal<unknown>;
+    error: unknown;
     reset: () => void;
   }>;
   children?: Children;
 }> = ({ fallback, children }) => {
-  const [error, setError] = useSignal<unknown>();
+  let error: unknown;
   const [showError, setShowError] = useSignal(false);
 
   const show = (err: unknown) => {
-    setError(() => err);
+    error = err;
     setShowError(true);
   };
   const reset = () => setShowError(false);
 
   return If({
     condition: showError,
-    then: fallback?.({ error, reset }),
+    then: createTemplate(() => fallback?.({ error, reset }) ?? []),
     else: createTemplate(() => {
       provideContext(ErrorContext, [show, reset]);
       const s = useScope();

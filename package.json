@@ -55,7 +55,7 @@
     "build-test": "npm run build && npm test",
     "docs": "typedoc ./src/mod.ts",
     "check-size": "node ./ci/check-size.js",
-    "build-samples": "tsc --project ./samples/tsconfig.json && rollup ./samples/dist/counter/mod.js --file ./samples/dist/counter/bundle.js --format es --plugin @rollup/plugin-node-resolve && rollup ./samples/dist/todo/mod.js --file ./samples/dist/todo/bundle.js --format es --plugin @rollup/plugin-node-resolve && rollup ./samples/dist/theme/mod.js --file ./samples/dist/theme/bundle.js --format es --plugin @rollup/plugin-node-resolve"
+    "build-samples": "tsc --project ./samples/tsconfig.json && rollup ./samples/dist/counter/mod.js --file ./samples/dist/counter/bundle.js --format es --plugin @rollup/plugin-node-resolve && rollup ./samples/dist/error/mod.js --file ./samples/dist/error/bundle.js --format es --plugin @rollup/plugin-node-resolve && rollup ./samples/dist/error/mod.js --file ./samples/dist/error/bundle.js --format es --plugin @rollup/plugin-node-resolve && rollup ./samples/dist/todo/mod.js --file ./samples/dist/todo/bundle.js --format es --plugin @rollup/plugin-node-resolve"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",

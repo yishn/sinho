@@ -2,7 +2,7 @@ import { createElement } from "../create_element.js";
 import type { Template } from "../renderer.js";
 import type { DomIntrinsicElements } from "../dom.js";
 import type { RefSignalSetter } from "../scope.js";
-import type { _jsxPropsSym, Component } from "../component.js";
+import type { jsxPropsSym, Component } from "../component.js";
 
 /** @ignore */
 export const jsx = (
@@ -21,10 +21,10 @@ export const jsx = (
 export namespace JSX {
   export type Element = Template;
 
-  export type ElementClass = Omit<Component, typeof _jsxPropsSym>;
+  export type ElementClass = Omit<Component, typeof jsxPropsSym>;
 
   export interface ElementAttributesProperty {
-    [_jsxPropsSym]: {};
+    [jsxPropsSym]: {};
   }
 
   export interface ElementChildrenAttribute {

@@ -1,5 +1,5 @@
 import {
-  _jsxPropsSym,
+  jsxPropsSym,
   ComponentConstructor,
   FunctionalComponent,
   isComponent,

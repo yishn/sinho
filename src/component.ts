@@ -257,7 +257,14 @@ declare abstract class ComponentInner<M extends Metadata> {
   protected props: Props<M>;
   protected events: EventEmitters<M>;
 
-  [_jsxPropsSym]?: JsxProps<M>;
+  [jsxPropsSym]?: JsxProps<M>;
+  [componentSym]: {
+    _parentScope?: ReturnType<typeof useScope>;
+    _scope?: ReturnType<typeof useScope>;
+    _props?: JsxProps<Record<string, any> & { children: true }>;
+    _eventsAttached?: boolean;
+    _destroy?: (() => void) | void;
+  };
 
   connectedCallback(): void;
   disconnectedCallback(): void;
@@ -281,9 +288,8 @@ declare abstract class ComponentInner<M extends Metadata> {
   abstract render(): Template;
 }
 
-const componentSym = Symbol();
-/** @ignore */
-export const _jsxPropsSym = Symbol();
+export const componentSym = Symbol();
+export const jsxPropsSym = Symbol();
 
 export type Component<M extends Metadata = {}> = {
   -readonly [K in keyof Props<M>]: Props<M>[K] extends Signal<infer T>
@@ -423,18 +429,13 @@ export const Component: (() => ComponentConstructor<{}>) &
     protected props: Record<string, RefSignal<any>> = {};
     protected events: Record<string, (arg: unknown) => any> = {};
 
-    [componentSym]: {
-      _scope?: ReturnType<typeof useScope>;
-      _props?: JsxProps<Record<string, any> & { children: true }>;
-      _eventsAttached?: boolean;
-      _destroy?: () => void;
-    } = {};
+    [componentSym]: ComponentInner<any>[typeof componentSym] = {};
 
-    get [_jsxPropsSym]() {
+    get [jsxPropsSym]() {
       return this[componentSym]._props;
     }
 
-    set [_jsxPropsSym](props) {
+    set [jsxPropsSym](props) {
       this[componentSym]._props = props;
 
       if (metadata.children) {
@@ -492,95 +493,99 @@ export const Component: (() => ComponentConstructor<{}>) &
     }
 
     connectedCallback(): void {
-      const props = { ...this[_jsxPropsSym] };
+      const props = { ...this[jsxPropsSym] };
 
-      this[componentSym]._destroy = useSubscope(() => {
-        this[componentSym]._scope = useScope();
+      this[componentSym]._destroy = (
+        this[componentSym]._parentScope ?? useScope()
+      )._run(() =>
+        useSubscope(() => {
+          this[componentSym]._scope = useScope();
 
-        // Set default properties from attributes
-        // This is needed in case of context changes
+          // Set default properties from attributes
+          // This is needed in case of context changes
 
-        for (const attrName of attributePropMap.keys()) {
-          if (this.getAttribute(attrName) == null) {
-            this.attributeChangedCallback(attrName, null, null);
-          }
-        }
-
-        for (const name in this.props) {
-          const meta = metadata[name] as PropMeta<unknown>;
-
-          // Propagate context changes
-
-          if (isContext(meta._initOrContext)) {
-            const contextInfo = provideContext(meta._initOrContext);
-
-            useEffect(() => {
-              contextInfo._override.set(this.props[name]());
-            });
-          }
-
-          // Make JSX props reactive
-
-          if (name in props) {
-            const maybeSignal = props[name];
-
-            useEffect(() => {
-              this[name as keyof this] = MaybeSignal.get<any>(maybeSignal);
-            });
-          }
-
-          delete props[name];
-        }
-
-        // Render
-
-        const prevMountEffects = mountEffects;
-        mountEffects = [];
-
-        try {
-          const renderParent = getRenderParent(this);
-
-          renderParent?.append(
-            ...runWithRenderer((renderer) => {
-              renderer._nodes = renderParent.childNodes.values();
-              return this.render().build();
-            }),
-          );
-
-          // Don't attach event handlers if already attached
-
-          if (this[componentSym]._eventsAttached) {
-            for (const name in this.events) {
-              delete props[name];
+          for (const attrName of attributePropMap.keys()) {
+            if (this.getAttribute(attrName) == null) {
+              this.attributeChangedCallback(attrName, null, null);
             }
           }
 
-          const ref = props.ref;
-          delete props.ref;
+          for (const name in this.props) {
+            const meta = metadata[name] as PropMeta<unknown>;
 
-          // Set other props
+            // Propagate context changes
 
-          hydrateElement(this, props);
+            if (isContext(meta._initOrContext)) {
+              const contextInfo = provideContext(meta._initOrContext);
 
-          // Set ref
+              useEffect(() => {
+                contextInfo._override.set(this.props[name]());
+              });
+            }
 
-          ref?.set(this);
+            // Make JSX props reactive
 
-          // Run mount effects
+            if (name in props) {
+              const maybeSignal = props[name];
 
-          for (const [fn, opts] of mountEffects) {
-            useEffect(fn, opts);
+              useEffect(() => {
+                this[name as keyof this] = MaybeSignal.get<any>(maybeSignal);
+              });
+            }
+
+            delete props[name];
           }
-        } finally {
-          mountEffects = prevMountEffects;
 
-          this[componentSym]._eventsAttached = true;
-        }
-      });
+          // Render
+
+          const prevMountEffects = mountEffects;
+          mountEffects = [];
+
+          try {
+            const renderParent = getRenderParent(this);
+
+            renderParent?.append(
+              ...runWithRenderer((renderer) => {
+                renderer._nodes = renderParent.childNodes.values();
+                return this.render().build();
+              }),
+            );
+
+            // Don't attach event handlers if already attached
+
+            if (this[componentSym]._eventsAttached) {
+              for (const name in this.events) {
+                delete props[name];
+              }
+            }
+
+            const ref = props.ref;
+            delete props.ref;
+
+            // Set other props
+
+            hydrateElement(this, props);
+
+            // Set ref
+
+            ref?.set(this);
+
+            // Run mount effects
+
+            for (const [fn, opts] of mountEffects) {
+              useEffect(fn, opts);
+            }
+          } finally {
+            mountEffects = prevMountEffects;
+
+            this[componentSym]._eventsAttached = true;
+          }
+        }),
+      );
     }
 
     disconnectedCallback(): void {
-      this[_jsxPropsSym]?.ref?.set(undefined);
+      this[jsxPropsSym]?.ref?.set(undefined);
 
       this[componentSym]._destroy?.();
       delete this[componentSym]._destroy;

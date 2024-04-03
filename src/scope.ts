@@ -59,8 +59,6 @@ interface Effect {
  */
 export type Cleanup = (() => void) | void | undefined | null;
 
-const handledError = Symbol();
-
 interface Scope {
   readonly _parent?: Scope;
   _effects: Effect[];
@@ -84,10 +82,9 @@ const createScope = (parent?: Scope): Scope => {
       try {
         return fn();
       } catch (err) {
-        if (err != handledError && this._onError) {
+        if (this._onError) {
           this._onError(err);
-          if (parent != rootScope) throw handledError;
-        } else if (err != handledError || parent != rootScope) {
+        } else {
           throw err;
         }
       } finally {

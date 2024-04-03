@@ -50,7 +50,7 @@ export const Dynamic: FunctionalComponent<{
       return () => {
         destroy();
 
-        for (let node of subnodes) {
+        for (const node of subnodes) {
           node.parentNode?.removeChild(node);
         }
 
