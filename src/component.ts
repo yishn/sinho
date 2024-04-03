@@ -329,13 +329,6 @@ export const useMountEffect = (
 };
 
 /**
- * Runs the given function when the component is unmounted.
- */
-export const useUnmountEffect = (fn: () => void): void => {
-  useEffect(() => fn);
-};
-
-/**
  * Creates a new web component class.
  *
  * Specify props and events using the `metadata` parameter.
@@ -484,8 +477,8 @@ export const Component: (() => ComponentConstructor<{}>) &
           this.props[name] = ref;
 
           Object.defineProperty(this, name, {
-            get: () => this.props[name].peek(),
-            set: (value) => this.props[name].set(() => value, { force: true }),
+            get: () => ref.peek(),
+            set: (value) => ref.set(() => value, { force: true }),
           });
         } else if (meta._tag == "event" && name.startsWith("on")) {
           const eventName = jsxPropNameToEventName(name as `on${string}`);
@@ -519,18 +512,9 @@ export const Component: (() => ComponentConstructor<{}>) &
 
           if (isContext(meta._initOrContext)) {
             const contextInfo = provideContext(meta._initOrContext);
-            contextInfo._override.set(this.props[name].peek());
-
-            const oldSet = this.props[name].set;
-            this.props[name].set = contextInfo._override.set;
 
             useEffect(() => {
-              oldSet(() => contextInfo._signal());
-            });
-
-            useUnmountEffect(() => {
-              this.props[name].set = oldSet;
-              oldSet(() => contextInfo._override());
+              contextInfo._override.set(this.props[name]());
             });
           }
 

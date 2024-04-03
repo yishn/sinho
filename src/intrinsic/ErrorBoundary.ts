@@ -48,4 +48,4 @@ export const ErrorBoundary: FunctionalComponent<{
 export const useErrorBoundary = (): readonly [
   show: (err: unknown) => void,
   reset: () => void,
-] => useContext(ErrorContext);
+] => useContext(ErrorContext)();

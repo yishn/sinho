@@ -7,6 +7,7 @@ import {
   prop,
   Style,
   css,
+  useContext,
 } from "shingo";
 
 enum Theme {
@@ -16,15 +17,22 @@ enum Theme {
 
 const ThemeContext = createContext<Theme>(Theme.Light);
 
+const themeProps = {
+  theme: prop(ThemeContext, {
+    attribute: (value) => (value == "dark" ? Theme.Dark : Theme.Light),
+  }),
+};
+
 class ThemedButton extends Component({
-  theme: prop(ThemeContext),
+  ...themeProps,
   onButtonClick: event(() => MouseEvent),
   children: true,
 }) {
   static tagName = "themed-button";
 
   render(): Template {
-    const dark = () => this.props.theme() === Theme.Dark;
+    const theme = useContext(ThemeContext);
+    const dark = () => theme() === Theme.Dark;
 
     return (
       <>
@@ -64,7 +72,7 @@ class ThemedButton extends Component({
 }
 
 class ThemedCheckbox extends Component({
-  theme: prop(ThemeContext),
+  ...themeProps,
   checked: prop<boolean>(false, {
     attribute: (value) => value != null,
   }),
@@ -98,14 +106,13 @@ class ThemedCheckbox extends Component({
 }
 
 class App extends Component({
-  theme: prop(ThemeContext, {
-    attribute: (value) => (value == "dark" ? Theme.Dark : Theme.Light),
-  }),
+  ...themeProps,
 }) {
   static tagName = "app-component";
 
   render(): Template {
-    const dark = () => this.props.theme() === Theme.Dark;
+    const theme = useContext(ThemeContext);
+    const dark = () => theme() === Theme.Dark;
 
     return (
       <>

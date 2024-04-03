@@ -13,7 +13,6 @@ export {
   prop,
   type PropOptions,
   useMountEffect,
-  useUnmountEffect,
 } from "./component.js";
 export { type Context, createContext, useContext } from "./context.js";
 export { createElement, h } from "./create_element.js";

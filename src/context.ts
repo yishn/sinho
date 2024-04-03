@@ -1,4 +1,11 @@
-import { SignalLike, useScope, RefSignal, useRef } from "./scope.js";
+import {
+  useScope,
+  RefSignal,
+  useRef,
+  useMemo,
+  Signal,
+  useSignal,
+} from "./scope.js";
 
 const contextSym = Symbol("Context");
 
@@ -15,8 +22,8 @@ export interface Context<in out T> {
 type Scope = ReturnType<typeof useScope>;
 type ScopeExt<S extends symbol, T> = Scope & {
   [_ in S]?: {
-    _override: RefSignal<T | undefined>;
-    _signal: SignalLike<T>;
+    readonly _override: RefSignal<T | undefined>;
+    readonly _signal: Signal<T>;
   };
 };
 
@@ -41,13 +48,21 @@ export const provideContext = <T>(
   const sym: unique symbol = context[contextSym] as never;
   const scopeExt = useScope() as ScopeExt<typeof sym, T>;
 
-  return (scopeExt[sym] ??= {
-    _override: useRef(value),
-    _signal: () =>
-      scopeExt[sym]!._override() !== undefined
-        ? scopeExt[sym]!._override()!
+  if (!scopeExt[sym]) {
+    const override = useRef(value);
+    const signal = useMemo(() =>
+      override() !== undefined
+        ? override()!
         : getContextInfo(scopeExt._parent, context)._signal(),
-  });
+    );
+
+    scopeExt[sym] = {
+      _override: override,
+      _signal: signal,
+    };
+  }
+
+  return scopeExt[sym];
 };
 
 export const getContextInfo = <T>(
@@ -64,10 +79,10 @@ export const getContextInfo = <T>(
   return (
     s?.[sym] ?? {
       _override: useRef<T | undefined>(),
-      _signal: () => context._init,
+      _signal: useSignal(context._init)[0],
     }
   );
 };
 
-export const useContext = <T>(context: Context<T>): T =>
-  getContextInfo(useScope(), context)._signal();
+export const useContext = <T>(context: Context<T>): Signal<T> =>
+  getContextInfo(useScope(), context)._signal;
