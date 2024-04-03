@@ -28,8 +28,8 @@
     },
     "./jsx-runtime": {
       "import": {
-        "types": "./dist/mod.d.ts",
-        "default": "./dist/mod.js"
+        "types": "./dist/jsx-runtime/mod.d.ts",
+        "default": "./dist/jsx-runtime/mod.js"
       }
     },
     "./min": {

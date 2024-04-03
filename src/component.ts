@@ -168,12 +168,15 @@ type EventEmitters<M> = OmitNever<
  * ```
  */
 export const prop: (<T>(
-  context?: Context<T>,
+  context: Context<T>,
   opts?: PropOptions<T>,
 ) => PropMeta<T | undefined>) &
   (<T>(init: T, opts?: PropOptions<T>) => PropMeta<T>) &
-  (<T>(init?: T, opts?: PropOptions<T | null>) => PropMeta<T | null>) = <T>(
-  initOrContext: Context<T> | T | null = null,
+  (<T>(
+    init?: T,
+    opts?: PropOptions<T | undefined>,
+  ) => PropMeta<T | undefined>) = <T>(
+  initOrContext?: Context<T> | T,
   opts?: PropOptions<T>,
 ): PropMeta<any> => ({
   _tag: "prop",
@@ -655,7 +658,7 @@ export const defineComponents: ((
 
   for (const component of components) {
     customElements.define(
-      prefix + component.tagName ?? crypto.randomUUID(),
+      prefix + (component.tagName ?? "c" + crypto.randomUUID()),
       component,
     );
   }

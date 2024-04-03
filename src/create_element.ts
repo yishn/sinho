@@ -10,8 +10,7 @@ import { DomIntrinsicElements } from "./dom.js";
 import { Children } from "./intrinsic/Fragment.js";
 import { TagComponent } from "./intrinsic/TagComponent.js";
 import { ClassComponent } from "./intrinsic/ClassComponent.js";
-import { Template } from "./renderer.js";
-import { createTemplate } from "./renderer.js";
+import { Template, createTemplate } from "./renderer.js";
 
 /**
  * Creates a template based on the given component type.

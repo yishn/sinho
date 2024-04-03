@@ -31,9 +31,9 @@ type ScopeExt<S extends symbol, T> = Scope & {
  * Creates a new context with the given value.
  */
 export const createContext: (<T>(value: T) => Context<T>) &
-  (<T>(value?: T) => Context<T | null>) = (<T>(
-  value: T | null = null,
-): Context<T | null> => ({
+  (<T>(value?: T) => Context<T | undefined>) = (<T>(
+  value?: T,
+): Context<T | undefined> => ({
   [contextSym]: Symbol(),
   _init: value,
 })) as any;
