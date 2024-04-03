@@ -16,7 +16,6 @@ interface Task {
 }
 
 class TaskList extends Component({
-  newTaskText: prop<string>(""),
   children: true,
   onTaskItemAdd: event<{
     text: string;
@@ -25,18 +24,20 @@ class TaskList extends Component({
   static tagName = "task-list";
 
   render(): Template {
+    const [newTaskText, setNewTaskText] = useSignal("");
+
     return (
       <>
         <p>
           <form
             onsubmit={(evt) => {
               evt.preventDefault();
-              if (this.newTaskText == "") return;
+              if (newTaskText() == "") return;
 
-              this.props.newTaskText.set("");
+              setNewTaskText("");
               this.events.onTaskItemAdd({
                 detail: {
-                  text: this.newTaskText,
+                  text: newTaskText(),
                 },
               });
             }}
@@ -44,9 +45,9 @@ class TaskList extends Component({
             <input
               type="text"
               autofocus
-              value={this.props.newTaskText}
+              value={newTaskText}
               oninput={(evt) => {
-                this.newTaskText = evt.currentTarget.value;
+                setNewTaskText(evt.currentTarget.value);
               }}
             />{" "}
             <button type="submit">Add</button>

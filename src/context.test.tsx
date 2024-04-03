@@ -27,30 +27,31 @@ class ContextConsumingComponent extends Component(
   }
 }
 
-class MiddleComponent extends Component({
-  contextConsumer: prop<ContextConsumingComponent>(),
-}) {
+class MiddleComponent extends Component() {
+  contextConsumer = useRef<ContextConsumingComponent>();
+
   render(): Template {
-    return <ContextConsumingComponent ref={this.props.contextConsumer} />;
+    return <ContextConsumingComponent ref={this.contextConsumer} />;
   }
 }
 
 class ContextProvidingComponent extends Component({
   greeting: prop(GreetingContext, { attribute: true }),
-  contextConsumer1: prop<ContextConsumingComponent>(),
-  contextConsumer2: prop<ContextConsumingComponent>(),
 }) {
+  contextConsumer1 = useRef<ContextConsumingComponent>();
+  contextConsumer2 = useRef<ContextConsumingComponent>();
+
   render(): Template {
     const middleComponentRef = useRef<MiddleComponent>();
 
     useEffect(() => {
-      this.props.contextConsumer1.set(middleComponentRef()?.contextConsumer);
+      this.contextConsumer1.set(middleComponentRef()?.contextConsumer());
     });
 
     return (
       <>
         <MiddleComponent ref={middleComponentRef} />
-        <ContextConsumingComponent ref={this.props.contextConsumer2} />
+        <ContextConsumingComponent ref={this.contextConsumer2} />
       </>
     );
   }
@@ -66,28 +67,46 @@ const contextProvider = new ContextProvidingComponent();
 document.body.append(contextProvider);
 
 test("Context should be propagated deeply", () => {
-  assert.strictEqual(contextProvider.contextConsumer1!.textContent, "Hello");
-  assert.strictEqual(contextProvider.contextConsumer2!.textContent, "Hello");
+  assert.strictEqual(contextProvider.contextConsumer1()!.textContent, "Hello");
+  assert.strictEqual(contextProvider.contextConsumer2()!.textContent, "Hello");
 
   contextProvider.greeting = "Goodbye";
 
-  assert.strictEqual(contextProvider.contextConsumer1!.textContent, "Goodbye");
-  assert.strictEqual(contextProvider.contextConsumer2!.textContent, "Goodbye");
+  assert.strictEqual(
+    contextProvider.contextConsumer1()!.textContent,
+    "Goodbye",
+  );
+  assert.strictEqual(
+    contextProvider.contextConsumer2()!.textContent,
+    "Goodbye",
+  );
 });
 
 test("Context can be overridden locally", () => {
-  contextProvider.contextConsumer1!.greeting = "Hello";
+  contextProvider.contextConsumer1()!.greeting = "Hello";
 
-  assert.strictEqual(contextProvider.contextConsumer1!.textContent, "Hello");
-  assert.strictEqual(contextProvider.contextConsumer2!.textContent, "Goodbye");
+  assert.strictEqual(contextProvider.contextConsumer1()!.textContent, "Hello");
+  assert.strictEqual(
+    contextProvider.contextConsumer2()!.textContent,
+    "Goodbye",
+  );
 
   contextProvider.greeting = "Farewell";
 
-  assert.strictEqual(contextProvider.contextConsumer1!.textContent, "Hello");
-  assert.strictEqual(contextProvider.contextConsumer2!.textContent, "Farewell");
+  assert.strictEqual(contextProvider.contextConsumer1()!.textContent, "Hello");
+  assert.strictEqual(
+    contextProvider.contextConsumer2()!.textContent,
+    "Farewell",
+  );
 
-  contextProvider.contextConsumer1!.greeting = undefined;
+  contextProvider.contextConsumer1()!.greeting = undefined;
 
-  assert.strictEqual(contextProvider.contextConsumer1!.textContent, "Farewell");
-  assert.strictEqual(contextProvider.contextConsumer2!.textContent, "Farewell");
+  assert.strictEqual(
+    contextProvider.contextConsumer1()!.textContent,
+    "Farewell",
+  );
+  assert.strictEqual(
+    contextProvider.contextConsumer2()!.textContent,
+    "Farewell",
+  );
 });

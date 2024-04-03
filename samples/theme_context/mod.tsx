@@ -120,9 +120,7 @@ class App extends Component({
           <ThemedCheckbox
             checked={dark}
             onCheckedChange={() => {
-              this.props.theme.set((theme) =>
-                theme === Theme.Dark ? Theme.Light : Theme.Dark,
-              );
+              this.theme = dark() ? Theme.Light : Theme.Dark;
             }}
           >
             Dark Mode

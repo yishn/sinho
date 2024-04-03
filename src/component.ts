@@ -69,9 +69,7 @@ export interface PropOptions<T> {
 }
 
 type Props<M> = OmitNever<{
-  readonly [K in keyof M]: M[K] extends PropMeta<infer T>
-    ? RefSignal<T>
-    : never;
+  readonly [K in keyof M]: M[K] extends PropMeta<infer T> ? Signal<T> : never;
 }>;
 
 export type EventConstructor<T = any> = new (name: string, arg: T) => Event;
