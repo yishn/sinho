@@ -119,8 +119,8 @@ type EventEmitters<M> = OmitNever<
     {
       [K in keyof Events<M>]: Events<M>[K] extends EventConstructor<infer E>
         ? undefined extends E
-          ? (arg?: E) => void
-          : (arg: E) => void
+          ? (arg?: E) => boolean
+          : (arg: E) => boolean
         : never;
     },
     `on${Lowercase<keyof HTMLElementEventMap>}`
@@ -485,9 +485,8 @@ export const Component: (() => ComponentConstructor<{}>) &
         } else if (meta._tag == "event" && name.startsWith("on")) {
           const eventName = jsxPropNameToEventName(name as `on${string}`);
 
-          this.events[name] = (arg: unknown) => {
+          this.events[name] = (arg: unknown) =>
             this.dispatchEvent(new meta._event(eventName, arg));
-          };
         }
       }
     }
