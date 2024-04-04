@@ -4,9 +4,10 @@ A lightweight signal-based library for building web components with a React-like
 API.
 
 - 🌌 Web standards with custom HTML elements
-- 🛟 Type-safe components with TypeScript
-- ✒️ Declarative templating with JSX (no parsing)
+- ⚛️ React-like API
+- ✒️ Declarative templating with JSX (no additional parsing)
 - 🚥 Fine-granular reactivity with signals
+- 🛟 Type-safe components with TypeScript
 - 🪶 Lightweight (~4KB minified and compressed)
 
 ```tsx
@@ -25,10 +26,6 @@ class Counter extends Component("x-counter") {
     );
   }
 }
-
-defineComponents(Counter);
-
-document.body.append(new Counter());
 ```
 
 ## Guide
@@ -75,7 +72,7 @@ If you do not use TypeScript, you need to transform JSX, e.g. with Babel and
 }
 ```
 
-You can also write templates using pure JavaScript.
+Alternatively, you can also write templates using pure JavaScript.
 
 ### Components
 
@@ -103,12 +100,14 @@ import { defineComponents } from "shingo";
 // …
 
 defineComponents(SimpleGreeting);
+// In HTML: <simple-greeting></simple-greeting>
 ```
 
 Optionally, you can provide a prefix:
 
 ```tsx
 defineComponents("my-", SimpleGreeting);
+// In HTML: <my-simple-greeting></my-simple-greeting>
 ```
 
 By default, Shingō uses shadow DOM. You can disable this by setting the `shadow`
@@ -147,7 +146,8 @@ console.log(el.name); // Prints "John"
 el.name = "Jane"; // Component will now display "Hello, Jane!"
 ```
 
-Note that none of the properties are required when constructing the component.
+Note that none of the properties are required to be set when constructing the
+component.
 
 For reactivity in templates, you need signals instead. You can get the signals
 of your properties in `this.props`:
@@ -169,8 +169,8 @@ Component("simple-greeting", {
 ```
 
 By default the attribute name is the kebab-case version of the property name,
-e.g. a property named `myName` will get the attribute name `my-name`. It's also
-possible to specify a custom attribute name:
+e.g. a property named `myName` will be assigned the attribute name `my-name`.
+It's also possible to specify a custom attribute name:
 
 ```tsx
 Component("simple-greeting", {

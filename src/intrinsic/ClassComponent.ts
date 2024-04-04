@@ -5,8 +5,9 @@ import {
   Metadata,
   componentSym,
 } from "../component.js";
-import { createTemplate, useRenderer } from "../renderer.js";
+import { useRenderer } from "../renderer.js";
 import { useScope } from "../scope.js";
+import { createTemplate } from "../template.js";
 
 export const ClassComponent = <M extends Metadata>(
   type: ComponentConstructor<M>,

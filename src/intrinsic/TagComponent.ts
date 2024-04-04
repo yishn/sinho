@@ -2,12 +2,8 @@ import { DomProps, setAttr, setStyle } from "../dom.js";
 import { jsxPropNameToEventName } from "../utils.js";
 import { MaybeSignal, useBatch, useEffect, useScope } from "../scope.js";
 import { Fragment } from "./Fragment.js";
-import {
-  createTemplate,
-  Template,
-  runWithRenderer,
-  useRenderer,
-} from "../renderer.js";
+import { runWithRenderer, useRenderer } from "../renderer.js";
+import { createTemplate, Template } from "../template.js";
 
 export const hydrateElement = <E extends HTMLElement | SVGElement>(
   node: E,

@@ -8,7 +8,7 @@ import {
   useRef,
 } from "./scope.js";
 import type { DomProps } from "./dom.js";
-import { runWithRenderer, Template } from "./renderer.js";
+import { runWithRenderer } from "./renderer.js";
 import { hydrateElement } from "./intrinsic/TagComponent.js";
 import { Fragment } from "./intrinsic/Fragment.js";
 import {
@@ -23,6 +23,7 @@ import {
   isContext,
   provideContext,
 } from "./context.js";
+import { Template } from "./template.js";
 
 interface Tagged<in out T> {
   _tag: T;

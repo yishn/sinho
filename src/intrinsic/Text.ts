@@ -1,6 +1,7 @@
 import { MaybeSignal, useEffect } from "../scope.js";
 import { FunctionalComponent } from "../component.js";
-import { createTemplate, useRenderer } from "../renderer.js";
+import { useRenderer } from "../renderer.js";
+import { createTemplate } from "../template.js";
 
 export const Text: FunctionalComponent<{
   text?: MaybeSignal<string | number | undefined | null>;

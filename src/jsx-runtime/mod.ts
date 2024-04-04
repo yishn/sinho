@@ -1,5 +1,5 @@
 import { createElement } from "../create_element.js";
-import type { Template } from "../renderer.js";
+import type { Template } from "../template.js";
 import type { DomIntrinsicElements } from "../dom.js";
 import type { RefSignalSetter } from "../scope.js";
 import type { jsxPropsSym, Component } from "../component.js";

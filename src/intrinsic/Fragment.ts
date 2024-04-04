@@ -1,6 +1,6 @@
 import { Text } from "./Text.js";
 import { FunctionalComponent } from "../component.js";
-import { createTemplate, Template } from "../renderer.js";
+import { createTemplate, Template } from "../template.js";
 import type { MaybeSignal } from "../scope.js";
 
 export type Children =

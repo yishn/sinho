@@ -1,5 +1,5 @@
 import type { FunctionalComponent } from "../component.js";
-import type { Template } from "../renderer.js";
+import type { Template } from "../template.js";
 import { MaybeSignal } from "../scope.js";
 import { Dynamic } from "./Dynamic.js";
 

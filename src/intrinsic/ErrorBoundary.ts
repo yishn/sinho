@@ -1,6 +1,6 @@
-import { Signal, useScope, useSignal } from "../scope.js";
+import { useScope, useSignal } from "../scope.js";
 import { FunctionalComponent } from "../component.js";
-import { createTemplate } from "../renderer.js";
+import { createTemplate } from "../template.js";
 import { Children, Fragment } from "./Fragment.js";
 import { createContext, provideContext, useContext } from "../context.js";
 import { If } from "./If.js";

@@ -1,6 +1,7 @@
 import { FunctionalComponent } from "../component.js";
 import { MaybeSignal, useEffect, useMemo, useSubscope } from "../scope.js";
-import { createTemplate, Template, useRenderer } from "../renderer.js";
+import { useRenderer } from "../renderer.js";
+import { createTemplate, Template } from "../template.js";
 
 /**
  * `Dynamic` is a component that can be used to render conditionally.

@@ -7,7 +7,8 @@ import {
   useSignal,
   useSubscope,
 } from "../scope.js";
-import { createTemplate, Template, useRenderer } from "../renderer.js";
+import { useRenderer } from "../renderer.js";
+import { createTemplate, Template } from "../template.js";
 
 interface KeyMeta {
   _subnodes: Node[];
