@@ -103,7 +103,7 @@ class TaskItem extends Component({
   }
 }
 
-class App extends Component({}, { shadowDOM: false }) {
+class App extends Component({}, { shadow: false }) {
   render(): Template {
     const [tasks, setTasks] = useSignal<Task[]>([
       {

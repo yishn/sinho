@@ -313,7 +313,7 @@ export interface ComponentOptions {
    *
    * @default { mode: "open" }
    */
-  shadowDOM?: ShadowRootInit | false;
+  shadow?: ShadowRootInit | false;
 }
 
 let mountEffects: [fn: () => Cleanup, deps?: Signal<unknown>[]][] | undefined;
@@ -412,11 +412,11 @@ export const Component: (() => ComponentConstructor<{}>) &
 
   // Create base class
 
-  opts.shadowDOM ??= { mode: "open" };
+  opts.shadow ??= { mode: "open" };
 
   const getRenderParent = (component: _Component) =>
-    opts.shadowDOM
-      ? component.shadowRoot ?? component.attachShadow(opts.shadowDOM)
+    opts.shadow
+      ? component.shadowRoot ?? component.attachShadow(opts.shadow)
       : !metadata.children
         ? component
         : null;

@@ -43,7 +43,7 @@ export class Counter extends Component({
   }
 }
 
-class App extends Component({}, { shadowDOM: false }) {
+class App extends Component({}, { shadow: false }) {
   static tagName = "app-component";
 
   render(): Template {

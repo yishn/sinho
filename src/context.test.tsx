@@ -18,7 +18,7 @@ const GreetingContext = createContext("Hello");
 
 class ContextConsumingComponent extends Component(
   { greeting: prop(GreetingContext) },
-  { shadowDOM: false },
+  { shadow: false },
 ) {
   render(): Template {
     const greeting = useContext(GreetingContext);
