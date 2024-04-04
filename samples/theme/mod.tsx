@@ -1,6 +1,5 @@
 import {
   Component,
-  Template,
   createContext,
   defineComponents,
   event,
@@ -29,7 +28,7 @@ class ThemedButton extends Component("themed-button", {
   onButtonClick: event(MouseEvent),
   children: true,
 }) {
-  render(): Template {
+  render() {
     const theme = useContext(ThemeContext);
     const dark = () => theme() === Theme.Dark;
 
@@ -78,7 +77,7 @@ class ThemedCheckbox extends Component("themed-checkbox", {
   onCheckedChange: event(),
   children: true,
 }) {
-  render(): Template {
+  render() {
     return (
       <>
         <label>
@@ -105,7 +104,7 @@ class ThemedCheckbox extends Component("themed-checkbox", {
 class App extends Component("app-component", {
   ...themeProps,
 }) {
-  render(): Template {
+  render() {
     const theme = useContext(ThemeContext);
     const dark = () => theme() === Theme.Dark;
 

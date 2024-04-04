@@ -36,7 +36,7 @@ type OmitNever<T> = Omit<
 /** @ignore */
 export interface PropMeta<T> extends PropOptions<T>, Tagged<"prop"> {
   _type?: [T];
-  _initOrContext: T;
+  _defaultOrContext: T;
 }
 
 export interface AttributeOptions<T> {
@@ -169,16 +169,16 @@ export const prop: (<T>(
   context: Context<T>,
   opts?: PropOptions<T>,
 ) => PropMeta<T | undefined>) &
-  (<T>(init: T, opts?: PropOptions<T>) => PropMeta<T>) &
+  (<T>(defaultValue: T, opts?: PropOptions<T>) => PropMeta<T>) &
   (<T>(
-    init?: T,
+    defaultValue?: T,
     opts?: PropOptions<T | undefined>,
   ) => PropMeta<T | undefined>) = <T>(
-  initOrContext?: Context<T> | T,
+  defaultOrContext?: Context<T> | T,
   opts?: PropOptions<T>,
 ): PropMeta<any> => ({
   _tag: "prop",
-  _initOrContext: initOrContext,
+  _defaultOrContext: defaultOrContext,
   ...opts,
 });
 
@@ -475,7 +475,9 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
           // Do nothing
         } else if (meta._tag == "prop") {
           const ref = useRef<unknown>(
-            isContext(meta._initOrContext) ? undefined : meta._initOrContext,
+            isContext(meta._defaultOrContext)
+              ? undefined
+              : meta._defaultOrContext,
           );
 
           this.props[name] = ref;
@@ -516,8 +518,8 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
 
             // Propagate context changes
 
-            if (isContext(meta._initOrContext)) {
-              const contextInfo = provideContext(meta._initOrContext);
+            if (isContext(meta._defaultOrContext)) {
+              const contextInfo = provideContext(meta._defaultOrContext);
 
               useEffect(() => {
                 contextInfo._override.set(this.props[name]());
@@ -610,9 +612,9 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
         this[prop.name as keyof this] =
           value != null
             ? prop.meta.attribute.transform.call(this, value)
-            : isContext(prop.meta._initOrContext)
+            : isContext(prop.meta._defaultOrContext)
               ? undefined
-              : prop.meta._initOrContext;
+              : prop.meta._defaultOrContext;
       }
     }
 

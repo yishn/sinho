@@ -4,7 +4,6 @@ import {
   event,
   If,
   prop,
-  Template,
   useMountEffect,
   useRef,
   useSignal,
@@ -17,7 +16,7 @@ export class Counter extends Component("counter-component", {
   onIncrementClick: event(MouseEvent),
   onDecrementClick: event(MouseEvent),
 }) {
-  render(): Template {
+  render() {
     return (
       <>
         <h1 part="display">Counter: {this.props.count}</h1>
@@ -42,7 +41,7 @@ export class Counter extends Component("counter-component", {
 }
 
 class App extends Component("app-component", {}, { shadow: false }) {
-  render(): Template {
+  render() {
     const [count, setCount] = useSignal(1);
     const [showCounter, setShowCounter] = useSignal(true);
     const ref = useRef<Counter>();

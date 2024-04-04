@@ -5,7 +5,6 @@ import {
   For,
   If,
   prop,
-  Template,
   useSignal,
 } from "shingo";
 
@@ -21,7 +20,7 @@ class TaskList extends Component("task-list", {
     text: string;
   }>(),
 }) {
-  render(): Template {
+  render() {
     const [newTaskText, setNewTaskText] = useSignal("");
 
     return (
@@ -68,7 +67,7 @@ class TaskItem extends Component("task-item", {
   onTaskItemCompletedChange: event<boolean>(),
   onTaskItemDelete: event(MouseEvent),
 }) {
-  render(): Template {
+  render() {
     return (
       <>
         <label>
@@ -100,7 +99,7 @@ class TaskItem extends Component("task-item", {
 }
 
 class App extends Component("app-component", {}, { shadow: false }) {
-  render(): Template {
+  render() {
     const [tasks, setTasks] = useSignal<Task[]>([
       {
         id: 0,
