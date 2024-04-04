@@ -3,10 +3,10 @@
 A lightweight signal-based library for building web components with a React-like
 API.
 
-- 🌌 Web standards
-- 🛟 Type-safe components
-- ✒️ Declarative templating with JSX
-- 🚥 Fine-granular reactivity
+- 🌌 Web standards with custom HTML elements
+- 🛟 Type-safe components with TypeScript
+- ✒️ Declarative templating with JSX (no parsing)
+- 🚥 Fine-granular reactivity with signals
 - 🪶 Lightweight (~4KB minified and compressed)
 
 ```tsx
@@ -111,27 +111,6 @@ Optionally, you can provide a prefix:
 defineComponents("my-", SimpleGreeting);
 ```
 
-`Component` takes an object literal containing properties and events for the
-component as second argument.
-
-All properties can be accessed and set as actual class properties:
-
-```tsx
-const el = new SimpleGreeting();
-document.body.append(el);
-
-console.log(el.name); // Prints "John"
-
-el.name = "Jane"; // Component will now display "Hello, Jane!"
-```
-
-For reactivity in templates, you need signals instead. You can get the signals
-of your properties in `this.props`:
-
-```tsx
-<h1>Hello, {this.props.name}!</h1>
-```
-
 By default, Shingō uses shadow DOM. You can disable this by setting the `shadow`
 option on your component to `false`:
 
@@ -145,10 +124,91 @@ export class SimpleGreeting extends Component(
 }
 ```
 
-### Reactivity
-
 ### Properties
+
+`Component` takes an object literal containing properties and events for the
+component as second argument. Use the `prop` function to define properties and
+optionally pass a default value:
+
+```tsx
+Component("simple-greeting", {
+  name: prop<string>("John"),
+});
+```
+
+All properties can be accessed and set as actual class properties:
+
+```tsx
+const el = new SimpleGreeting();
+document.body.append(el);
+
+console.log(el.name); // Prints "John"
+
+el.name = "Jane"; // Component will now display "Hello, Jane!"
+```
+
+Note that none of the properties are required when constructing the component.
+
+For reactivity in templates, you need signals instead. You can get the signals
+of your properties in `this.props`:
+
+```tsx
+<h1>Hello, {this.props.name}!</h1>
+```
+
+You can associate attributes with props and by default all attribute changes
+will be propagated to the properties. For string types, you can simply set the
+`attribute` option to `true`:
+
+```tsx
+Component("simple-greeting", {
+  name: prop<string>("John", {
+    attribute: true,
+  }),
+});
+```
+
+By default the attribute name is the kebab-case version of the property name,
+e.g. a property named `myName` will get the attribute name `my-name`. It's also
+possible to specify a custom attribute name:
+
+```tsx
+Component("simple-greeting", {
+  name: prop<string>("John", {
+    attribute: {
+      name: "attr-name",
+    },
+  }),
+});
+```
+
+For properties other than string types, you need to specify a transform function
+that will convert strings into the property type, e.g.:
+
+```tsx
+Component("simple-greeting", {
+  names: prop<string[]>(["John"], {
+    attribute: (value) => value.split(","),
+  }),
+});
+
+// or alternatively:
+
+Component("simple-greeting", {
+  names: prop<string[]>(["John"], {
+    attribute: {
+      name: "attr-name",
+      transform: (value) => value.split(","),
+    },
+  }),
+});
+```
+
+If an attribute is not specified on the element, the property will revert to the
+default value.
 
 ### Events
 
 ### Templates
+
+### Reactivity
