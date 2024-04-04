@@ -26,7 +26,7 @@ const themeProps = {
 
 class ThemedButton extends Component({
   ...themeProps,
-  onButtonClick: event(() => MouseEvent),
+  onButtonClick: event(MouseEvent),
   children: true,
 }) {
   static tagName = "themed-button";

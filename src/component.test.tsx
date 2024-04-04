@@ -101,7 +101,7 @@ test("Component with attributes", () => {
 test("Component with events", () => {
   class Button extends Component({
     text: prop<string>(),
-    onButtonClick: event(() => MouseEvent),
+    onButtonClick: event(MouseEvent),
   }) {
     static tagName = "x-button";
 

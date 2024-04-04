@@ -14,8 +14,8 @@ export class Counter extends Component({
   count: prop<number>(0, {
     attribute: Number,
   }),
-  onIncrementClick: event(() => MouseEvent),
-  onDecrementClick: event(() => MouseEvent),
+  onIncrementClick: event(MouseEvent),
+  onDecrementClick: event(MouseEvent),
 }) {
   static tagName = "counter-component";
 

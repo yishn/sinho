@@ -77,7 +77,7 @@ export type EventConstructor<T = any> = new (name: string, arg: T) => Event;
 /** @ignore */
 export interface EventMeta<out E extends EventConstructor>
   extends Tagged<"event"> {
-  _event: () => E;
+  _event: E;
 }
 
 type Events<M> = OmitNever<
@@ -231,8 +231,8 @@ export const prop: (<T>(
  */
 export const event: (() => EventMeta<typeof CustomEvent<undefined>>) &
   (<T>() => EventMeta<typeof CustomEvent<T>>) &
-  (<E extends EventConstructor>(eventConstructor: () => E) => EventMeta<E>) = ((
-  eventConstructor: () => EventConstructor = () => CustomEvent,
+  (<E extends EventConstructor>(eventConstructor: E) => EventMeta<E>) = ((
+  eventConstructor: EventConstructor = CustomEvent,
 ): EventMeta<EventConstructor> => ({
   _tag: "event",
   _event: eventConstructor,
@@ -486,7 +486,7 @@ export const Component: (() => ComponentConstructor<{}>) &
           const eventName = jsxPropNameToEventName(name as `on${string}`);
 
           this.events[name] = (arg: unknown) => {
-            this.dispatchEvent(new (meta._event())(eventName, arg));
+            this.dispatchEvent(new meta._event(eventName, arg));
           };
         }
       }
