@@ -72,7 +72,7 @@ test("Error handling", async () => {
         ),
       );
 
-      throw new Error("Will never throw");
+      throw new Error("Will throw again");
     },
     { onError },
   );
@@ -97,6 +97,7 @@ test("Error handling", async () => {
 
   assert.deepStrictEqual(logs, [
     "Subscope run error",
+    "Will throw again",
     "Effect error",
     "Effect rerun error",
   ]);

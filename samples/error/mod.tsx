@@ -3,8 +3,6 @@ import { Component, ErrorBoundary, defineComponents } from "shingo";
 class ThrowErrorButton extends Component({
   children: true,
 }) {
-  static tagName = "throw-error-button";
-
   render() {
     return (
       <button
