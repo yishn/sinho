@@ -21,11 +21,9 @@ afterEach(() => {
 });
 
 test("Component with reactive prop", () => {
-  class Greeting extends Component({
+  class Greeting extends Component("x-greeting", {
     name: prop<string>("World"),
   }) {
-    static tagName = "x-greeting";
-
     render(): Template {
       return <h1>Hello, {this.props.name}!</h1>;
     }
@@ -48,7 +46,7 @@ test("Component with reactive prop", () => {
 });
 
 test("Component with attributes", () => {
-  class Greeting extends Component({
+  class Greeting extends Component("x-greeting", {
     name: prop<string>("World", {
       attribute: true,
     }),
@@ -58,8 +56,6 @@ test("Component with attributes", () => {
       },
     }),
   }) {
-    static tagName = "x-greeting";
-
     render(): Template {
       return (
         <>
@@ -99,12 +95,10 @@ test("Component with attributes", () => {
 });
 
 test("Component with events", () => {
-  class Button extends Component({
+  class Button extends Component("x-button", {
     text: prop<string>(),
     onButtonClick: event(MouseEvent),
   }) {
-    static tagName = "x-button";
-
     render(): Template {
       return (
         <button onclick={this.events.onButtonClick}>{this.props.text}</button>

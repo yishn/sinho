@@ -10,9 +10,7 @@ API.
 - 🪶 Lightweight (~4KB minified and compressed)
 
 ```tsx
-class Counter extends Component() {
-  static tagName = "x-counter";
-
+class Counter extends Component("x-counter") {
   render() {
     const [value, setValue] = useSignal(0);
 
@@ -87,20 +85,17 @@ component.
 ```tsx
 import { Component, prop } from "shingo";
 
-export class SimpleGreeting extends Component({
+export class SimpleGreeting extends Component("simple-greeting", {
   name: prop<string>("John"),
 }) {
-  static tagName = "simple-greeting";
-
   render() {
     return <h1>Hello, {this.props.name}!</h1>;
   }
 }
 ```
 
-`Greeting` is a custom HTML element and needs to be defined first before it is
-constructable. The tag name is optionally given by the static `tagName`
-property.
+`Greeting` is a custom HTML element and needs to be defined first before it can
+be constructed. The tag name is given as first argument to `Component`.
 
 ```tsx
 import { defineComponents } from "shingo";
@@ -117,7 +112,7 @@ defineComponents("my-", SimpleGreeting);
 ```
 
 `Component` takes an object literal containing properties and events for the
-component as first argument.
+component as second argument.
 
 All properties can be accessed and set as actual class properties:
 
@@ -130,11 +125,24 @@ console.log(el.name); // Prints "John"
 el.name = "Jane"; // Component will now display "Hello, Jane!"
 ```
 
-For reactivity in templates, you need a signal instead. You can get the signal
-version of your properties in `this.props`:
+For reactivity in templates, you need signals instead. You can get the signals
+of your properties in `this.props`:
 
 ```tsx
 <h1>Hello, {this.props.name}!</h1>
+```
+
+By default, Shingō uses shadow DOM. You can disable this by setting the `shadow`
+option on your component to `false`:
+
+```tsx
+export class SimpleGreeting extends Component(
+  "simple-greeting",
+  { name: prop<string>("John") },
+  { shadow: false },
+) {
+  // …
+}
 ```
 
 ### Reactivity

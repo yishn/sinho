@@ -16,7 +16,8 @@ GlobalRegistrator.register();
 
 const GreetingContext = createContext("Hello");
 
-class ContextConsumingComponent extends Component(
+class ContextConsumer extends Component(
+  "context-consumer",
   { greeting: prop(GreetingContext) },
   { shadow: false },
 ) {
@@ -27,19 +28,19 @@ class ContextConsumingComponent extends Component(
   }
 }
 
-class MiddleComponent extends Component() {
-  contextConsumer = useRef<ContextConsumingComponent>();
+class MiddleComponent extends Component("x-middle") {
+  contextConsumer = useRef<ContextConsumer>();
 
   render(): Template {
-    return <ContextConsumingComponent ref={this.contextConsumer} />;
+    return <ContextConsumer ref={this.contextConsumer} />;
   }
 }
 
-class ContextProvidingComponent extends Component({
+class ContextProvider extends Component("context-provider", {
   greeting: prop(GreetingContext, { attribute: true }),
 }) {
-  contextConsumer1 = useRef<ContextConsumingComponent>();
-  contextConsumer2 = useRef<ContextConsumingComponent>();
+  contextConsumer1 = useRef<ContextConsumer>();
+  contextConsumer2 = useRef<ContextConsumer>();
 
   render(): Template {
     const middleComponentRef = useRef<MiddleComponent>();
@@ -51,19 +52,15 @@ class ContextProvidingComponent extends Component({
     return (
       <>
         <MiddleComponent ref={middleComponentRef} />
-        <ContextConsumingComponent ref={this.contextConsumer2} />
+        <ContextConsumer ref={this.contextConsumer2} />
       </>
     );
   }
 }
 
-defineComponents(
-  ContextConsumingComponent,
-  MiddleComponent,
-  ContextProvidingComponent,
-);
+defineComponents(ContextConsumer, MiddleComponent, ContextProvider);
 
-const contextProvider = new ContextProvidingComponent();
+const contextProvider = new ContextProvider();
 document.body.append(contextProvider);
 
 test("Context should be propagated deeply", () => {

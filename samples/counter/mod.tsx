@@ -10,15 +10,13 @@ import {
   useSignal,
 } from "shingo";
 
-export class Counter extends Component({
+export class Counter extends Component("counter-component", {
   count: prop<number>(0, {
     attribute: Number,
   }),
   onIncrementClick: event(MouseEvent),
   onDecrementClick: event(MouseEvent),
 }) {
-  static tagName = "counter-component";
-
   render(): Template {
     return (
       <>
@@ -43,9 +41,7 @@ export class Counter extends Component({
   }
 }
 
-class App extends Component({}, { shadow: false }) {
-  static tagName = "app-component";
-
+class App extends Component("app-component", {}, { shadow: false }) {
   render(): Template {
     const [count, setCount] = useSignal(1);
     const [showCounter, setShowCounter] = useSignal(true);

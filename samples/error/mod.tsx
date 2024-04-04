@@ -1,6 +1,6 @@
 import { Component, ErrorBoundary, defineComponents } from "shingo";
 
-class ThrowErrorButton extends Component({
+class ThrowErrorButton extends Component("throw-error-button", {
   children: true,
 }) {
   render() {
@@ -16,9 +16,7 @@ class ThrowErrorButton extends Component({
   }
 }
 
-class App extends Component() {
-  static tagName = "app-component";
-
+class App extends Component("app-component") {
   render() {
     return (
       <ErrorBoundary

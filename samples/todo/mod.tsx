@@ -15,14 +15,12 @@ interface Task {
   completed: boolean;
 }
 
-class TaskList extends Component({
+class TaskList extends Component("task-list", {
   children: true,
   onTaskItemAdd: event<{
     text: string;
   }>(),
 }) {
-  static tagName = "task-list";
-
   render(): Template {
     const [newTaskText, setNewTaskText] = useSignal("");
 
@@ -62,7 +60,7 @@ class TaskList extends Component({
   }
 }
 
-class TaskItem extends Component({
+class TaskItem extends Component("task-item", {
   completed: prop<boolean>(false, {
     attribute: () => true,
   }),
@@ -70,8 +68,6 @@ class TaskItem extends Component({
   onTaskItemCompletedChange: event<boolean>(),
   onTaskItemDelete: event(MouseEvent),
 }) {
-  static tagName = "task-item";
-
   render(): Template {
     return (
       <>
@@ -103,7 +99,7 @@ class TaskItem extends Component({
   }
 }
 
-class App extends Component({}, { shadow: false }) {
+class App extends Component("app-component", {}, { shadow: false }) {
   render(): Template {
     const [tasks, setTasks] = useSignal<Task[]>([
       {
@@ -181,4 +177,4 @@ class App extends Component({}, { shadow: false }) {
 }
 
 defineComponents("todo-", TaskList, TaskItem);
-customElements.define("app-component", App);
+defineComponents(App);

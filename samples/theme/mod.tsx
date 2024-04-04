@@ -24,13 +24,11 @@ const themeProps = {
   }),
 };
 
-class ThemedButton extends Component({
+class ThemedButton extends Component("themed-button", {
   ...themeProps,
   onButtonClick: event(MouseEvent),
   children: true,
 }) {
-  static tagName = "themed-button";
-
   render(): Template {
     const theme = useContext(ThemeContext);
     const dark = () => theme() === Theme.Dark;
@@ -72,7 +70,7 @@ class ThemedButton extends Component({
   }
 }
 
-class ThemedCheckbox extends Component({
+class ThemedCheckbox extends Component("themed-checkbox", {
   ...themeProps,
   checked: prop<boolean>(false, {
     attribute: (value) => value != null,
@@ -80,8 +78,6 @@ class ThemedCheckbox extends Component({
   onCheckedChange: event(),
   children: true,
 }) {
-  static tagName = "themed-checkbox";
-
   render(): Template {
     return (
       <>
@@ -106,11 +102,9 @@ class ThemedCheckbox extends Component({
   }
 }
 
-class App extends Component({
+class App extends Component("app-component", {
   ...themeProps,
 }) {
-  static tagName = "app-component";
-
   render(): Template {
     const theme = useContext(ThemeContext);
     const dark = () => theme() === Theme.Dark;

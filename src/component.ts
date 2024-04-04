@@ -359,11 +359,13 @@ export const useMountEffect = (
  * customElements.define("my-component", MyComponent);
  * ```
  */
-export const Component: (() => ComponentConstructor<{}>) &
+export const Component: ((tagName: string) => ComponentConstructor<{}>) &
   (<const M extends Metadata>(
+    tagName: string,
     metadata: M,
     opts?: ComponentOptions,
   ) => ComponentConstructor<M>) = ((
+  tagName: string,
   metadata: Metadata = {},
   opts: ComponentOptions = {},
 ): ComponentConstructor => {
@@ -423,7 +425,7 @@ export const Component: (() => ComponentConstructor<{}>) &
 
   abstract class _Component extends HTMLElement {
     static readonly [componentSym] = true;
-    static readonly tagName?: string;
+    static readonly tagName = tagName;
     static readonly observedAttributes: readonly string[] = observedAttributes;
 
     protected props: Record<string, RefSignal<any>> = {};
@@ -659,9 +661,6 @@ export const defineComponents: ((
       : ["", args as ComponentConstructor[]];
 
   for (const component of components) {
-    customElements.define(
-      prefix + (component.tagName ?? "c" + crypto.randomUUID()),
-      component,
-    );
+    customElements.define(prefix + component.tagName, component);
   }
 };
