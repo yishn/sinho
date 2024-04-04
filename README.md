@@ -81,6 +81,62 @@ You can also write templates using pure JavaScript.
 
 ### Components
 
+You can use `Component` to create a base class that can be extended into a web
+component.
+
+```tsx
+import { Component, prop } from "shingo";
+
+export class SimpleGreeting extends Component({
+  name: prop<string>("John"),
+}) {
+  static tagName = "simple-greeting";
+
+  render() {
+    return <h1>Hello, {this.props.name}!</h1>;
+  }
+}
+```
+
+`Greeting` is a custom HTML element and needs to be defined first before it is
+constructable. The tag name is optionally given by the static `tagName`
+property.
+
+```tsx
+import { defineComponents } from "shingo";
+
+// …
+
+defineComponents(SimpleGreeting);
+```
+
+Optionally, you can provide a prefix:
+
+```tsx
+defineComponents("my-", SimpleGreeting);
+```
+
+`Component` takes an object literal containing properties and events for the
+component as first argument.
+
+All properties can be accessed and set as actual class properties:
+
+```tsx
+const el = new SimpleGreeting();
+document.body.append(el);
+
+console.log(el.name); // Prints "John"
+
+el.name = "Jane"; // Component will now display "Hello, Jane!"
+```
+
+For reactivity in templates, you need a signal instead. You can get the signal
+version of your properties in `this.props`:
+
+```tsx
+<h1>Hello, {this.props.name}!</h1>
+```
+
 ### Reactivity
 
 ### Properties
