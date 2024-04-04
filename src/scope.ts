@@ -307,17 +307,17 @@ export const useEffect = (
  * @param fn The computation function.
  */
 export const useMemo = <T>(fn: () => T, opts?: SetSignalOptions): Signal<T> => {
-  const [signal, setSignal] = useSignal<T | undefined>();
+  const [memo, setMemo] = useSignal<T | undefined>();
 
   let firstTime = true;
 
   useEffect(() => {
-    setSignal(fn, firstTime ? { ...opts, force: true } : opts);
+    setMemo(fn, firstTime ? { ...opts, force: true } : opts);
 
     firstTime = false;
   });
 
-  return signal as Signal<T>;
+  return memo as Signal<T>;
 };
 
 /**
