@@ -1,4 +1,4 @@
-import { prepare } from "./_test_utils/mock_dom.js";
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import assert from "node:assert";
 import { test } from "node:test";
 import {
@@ -12,7 +12,7 @@ import {
   useRef,
 } from "./mod.js";
 
-prepare();
+GlobalRegistrator.register();
 
 const GreetingContext = createContext("Hello");
 

@@ -11,7 +11,7 @@
     "declaration": true,
     "sourceMap": true,
     "strict": true,
-    "allowSyntheticDefaultImports": true
+    "skipLibCheck": true
   },
   "include": ["./src/**/*"],
   "exclude": []

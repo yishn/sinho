@@ -1,6 +1,6 @@
-import { prepare } from "./_test_utils/mock_dom.js";
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import assert from "node:assert";
-import { beforeEach, test } from "node:test";
+import { afterEach, beforeEach, test } from "node:test";
 import {
   Component,
   If,
@@ -13,7 +13,11 @@ import {
 } from "./mod.js";
 
 beforeEach(() => {
-  prepare();
+  GlobalRegistrator.register();
+});
+
+afterEach(() => {
+  GlobalRegistrator.unregister();
 });
 
 test("Component with reactive prop", () => {

@@ -1,10 +1,14 @@
-import { beforeEach, test } from "node:test";
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import { afterEach, beforeEach, test } from "node:test";
 import assert from "node:assert";
 import { For, useScope, useSignal, useRef } from "../mod.js";
-import { prepare } from "../_test_utils/mock_dom.js";
 
 beforeEach(() => {
-  prepare();
+  GlobalRegistrator.register();
+});
+
+afterEach(() => {
+  GlobalRegistrator.unregister();
 });
 
 test("For", async () => {
