@@ -77,6 +77,8 @@ using TypeScript and JSX for the rest of the guide.
 
 ### Components
 
+#### Class Components
+
 You can use `Component` to create a base class that can be extended into a web
 component.
 
@@ -124,7 +126,31 @@ export class SimpleGreeting extends Component(
 }
 ```
 
+#### Functional Components
+
+Functional components are different to class components in that they do not
+extend a base class. Instead, they are just functions that return a template.
+
+```tsx
+import { FunctionalComponent, MaybeSignal } from "shingo";
+
+export const FunctionalGreeting: FunctionalComponent<{
+  name: MaybeSignal<string>;
+}> = (props) => {
+  return <h1>Hello, {props.name}!</h1>;
+};
+```
+
+Functional component are not web components, do not have a root element, and
+cannot be constructed. They can be reactive by using hooks, however memory can
+only be released when it's part of a class component, otherwise it will leak.
+
+Therefore, it is recommended to use functional components inside class
+components only and not on their own.
+
 ### Properties
+
+#### Define Properties
 
 `Component` takes an object literal containing properties and events for the
 component as second argument. Use the `prop` function to define properties and
@@ -137,8 +163,10 @@ Component("simple-greeting", {
 ```
 
 Property names must not start with `on` as that prefix is reserved for events.
-All properties can be accessed and set as actual class properties from the
-outside:
+
+#### Access Properties
+
+All properties can be accessed as actual class properties from the outside:
 
 ```tsx
 const el = new SimpleGreeting();
@@ -147,6 +175,7 @@ document.body.append(el);
 console.log(el.name); // Prints "John"
 
 el.name = "Jane"; // Component will now display "Hello, Jane!"
+console.log(el.name); // Prints "Jane"
 ```
 
 Note that none of the properties are required to be set when constructing the
@@ -162,6 +191,29 @@ of your properties in `this.props`:
 It is generally discouraged to change properties from the inside of the
 component as it breaks the unidirectional data flow. Instead, you should use
 events to propagate changes upward.
+
+#### Set Properties
+
+As a class instance, you can set properties directly:
+
+```tsx
+const el = new SimpleGreeting();
+document.body.append(el);
+
+el.name = "Jane"; // Component will now display "Hello, Jane!"
+```
+
+Inside a template, you can use JSX attributes to set properties, either using a
+static variable or a signal:
+
+```tsx
+<>
+  <SimpleGreeting name="John" />
+  <SimpleGreeting name={() => (gender() == "female" ? "Jane" : "Charlie")} />
+</>
+```
+
+#### Attribute Association
 
 You can associate attributes with props and by default all attribute changes
 will be propagated to the properties. However, property changes will not be
@@ -217,6 +269,8 @@ default value.
 
 ### Events
 
+#### Define Events
+
 You can define events on your component next to its properties by using the
 `event` function. Note that event names must start with `on` and follows
 camelCase convention:
@@ -231,21 +285,7 @@ class TaskListItem extends Component("task-list-item", {
 }
 ```
 
-Events can be listened to on the outside by using the `addEventListener` method:
-
-```tsx
-const el = new TaskListItem();
-document.body.append(el);
-
-el.addEventListener("completed-change", (evt) => {
-  // evt is CustomEvent<{ completed: boolean }>
-  console.log(evt.detail.completed);
-});
-```
-
-Note that the native event name is the kebab-case version without the `on`
-prefix of the name defined in the component, e.g. `onCompletedChange` will be
-assigned to `completed-change`.
+#### Dispatch Events
 
 To emit an event from the inside of the component, you can call the
 corresponding method in `this.events`:
@@ -315,6 +355,24 @@ class TaskListItem extends Component("task-list-item", {
 The emitter function `this.events.onCompletedChange` will return `false` if the
 event is cancelable and at least one of the event listeners called
 `evt.preventDefault()`, otherwise `true`.
+
+#### Listen to Events
+
+Events can be listened to on the outside by using the `addEventListener` method:
+
+```tsx
+const el = new TaskListItem();
+document.body.append(el);
+
+el.addEventListener("completed-change", (evt) => {
+  // evt is CustomEvent<{ completed: boolean }>
+  console.log(evt.detail.completed);
+});
+```
+
+Note that the native event name is the kebab-case version without the `on`
+prefix of the name defined in the component, e.g. `onCompletedChange` will be
+assigned to `completed-change`.
 
 ### Templates
 

@@ -495,7 +495,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
           this.props[name] = ref;
 
           Object.defineProperty(this, name, {
-            get: () => ref.peek(),
+            get: ref.peek,
             set: (value) => ref.set(() => value, { force: true }),
           });
         } else if (meta._tag == "event" && name.startsWith("on")) {
