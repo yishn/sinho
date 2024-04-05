@@ -397,9 +397,9 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
   >();
 
   for (const name in metadata) {
-    const meta = metadata[name];
+    const meta = metadata[name] as PropMeta<any> | EventMeta<any>;
 
-    if (typeof meta == "object" && meta._tag == "prop" && meta.attribute) {
+    if (meta._tag == "prop" && meta.attribute) {
       if (typeof meta.attribute == "function") {
         meta.attribute = { transform: meta.attribute };
       } else if (meta.attribute == true) {
