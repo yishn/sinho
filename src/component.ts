@@ -17,12 +17,7 @@ import {
   jsxPropNameToEventName,
 } from "./utils.js";
 import { useScope } from "./scope.js";
-import {
-  Context,
-  getContextInfo,
-  isContext,
-  provideContext,
-} from "./context.js";
+import { Context, isContext, provideContext } from "./context.js";
 import { Template } from "./template.js";
 
 interface Tagged<in out T> {
@@ -33,6 +28,8 @@ type OmitNever<T> = Omit<
   T,
   { [K in keyof T]: T[K] extends never ? K : never }[keyof T]
 >;
+
+type PartialRequire<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
 /** @ignore */
 export interface PropMeta<T> extends PropOptions<T>, Tagged<"prop"> {
@@ -73,7 +70,10 @@ type Props<M> = OmitNever<{
   readonly [K in keyof M]: M[K] extends PropMeta<infer T> ? Signal<T> : never;
 }>;
 
-export type EventConstructor<T = any> = new (name: string, arg: T) => Event;
+export type EventConstructor<T = any, E = Event> = new (
+  name: string,
+  arg: T,
+) => E;
 
 /** @ignore */
 export interface EventMeta<out E extends EventConstructor>
@@ -183,6 +183,17 @@ export const prop: (<T>(
   ...opts,
 });
 
+// CustomEvent<T> has a flaw in its constructor signature since it allows
+// `detail` to be optional. This is a workaround to make it required unless
+// `undefined` can be assigned to `T`.
+
+type _CustomEventContructor<T> = undefined extends T
+  ? typeof CustomEvent<T>
+  : EventConstructor<
+      PartialRequire<CustomEventInit<T>, "detail">,
+      CustomEvent<T>
+    >;
+
 /**
  * Defines an event in your component metadata that can be dispatched by
  * the component.
@@ -230,8 +241,8 @@ export const prop: (<T>(
  * }
  * ```
  */
-export const event: (() => EventMeta<typeof CustomEvent<undefined>>) &
-  (<T>() => EventMeta<typeof CustomEvent<T>>) &
+export const event: (() => EventMeta<_CustomEventContructor<undefined>>) &
+  (<T>() => EventMeta<_CustomEventContructor<T>>) &
   (<E extends EventConstructor>(eventConstructor: E) => EventMeta<E>) = ((
   eventConstructor: EventConstructor = CustomEvent,
 ): EventMeta<EventConstructor> => ({
@@ -302,7 +313,7 @@ export type Component<M extends Metadata = {}> = {
 export interface ComponentConstructor<M extends Metadata = {}> {
   /** @ignore */
   readonly [componentSym]: true;
-  readonly tagName?: string;
+  readonly tagName: string;
   readonly observedAttributes: readonly string[];
 
   new (): Component<M>;
