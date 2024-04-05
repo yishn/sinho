@@ -72,7 +72,8 @@ If you do not use TypeScript, you need to transform JSX, e.g. with Babel and
 }
 ```
 
-Alternatively, you can also write templates using pure JavaScript.
+Alternatively, you can also write templates using pure JavaScript. We will be
+using TypeScript and JSX for the rest of the guide.
 
 ### Components
 
@@ -135,7 +136,9 @@ Component("simple-greeting", {
 });
 ```
 
-All properties can be accessed and set as actual class properties:
+Property names must not start with `on` as that prefix is reserved for events.
+All properties can be accessed and set as actual class properties from the
+outside:
 
 ```tsx
 const el = new SimpleGreeting();
@@ -156,8 +159,13 @@ of your properties in `this.props`:
 <h1>Hello, {this.props.name}!</h1>
 ```
 
+It is generally discouraged to change properties from the inside of the
+component as it breaks the unidirectional data flow. Instead, you should use
+events to propagate changes upward.
+
 You can associate attributes with props and by default all attribute changes
-will be propagated to the properties. For string types, you can simply set the
+will be propagated to the properties. However, property changes will not be
+propagated back to attributes. For string types, you can simply set the
 `attribute` option to `true`:
 
 ```tsx
@@ -208,6 +216,105 @@ If an attribute is not specified on the element, the property will revert to the
 default value.
 
 ### Events
+
+You can define events on your component next to its properties by using the
+`event` function. Note that event names must start with `on` and follows
+camelCase convention:
+
+```tsx
+class TaskListItem extends Component("task-list-item", {
+  text: prop<string>(""),
+  completed: prop<boolean>(false),
+  onCompletedChange: event<{ completed: boolean }>(),
+}) {
+  // …
+}
+```
+
+Events can be listened to on the outside by using the `addEventListener` method:
+
+```tsx
+const el = new TaskListItem();
+document.body.append(el);
+
+el.addEventListener("completed-change", (evt) => {
+  // evt is CustomEvent<{ completed: boolean }>
+  console.log(evt.detail.completed);
+});
+```
+
+Note that the native event name is the kebab-case version without the `on`
+prefix of the name defined in the component, e.g. `onCompletedChange` will be
+assigned to `completed-change`.
+
+To emit an event from the inside of the component, you can call the
+corresponding method in `this.events`:
+
+```tsx
+class TaskListItem extends Component("task-list-item", {
+  // …
+  onCompletedChange: event<{ completed: boolean }>(),
+}) {
+  render() {
+    return (
+      <>
+        <input
+          type="checkbox"
+          checked={this.props.completed}
+          onchange={(evt) => {
+            this.events.onCompletedChange({
+              details: {
+                completed: !evt.currentTarget.checked,
+              },
+            });
+          }}
+        />
+        {/* … */}
+      </>
+    );
+  }
+}
+```
+
+By default a `CustomEvent` will be dispatched. You can also specify a different
+event constructor, either your own or another native event constructor. Shingō
+expects the first constructor argument to be the event name and the second
+argument to be the event details that is passed to the event emitter:
+
+```tsx
+class CompletedChangeEvent extends Event {
+  constructor(
+    name: string,
+    public completed: boolean,
+  ) {
+    super(name);
+  }
+}
+
+class TaskListItem extends Component("task-list-item", {
+  // …
+  onCompletedChange: event(CompletedChangeEvent),
+}) {
+  render() {
+    return (
+      <>
+        <input
+          type="checkbox"
+          checked={this.props.completed}
+          onchange={(evt) => {
+            this.events.onCompletedChange(!evt.currentTarget.checked);
+          }}
+        />
+        {/* … */}
+      </>
+    );
+  }
+}
+```
+
+The emitter function `this.events.onCompletedChange` will return `false` if the
+event is cancelable and at least one of the event listeners called
+`evt.preventDefault()`, otherwise `true`.
 
 ### Templates
 
