@@ -22,7 +22,7 @@ export const Portal: FunctionalComponent<{
 
         return () => {
           for (const node of nodes) {
-            mount.removeChild(node);
+            node.parentNode?.removeChild(node);
           }
         };
       });

@@ -8,6 +8,7 @@ import {
   css,
   useContext,
   useMountEffect,
+  Portal,
 } from "shingo";
 
 enum Theme {
@@ -108,29 +109,6 @@ class App extends Component("app-component", {
     const theme = useContext(ThemeContext);
     const dark = () => theme() === Theme.Dark;
 
-    useMountEffect(() => {
-      const styleEl = (
-        <Style
-          css={css`
-            body {
-              margin: 0;
-              background-color: ${() => (dark() ? "#333" : "#fff")};
-              color: ${() => (dark() ? "#fff" : "#333")};
-              transition:
-                background-color 0.2s,
-                color 0.2s;
-            }
-          `}
-        />
-      ).build();
-
-      document.body.append(...styleEl);
-
-      return () => {
-        styleEl.forEach((el) => el.parentNode?.removeChild(el));
-      };
-    });
-
     return (
       <>
         <p>
@@ -152,10 +130,23 @@ class App extends Component("app-component", {
           css={css`
             :host {
               display: block;
-              padding: 1em;
             }
           `}
         />
+
+        <Portal mount={document.body}>
+          <Style
+            css={css`
+              body {
+                background-color: ${() => (dark() ? "#333" : "#fff")};
+                color: ${() => (dark() ? "#fff" : "#333")};
+                transition:
+                  background-color 0.2s,
+                  color 0.2s;
+              }
+            `}
+          />
+        </Portal>
       </>
     );
   }
