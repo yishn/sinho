@@ -94,8 +94,11 @@ export class SimpleGreeting extends Component("simple-greeting", {
 }
 ```
 
-`Greeting` is a custom HTML element and needs to be defined first before it can
-be constructed. The tag name is given as first argument to `Component`.
+The class needs to provide a `render` method that returns a JSX template.
+
+`SimpleGreeting` is now a custom HTML element and needs to be defined first
+before it can be used or constructed. You can use the `defineComponents()`
+function to define it with the tag name given as first argument to `Component`:
 
 ```tsx
 import { defineComponents } from "shingo";
@@ -103,14 +106,32 @@ import { defineComponents } from "shingo";
 // …
 
 defineComponents(SimpleGreeting);
-// In HTML: <simple-greeting></simple-greeting>
+
+// In HTML:
+<simple-greeting name="Jane"></simple-greeting>;
+
+// In JS:
+const el = new SimpleGreeting();
+el.name = "Jane";
+
+// In JSX:
+<SimpleGreeting name="Jane" />;
 ```
 
 Optionally, you can provide a prefix:
 
 ```tsx
 defineComponents("my-", SimpleGreeting);
-// In HTML: <my-simple-greeting></my-simple-greeting>
+
+// In HTML:
+<my-simple-greeting name="Jane"></my-simple-greeting>;
+
+// In JS:
+const el = new SimpleGreeting();
+el.name = "Jane";
+
+// In JSX:
+<SimpleGreeting name="Jane" />;
 ```
 
 By default, Shingō uses shadow DOM. You can disable this by setting the `shadow`
@@ -128,7 +149,7 @@ export class SimpleGreeting extends Component(
 
 #### Functional Components
 
-Functional components are different to class components in that they do not
+Functional components are different from class components in that they do not
 extend a base class. Instead, they are just functions that return a template.
 
 ```tsx
@@ -141,9 +162,16 @@ export const FunctionalGreeting: FunctionalComponent<{
 };
 ```
 
-Functional component are not web components, do not have a root element, and
-cannot be constructed. They can be reactive by using hooks, however memory can
-only be released when it's part of a class component, otherwise it will leak.
+Functional component are not web components, do not have a root element, and can
+only be constructed in JSX templates:
+
+```tsx
+// In JSX:
+<FunctionalGreeting name="John" />
+```
+
+They can be reactive by using hooks, however memory can only be released when
+they are part of a class component, otherwise effects will leak.
 
 Therefore, it is recommended to use functional components inside class
 components only and not on their own.
@@ -164,6 +192,9 @@ Component("simple-greeting", {
 
 Property names must not start with `on` as that prefix is reserved for events.
 
+Note that none of the properties are required to be set when constructing the
+component.
+
 #### Access Properties
 
 All properties can be accessed as actual class properties from the outside:
@@ -177,9 +208,6 @@ console.log(el.name); // Prints "John"
 el.name = "Jane"; // Component will now display "Hello, Jane!"
 console.log(el.name); // Prints "Jane"
 ```
-
-Note that none of the properties are required to be set when constructing the
-component.
 
 For reactivity in templates, you need signals instead. You can get the signals
 of your properties in `this.props`:
@@ -203,14 +231,12 @@ document.body.append(el);
 el.name = "Jane"; // Component will now display "Hello, Jane!"
 ```
 
-Inside a template, you can use JSX attributes to set properties, either using a
-static variable or a signal:
+Inside a JSX template, you can use JSX attributes to set properties, either
+using a static variable or a signal:
 
 ```tsx
-<>
-  <SimpleGreeting name="John" />
-  <SimpleGreeting name={() => (gender() == "female" ? "Jane" : "Charlie")} />
-</>
+<SimpleGreeting name="John" />;
+<SimpleGreeting name={() => (gender() == "female" ? "Jane" : "Charlie")} />;
 ```
 
 #### Attribute Association
@@ -226,6 +252,9 @@ Component("simple-greeting", {
     attribute: true,
   }),
 });
+
+// In HTML:
+<simple-greeting name="Jane"></simple-greeting>;
 ```
 
 By default the attribute name is the kebab-case version of the property name,
@@ -240,6 +269,9 @@ Component("simple-greeting", {
     },
   }),
 });
+
+// In HTML:
+<simple-greeting attr-name="Jane"></simple-greeting>;
 ```
 
 For properties other than string types, you need to specify a transform function
@@ -252,16 +284,24 @@ Component("simple-greeting", {
   }),
 });
 
-// or alternatively:
+// In HTML:
+<simple-greeting names="John,Jane"></simple-greeting>;
+```
 
+Or, alternatively:
+
+```tsx
 Component("simple-greeting", {
   names: prop<string[]>(["John"], {
     attribute: {
-      name: "attr-name",
+      name: "attr-names",
       transform: (value) => value.split(","),
     },
   }),
 });
+
+// In HTML:
+<simple-greeting attr-names="John,Jane"></simple-greeting>;
 ```
 
 If an attribute is not specified on the element, the property will revert to the
@@ -373,6 +413,16 @@ el.addEventListener("completed-change", (evt) => {
 Note that the native event name is the kebab-case version without the `on`
 prefix of the name defined in the component, e.g. `onCompletedChange` will be
 assigned to `completed-change`.
+
+In JSX, you can specify event listeners as attributes:
+
+```tsx
+<TaskListItem
+  onCompletedChange={(evt) => {
+    console.log(evt.detail.completed);
+  }}
+/>
+```
 
 ### Templates
 
