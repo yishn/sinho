@@ -389,10 +389,13 @@ export type MaybeSignal<T> = SignalLike<T> | (T extends Function ? never : T);
 
 export const MaybeSignal = {
   /**
-   * Transforms the given {@link MaybeSignal} into a {@link SignalLike}.
+   * Transforms the given {@link MaybeSignal} into a {@link Signal}.
    */
-  upgrade: <T>(signal: MaybeSignal<T>): SignalLike<T> => {
-    return () => MaybeSignal.get(signal);
+  upgrade: <T>(signal: MaybeSignal<T>): Signal<T> => {
+    const result = (() => MaybeSignal.get(signal)) as Signal<T>;
+    result.peek = () => MaybeSignal.peek(signal);
+
+    return result;
   },
 
   /**

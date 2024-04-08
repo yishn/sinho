@@ -1,7 +1,7 @@
 import { createElement } from "../create_element.js";
 import { FunctionalComponent } from "../component.js";
 import { Text } from "./Text.js";
-import { MaybeSignal, SignalLike } from "../scope.js";
+import { MaybeSignal } from "../scope.js";
 
 export const Style: FunctionalComponent<{
   css?: MaybeSignal<string>;
@@ -18,10 +18,12 @@ export const Style: FunctionalComponent<{
 export const css = (
   strings: TemplateStringsArray,
   ...values: MaybeSignal<string | number>[]
-): SignalLike<string> => {
-  return () =>
-    strings.reduce(
-      (acc, string, i) => acc + string + (MaybeSignal.get(values[i]) ?? ""),
-      "",
-    );
+): MaybeSignal<string> => {
+  return !values.length
+    ? strings[0]
+    : () =>
+        strings.reduce(
+          (acc, string, i) => acc + string + (MaybeSignal.get(values[i]) ?? ""),
+          "",
+        );
 };

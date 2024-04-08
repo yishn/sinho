@@ -474,7 +474,7 @@ class App extends Component("x-app") {
 }
 ```
 
-You can also use computed signals to derive new signals from existing ones:
+You can also use a function to derive new signals from existing ones:
 
 ```tsx
 class App extends Component("x-app") {
@@ -592,7 +592,7 @@ useEffect(() => {
     setGender("nonbinary");
   }); // When function is called, effect executions will be triggered
 
-  console.log(name(), gender()) // Prints "Charlie nonbinary"
+  console.log(name(), gender()); // Prints "Charlie nonbinary"
 });
 ```
 

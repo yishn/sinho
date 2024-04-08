@@ -24,7 +24,7 @@ export const For = <T>(props: {
   render?: (
     item: Signal<T>,
     index: Signal<number>,
-    arr: SignalLike<readonly T[]>,
+    arr: Signal<readonly T[]>,
   ) => Template;
 }): Template =>
   createTemplate(() => {
