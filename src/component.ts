@@ -4,8 +4,7 @@ import {
   Signal,
   useEffect,
   useSubscope,
-  RefSignal,
-  useRef,
+  useSignal,
 } from "./scope.js";
 import type { DomProps } from "./dom.js";
 import { runWithRenderer } from "./renderer.js";
@@ -134,9 +133,8 @@ type EventEmitters<M> = OmitNever<
  *
  * Make sure to avoid conflicts with native `HTMLElement` properties.
  *
- * You can get and set properties by accessing the {@link Signal} or {@link RefSignal}
- * in `this.props`. It's also possible to set the properties directly on the
- * component instance.
+ * You can get properties by accessing the {@link Signal} in `this.props`.
+ * It's also possible to set the properties directly on the component instance.
  *
  * It's also possible to define an attribute for the property by setting the
  * `attribute` option. By default, the attribute name is the kebab-case version
@@ -440,7 +438,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
     static readonly tagName = tagName;
     static readonly observedAttributes: readonly string[] = observedAttributes;
 
-    protected props: Record<string, RefSignal<any>> = {};
+    protected props: Record<string, Signal<any>> = {};
     protected events: Record<string, (arg: unknown) => any> = {};
 
     [componentSym]: ComponentInner<any>[typeof componentSym] = {};
@@ -486,17 +484,17 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
         if (typeof meta == "boolean") {
           // Do nothing
         } else if (meta._tag == "prop") {
-          const ref = useRef<unknown>(
+          const [getter, setter] = useSignal<unknown>(
             isContext(meta._defaultOrContext)
               ? undefined
               : meta._defaultOrContext,
           );
 
-          this.props[name] = ref;
+          this.props[name] = getter;
 
           Object.defineProperty(this, name, {
-            get: ref.peek,
-            set: (value) => ref.set(() => value, { force: true }),
+            get: getter.peek,
+            set: (value) => setter(() => value, { force: true }),
           });
         } else if (meta._tag == "event" && name.startsWith("on")) {
           const eventName = jsxPropNameToEventName(name as `on${string}`);
