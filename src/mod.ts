@@ -12,7 +12,7 @@ export {
   type Metadata,
   prop,
   type PropOptions,
-  useMountEffect,
+  useMountEffect as useEffect,
 } from "./component.js";
 export { type Context, createContext, useContext } from "./context.js";
 export { createElement, h } from "./create_element.js";
@@ -28,7 +28,6 @@ export {
   type RefSignal,
   type RefSignalSetter,
   useBatch,
-  useEffect,
   useMemo,
   useScope,
   useSignal,

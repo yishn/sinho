@@ -4,7 +4,7 @@ import {
   event,
   If,
   prop,
-  useMountEffect,
+  useEffect,
   useRef,
   useSignal,
 } from "shingo";
@@ -46,7 +46,7 @@ class App extends Component("app-component", {}, { shadow: false }) {
     const [showCounter, setShowCounter] = useSignal(true);
     const ref = useRef<Counter>();
 
-    useMountEffect(() => {
+    useEffect(() => {
       console.log("Counter component is:", ref());
       console.log("Number of children:", this.children.length);
     });

@@ -2,7 +2,9 @@
   "compress": {
     "ecma": "2023",
     "pure_new": true,
-    "toplevel": true
+    "toplevel": true,
+    "unsafe": true,
+    "unsafe_symbols": true
   },
   "mangle": {
     "toplevel": true,

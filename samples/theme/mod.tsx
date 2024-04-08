@@ -7,7 +7,6 @@ import {
   Style,
   css,
   useContext,
-  useMountEffect,
   Portal,
 } from "shingo";
 
