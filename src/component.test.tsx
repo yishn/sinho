@@ -48,7 +48,7 @@ test("Component with reactive prop", () => {
 test("Component with attributes", () => {
   class Greeting extends Component("x-greeting", {
     name: prop<string>("World", {
-      attribute: true,
+      attribute: String,
     }),
     age: prop<number | null>(null, {
       attribute: {

@@ -37,7 +37,7 @@ class MiddleComponent extends Component("x-middle") {
 }
 
 class ContextProvider extends Component("context-provider", {
-  greeting: prop(GreetingContext, { attribute: true }),
+  greeting: prop(GreetingContext, { attribute: String }),
 }) {
   contextConsumer1 = useRef<ContextConsumer>();
   contextConsumer2 = useRef<ContextConsumer>();

@@ -61,7 +61,7 @@ export interface PropOptions<T> {
   attribute?:
     | ((value: string) => T)
     | (string extends T
-        ? boolean | PartialPartial<AttributeOptions<T>, "transform">
+        ? PartialPartial<AttributeOptions<T>, "transform">
         : AttributeOptions<T>);
 }
 
@@ -400,8 +400,6 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
     if (meta._tag == "prop" && meta.attribute) {
       if (typeof meta.attribute == "function") {
         meta.attribute = { transform: meta.attribute };
-      } else if (meta.attribute == true) {
-        meta.attribute = {};
       }
 
       const attribute: AttributeOptions<any> = (meta.attribute = {
