@@ -1,7 +1,8 @@
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { afterEach, beforeEach, test } from "node:test";
 import assert from "node:assert";
-import { For, useScope, useSignal, useRef } from "../mod.js";
+import { For, useSignal, useRef } from "../mod.js";
+import { useScope } from "../scope.js";
 
 beforeEach(() => {
   GlobalRegistrator.register();

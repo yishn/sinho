@@ -1,6 +1,12 @@
 import assert from "node:assert";
 import { test } from "node:test";
-import { useBatch, useEffect, useMemo, useSignal, useSubscope } from "./mod.js";
+import {
+  useBatch,
+  useEffect,
+  useMemo,
+  useSignal,
+  useSubscope,
+} from "./scope.js";
 
 test("Nested effects and cleanups", () => {
   const logs: string[] = [];

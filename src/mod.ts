@@ -29,9 +29,7 @@ export {
   type RefSignalSetter,
   useBatch,
   useMemo,
-  useScope,
   useSignal,
-  useSubscope,
   useRef,
 } from "./scope.js";
 
