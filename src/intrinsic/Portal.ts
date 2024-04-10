@@ -10,9 +10,7 @@ export const Portal: FunctionalComponent<{
   children?: Children;
 }> = ({ mount, svg, children }) =>
   createTemplate(() =>
-    runWithRenderer((renderer) => {
-      renderer._isSvg = svg;
-
+    runWithRenderer({ _isSvg: svg }, () => {
       const nodes = Fragment({ children }).build();
 
       useEffect(() => {

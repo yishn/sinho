@@ -69,34 +69,28 @@ export const TagComponent = (
   props: DomProps<any> = {},
 ): Template =>
   createTemplate(() => {
+    const svg = tagName == "svg";
     const renderer = useRenderer();
-    const prevIsSvg = renderer._isSvg;
+    const node = hydrateElement(
+      renderer._node(() =>
+        !svg
+          ? document.createElement(tagName)
+          : document.createElementNS("http://www.w3.org/2000/svg", tagName),
+      ),
+      props,
+    );
 
-    if (tagName == "svg") {
-      renderer._isSvg = true;
-    }
-
-    try {
-      const node = hydrateElement(
-        renderer._node(() =>
-          !renderer._isSvg
-            ? document.createElement(tagName)
-            : document.createElementNS("http://www.w3.org/2000/svg", tagName),
+    if (props.children != null) {
+      node.append(
+        ...runWithRenderer(
+          {
+            _isSvg: svg,
+            _nodes: node.childNodes.values(),
+          },
+          () => Fragment({ children: props.children }).build(),
         ),
-        props,
       );
-
-      if (props.children != null) {
-        node.append(
-          ...runWithRenderer((renderer) => {
-            renderer._nodes = node.childNodes.values();
-            return Fragment({ children: props.children }).build();
-          }),
-        );
-      }
-
-      return [node];
-    } finally {
-      renderer._isSvg = prevIsSvg;
     }
+
+    return [node];
   });

@@ -1,4 +1,8 @@
+import { Component } from "./component.js";
+import { Scope, useEffect, useScope, useSubscope } from "./scope.js";
+
 interface Renderer {
+  _component?: Component;
   _isSvg?: boolean;
   _nodes?: IterableIterator<Node>;
 
@@ -11,17 +15,24 @@ const createRenderer = (): Renderer => ({
   },
 });
 
-let currRenderer = createRenderer();
+export const useRenderer = () => {
+  const scope: Scope<{ _renderer?: Renderer }> = useScope();
+  return (scope._details._renderer ??= createRenderer());
+};
 
-export const useRenderer = () => currRenderer;
+export const runWithRenderer = <T>(
+  override: Partial<Renderer>,
+  fn: (renderer: Renderer) => T,
+): T => {
+  const currRenderer = useRenderer();
+  const _renderer = createRenderer();
+  Object.assign(_renderer, currRenderer, { _nodes: undefined }, override);
 
-export const runWithRenderer = <T>(fn: (renderer: Renderer) => T): T => {
-  const prevRenderer = currRenderer;
-  currRenderer._isSvg = prevRenderer._isSvg;
+  const [result, destroy] = useSubscope(() => fn(_renderer), {
+    details: { _renderer },
+  });
 
-  try {
-    return fn(currRenderer);
-  } finally {
-    currRenderer = prevRenderer;
-  }
+  useEffect(() => destroy);
+
+  return result!;
 };

@@ -42,6 +42,7 @@ export interface SignalSetter<in T, out U = T> {
 }
 
 export interface SubscopeOptions {
+  details?: object;
   onError?: (err: unknown) => void;
 }
 
@@ -58,10 +59,11 @@ interface Effect {
  */
 export type Cleanup = (() => void) | void | undefined | null;
 
-interface Scope {
+export interface Scope<out T = {}> {
   readonly _parent?: Scope;
   _effects: Effect[];
   _subscopes: Scope[];
+  _details: T;
   _onError?: ((err: unknown) => void) | undefined;
 
   _run<T>(fn: () => T): T | void;
@@ -73,6 +75,7 @@ const createScope = (parent?: Scope): Scope => {
     _parent: parent,
     _effects: [],
     _subscopes: [],
+    _details: {},
 
     _run<T>(fn: () => T): T | void {
       const prevScope = currScope;
@@ -340,12 +343,12 @@ export const useSubscope = <T>(
   return [
     result,
     () => {
-    const index = parent._subscopes.indexOf(scope);
-    if (index >= 0) {
-      parent._subscopes.splice(index, 1);
-    }
+      const index = parent._subscopes.indexOf(scope);
+      if (index >= 0) {
+        parent._subscopes.splice(index, 1);
+      }
 
-    scope._cleanup();
+      scope._cleanup();
     },
   ];
 };
