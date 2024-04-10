@@ -329,10 +329,13 @@ export interface ComponentOptions {
 let mountEffects: [fn: () => Cleanup, deps?: Signal<unknown>[]][] | undefined;
 
 /**
- * Creates the given effect only once when the component is mounted.
+ * Creates an effect which will rerun when any accessed signal changes.
  *
- * If used outside of a component, this is equivalent to {@link useEffect} and
- * the effect will run immediately.
+ * If used inside of a component and the component is not yet mounted, the
+ * effect will run only after the component is mounted. Otherwise, the effect
+ * will run immediately.
+ *
+ * @param fn The function to run; it may return a cleanup function.
  */
 export const useMountEffect = (
   fn: () => Cleanup,
