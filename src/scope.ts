@@ -325,25 +325,29 @@ export const useMemo = <T>(fn: () => T, opts?: SetSignalOptions): Signal<T> => {
  * @param fn The function to run in the subscope.
  * @returns A function to manually destroy the subscope.
  */
-export const useSubscope = (
-  fn: () => void,
+export const useSubscope = <T>(
+  fn: () => T,
   opts?: SubscopeOptions,
-): (() => void) => {
+): [T | void, () => void] => {
   const parent = currScope;
   const scope = createScope(parent);
+  Object.assign(scope._details, opts?.details);
 
   scope._onError = opts?.onError ?? parent._onError;
   parent._subscopes.push(scope);
-  scope._run(fn);
+  const result = scope._run(fn);
 
-  return () => {
+  return [
+    result,
+    () => {
     const index = parent._subscopes.indexOf(scope);
     if (index >= 0) {
       parent._subscopes.splice(index, 1);
     }
 
     scope._cleanup();
-  };
+    },
+  ];
 };
 
 /**

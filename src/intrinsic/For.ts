@@ -24,7 +24,7 @@ export const For = <T>(props: {
   render?: (
     item: Signal<T>,
     index: Signal<number>,
-    arr: Signal<readonly T[]>,
+    arr: SignalLike<readonly T[]>,
   ) => Template;
 }): Template =>
   createTemplate(() => {
@@ -68,7 +68,7 @@ export const For = <T>(props: {
         } else if (mutation._type == "a") {
           let _subnodes: Node[] = [];
 
-          const destroy = useSubscope(() => {
+          const [, destroy] = useSubscope(() => {
             const [index, setIndex] = useSignal(mutation._index);
             const [item, setItem] = useSignal(items()[mutation._index]);
 

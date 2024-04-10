@@ -5,14 +5,14 @@ import { useBatch, useEffect, useMemo, useSignal, useSubscope } from "./mod.js";
 test("Nested effects and cleanups", () => {
   const logs: string[] = [];
 
-  const destroy = useSubscope(() => {
+  const [, destroy] = useSubscope(() => {
     const [greeting, setGreeting] = useSignal("Greetings!");
     const [firstName, setFirstName] = useSignal("Yichuan");
     const [lastName, setLastName] = useSignal("Shen");
     const fullName = useMemo(() => `${firstName()} ${lastName()}`);
 
     useEffect(() => {
-      const destroy = useSubscope(() => {
+      const [, destroy] = useSubscope(() => {
         useEffect(() => {
           logs.push(greeting());
         });

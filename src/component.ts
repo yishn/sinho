@@ -591,7 +591,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
 
             this[componentSym]._eventsAttached = true;
           }
-        }),
+        })[1],
       );
     }
 

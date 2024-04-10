@@ -40,18 +40,17 @@ export const Dynamic: FunctionalComponent<{
     const template = useMemo(() => MaybeSignal.get(props.render));
 
     useEffect(() => {
-      let subnodes: Node[];
-
-      const destroy = useSubscope(() => {
-        subnodes = template()?.build() ?? [];
+      const [subnodes, destroy] = useSubscope(() => {
+        const subnodes = template()?.build() ?? [];
         anchor.after(...subnodes);
         nodes.push(...subnodes);
+        return subnodes;
       });
 
       return () => {
         destroy();
 
-        for (const node of subnodes) {
+        for (const node of subnodes ?? []) {
           node.parentNode?.removeChild(node);
         }
 
