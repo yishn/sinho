@@ -12,14 +12,13 @@ export interface SignalLike<out T> {
  * Represents a value that tracks changes over time.
  */
 export interface Signal<out T> extends SignalLike<T> {
+  /** @ignore */
+  _effects: Set<Effect>;
+
   /**
    * Accesses the current value of the signal without tracking.
    */
   peek(): T;
-}
-
-interface SignalExt<out T> extends Signal<T> {
-  _effects: Set<Effect>;
 }
 
 export interface SetSignalOptions {
@@ -48,7 +47,7 @@ export interface SubscopeOptions {
 
 interface Effect {
   _clean?: Cleanup;
-  _deps: Set<SignalExt<unknown>>;
+  _deps: Set<Signal<unknown>>;
   _scope: Scope;
 
   _run(): void;
@@ -144,7 +143,7 @@ export const useSignal: (<T>(
   value: T,
   opts?: SetSignalOptions,
 ): readonly [Signal<T>, SignalSetter<T>] => {
-  const signal: SignalExt<T> = () => {
+  const signal: Signal<T> = () => {
     if (!currUntracked && currEffect) {
       currEffect._deps.add(signal);
       signal._effects.add(currEffect);
@@ -243,7 +242,7 @@ export const useEffect = (
 
   const effect: Effect = {
     _scope: currScope,
-    _deps: new Set((deps as SignalExt<unknown>[]) ?? []),
+    _deps: new Set((deps as Signal<unknown>[]) ?? []),
 
     _run(): void {
       const prevEffect = currEffect;
@@ -391,19 +390,16 @@ export const MaybeSignal = {
   /**
    * Transforms the given {@link MaybeSignal} into a {@link Signal}.
    */
-  upgrade: <T>(signal: MaybeSignal<T>): Signal<T> => {
-    const result = (() => MaybeSignal.get(signal)) as Signal<T>;
-    result.peek = () => MaybeSignal.peek(signal);
-
-    return result;
-  },
+  upgrade:
+    <T>(signal: MaybeSignal<T>): SignalLike<T> =>
+    () =>
+      MaybeSignal.get(signal),
 
   /**
    * Gets the value of the given {@link MaybeSignal}.
    */
-  get: <T>(signal: MaybeSignal<T>): T => {
-    return typeof signal == "function" ? (signal as SignalLike<T>)() : signal;
-  },
+  get: <T>(signal: MaybeSignal<T>): T =>
+    typeof signal == "function" ? (signal as SignalLike<T>)() : signal,
 
   /**
    * Accesses the value of the given {@link MaybeSignal} without tracking.
