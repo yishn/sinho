@@ -1,4 +1,5 @@
 .docusaurus/
+api/
 build/
 dist/
 docs/

@@ -129,7 +129,7 @@ let currBatch:
   | undefined;
 
 /** @ignore */
-export const useScope = (): Scope => currScope;
+export const useScope = <T = {}>(): Scope<T> => currScope as Scope<T>;
 
 /**
  * Creates a new signal with the given value.

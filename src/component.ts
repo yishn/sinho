@@ -31,7 +31,7 @@ type OmitNever<T> = Omit<
 type PartialRequire<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
 /** @ignore */
-export interface PropMeta<T> extends PropOptions<T>, Tagged<"prop"> {
+export interface PropMeta<T> extends PropOptions<T>, Tagged<"p"> {
   _type?: [T];
   _defaultOrContext: T;
 }
@@ -75,8 +75,7 @@ export type EventConstructor<T = any, E = Event> = new (
 ) => E;
 
 /** @ignore */
-export interface EventMeta<out E extends EventConstructor>
-  extends Tagged<"event"> {
+export interface EventMeta<out E extends EventConstructor> extends Tagged<"e"> {
   _event: E;
 }
 
@@ -176,7 +175,7 @@ export const prop: (<T>(
   defaultOrContext?: Context<T> | T,
   opts?: PropOptions<T>,
 ): PropMeta<any> => ({
-  _tag: "prop",
+  _tag: "p",
   _defaultOrContext: defaultOrContext,
   ...opts,
 });
@@ -244,7 +243,7 @@ export const event: (() => EventMeta<_CustomEventContructor<undefined>>) &
   (<E extends EventConstructor>(eventConstructor: E) => EventMeta<E>) = ((
   eventConstructor: EventConstructor = CustomEvent,
 ): EventMeta<EventConstructor> => ({
-  _tag: "event",
+  _tag: "e",
   _event: eventConstructor,
 })) as any;
 
@@ -400,7 +399,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
   for (const name in metadata) {
     const meta = metadata[name] as PropMeta<any> | EventMeta<any>;
 
-    if (meta._tag == "prop" && meta.attribute) {
+    if (meta._tag == "p" && meta.attribute) {
       if (typeof meta.attribute == "function") {
         meta.attribute = { transform: meta.attribute };
       }
@@ -483,7 +482,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
 
         if (typeof meta == "boolean") {
           // Do nothing
-        } else if (meta._tag == "prop") {
+        } else if (meta._tag == "p") {
           const [getter, setter] = useSignal<unknown>(
             isContext(meta._defaultOrContext)
               ? undefined
@@ -496,7 +495,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
             get: getter.peek,
             set: (value) => setter(() => value, { force: true }),
           });
-        } else if (meta._tag == "event" && name.startsWith("on")) {
+        } else if (meta._tag == "e" && name.startsWith("on")) {
           const eventName = jsxPropNameToEventName(name as `on${string}`);
 
           this.events[name] = (arg: unknown) =>

@@ -1,5 +1,5 @@
 import { Component } from "./component.js";
-import { Scope, useEffect, useScope, useSubscope } from "./scope.js";
+import { useEffect, useScope, useSubscope } from "./scope.js";
 
 interface Renderer {
   _component?: Component;
@@ -16,7 +16,7 @@ const createRenderer = (): Renderer => ({
 });
 
 export const useRenderer = () => {
-  const scope: Scope<{ _renderer?: Renderer }> = useScope();
+  const scope = useScope<{ _renderer?: Renderer }>();
   return (scope._details._renderer ??= createRenderer());
 };
 
