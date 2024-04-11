@@ -7,8 +7,9 @@
 /* You can override the default Infima variables here. */
 :root {
   --ifm-font-family-base: Inter, sans-serif;
-  --ifm-font-weight-bold: 500;
-  font-feature-settings: "liga" 1, "calt" 1; /* fix for Chrome */
+  font-feature-settings:
+    "liga" 1,
+    "calt" 1; /* fix for Chrome */
 
   --ifm-color-primary: #f06533;
   --ifm-color-primary-dark: #e24627;
@@ -24,4 +25,13 @@
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme="dark"] {
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: -0.02em;
 }
