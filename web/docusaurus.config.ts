@@ -108,6 +108,24 @@ const config: Config = {
       darkTheme: prismThemes.dracula,
     },
   } satisfies Preset.ThemeConfig,
+
+  plugins: [
+    [
+      "docusaurus-plugin-typedoc",
+      {
+        entryPoints: ["../src/mod.ts"],
+        tsconfig: "../tsconfig.json",
+        name: "API",
+        readme: "none",
+        visibilityFilters: {
+          "@ignore": false,
+        },
+        sidebar: {
+          position: 999,
+        },
+      },
+    ],
+  ],
 };
 
 export default config;
