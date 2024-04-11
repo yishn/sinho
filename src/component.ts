@@ -484,13 +484,18 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
         if (typeof meta == "boolean") {
           // Do nothing
         } else if (meta._tag == "p") {
+          const context = isContext(meta._defaultOrContext)
+            ? meta._defaultOrContext
+            : null;
           const [getter, setter] = useSignal<unknown>(
-            isContext(meta._defaultOrContext)
-              ? undefined
-              : meta._defaultOrContext,
+            context ? undefined : meta._defaultOrContext,
           );
 
           this.props[name] = getter;
+
+          if (context) {
+            provideContext(context, this, getter);
+          }
 
           Object.defineProperty(this, name, {
             get: getter.peek,
@@ -526,14 +531,6 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
               }
 
               for (const name in this.props) {
-                const meta = metadata[name] as PropMeta<unknown>;
-
-                // Propagate context changes
-
-                if (isContext(meta._defaultOrContext)) {
-                  provideContext(meta._defaultOrContext, this.props[name]);
-                }
-
                 // Make JSX props reactive
 
                 if (name in props) {

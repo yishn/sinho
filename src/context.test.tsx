@@ -80,9 +80,9 @@ test("Context should be propagated deeply", () => {
 });
 
 test("Context can be overridden locally", () => {
-  contextProvider.contextConsumer1()!.greeting = "Hello";
+  contextProvider.contextConsumer1()!.greeting = "Hi";
 
-  assert.strictEqual(contextProvider.contextConsumer1()!.textContent, "Hello");
+  assert.strictEqual(contextProvider.contextConsumer1()!.textContent, "Hi");
   assert.strictEqual(
     contextProvider.contextConsumer2()!.textContent,
     "Goodbye",
@@ -90,7 +90,7 @@ test("Context can be overridden locally", () => {
 
   contextProvider.greeting = "Farewell";
 
-  assert.strictEqual(contextProvider.contextConsumer1()!.textContent, "Hello");
+  assert.strictEqual(contextProvider.contextConsumer1()!.textContent, "Hi");
   assert.strictEqual(
     contextProvider.contextConsumer2()!.textContent,
     "Farewell",

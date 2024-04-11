@@ -38,5 +38,5 @@ export const runWithRenderer = <T>(
 
   useEffect(() => destroy);
 
-  return result!;
+  return result;
 };

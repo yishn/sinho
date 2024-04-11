@@ -43,7 +43,6 @@ export interface SignalSetter<in T, out U = T> {
 
 export interface SubscopeOptions {
   details?: object;
-  onError?: (err: unknown) => void;
 }
 
 interface Effect {
@@ -64,9 +63,8 @@ export interface Scope<out T = {}> {
   _effects: Effect[];
   _subscopes: Scope[];
   _details: T;
-  _onError?: ((err: unknown) => void) | undefined;
 
-  _run<T>(fn: () => T): T | void;
+  _run<T>(fn: () => T): T;
   _cleanup(): void;
 }
 
@@ -77,18 +75,12 @@ const createScope = (parent?: Scope): Scope => {
     _subscopes: [],
     _details: {},
 
-    _run<T>(fn: () => T): T | void {
+    _run<T>(fn: () => T): T {
       const prevScope = currScope;
       currScope = this;
 
       try {
         return fn();
-      } catch (err) {
-        if (this._onError) {
-          this._onError(err);
-        } else {
-          throw err;
-        }
       } finally {
         currScope = prevScope;
       }
@@ -331,12 +323,11 @@ export const useMemo = <T>(fn: () => T, opts?: SetSignalOptions): Signal<T> => {
 export const useSubscope = <T>(
   fn: () => T,
   opts?: SubscopeOptions,
-): [T | void, () => void] => {
+): [T, () => void] => {
   const parent = currScope;
   const scope = createScope(parent);
   Object.assign(scope._details, opts?.details);
 
-  scope._onError = opts?.onError ?? parent._onError;
   parent._subscopes.push(scope);
   const result = scope._run(fn);
 

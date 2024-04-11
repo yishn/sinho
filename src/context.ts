@@ -38,11 +38,10 @@ export const isContext = (value: any): value is Context<unknown> =>
 
 export const provideContext = <T>(
   context: Context<T>,
+  element: Element,
   value: MaybeSignal<T | undefined>,
 ) => {
-  const renderer = useRenderer();
-
-  renderer._component?.addEventListener(context[contextSym], (evt) => {
+  element.addEventListener(context[contextSym], (evt) => {
     const innerValue = MaybeSignal.get(value);
 
     if (innerValue !== undefined) {
@@ -61,6 +60,7 @@ export const useContext = <T>(context: Context<T>): Signal<T> => {
     renderer._component?.dispatchEvent(
       new CustomEvent(context[contextSym], {
         detail: (value) => (result = value),
+        bubbles: true,
         composed: true,
       }) as ContextEvent<T>,
     );
