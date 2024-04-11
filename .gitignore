@@ -1,6 +1,3 @@
-.docusaurus/
 api/
-build/
 dist/
 node_modules/
-samples/package-lock.json
