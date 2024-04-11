@@ -38,32 +38,35 @@ class ThemedButton extends Component("themed-button", {
           <slot></slot>
         </button>
 
-        <Style
-          css={css`
-            :host {
-              display: inline-block;
-            }
+        <Style>{css`
+          :host {
+            display: inline-block;
+          }
 
-            button {
-              border: 2px solid ${() => (dark() ? "#777" : "#bbb")};
-              background-color: ${() => (dark() ? "#555" : "#ddd")};
-              color: ${() => (dark() ? "#fff" : "#333")};
-              padding: 0.2em 0.5em;
-              transition:
-                background-color 0.2s,
-                color 0.2s,
-                border-color 0.2s;
-            }
+          button {
+            padding: 0.2em 0.5em;
+            transition:
+              background-color 0.2s,
+              color 0.2s,
+              border-color 0.2s;
+          }
+        `}</Style>
 
-            button:hover {
-              background-color: ${() => (dark() ? "#666" : "#ccc")};
-            }
+        <Style>{css`
+          button {
+            border: 2px solid ${() => (dark() ? "#777" : "#bbb")};
+            background-color: ${() => (dark() ? "#555" : "#ddd")};
+            color: ${() => (dark() ? "#fff" : "#333")};
+          }
 
-            button:active {
-              background-color: ${() => (dark() ? "#444" : "#bbb")};
-            }
-          `}
-        />
+          button:hover {
+            background-color: ${() => (dark() ? "#666" : "#ccc")};
+          }
+
+          button:active {
+            background-color: ${() => (dark() ? "#444" : "#bbb")};
+          }
+        `}</Style>
       </>
     );
   }
@@ -89,13 +92,11 @@ class ThemedCheckbox extends Component("themed-checkbox", {
           <slot></slot>
         </label>
 
-        <Style
-          css={css`
-            :host {
-              display: inline-block;
-            }
-          `}
-        />
+        <Style>{css`
+          :host {
+            display: inline-block;
+          }
+        `}</Style>
       </>
     );
   }
@@ -125,27 +126,26 @@ class App extends Component("app-component", {
           <ThemedButton>OK</ThemedButton> <ThemedButton>Cancel</ThemedButton>
         </p>
 
-        <Style
-          css={css`
-            :host {
-              display: block;
-            }
-          `}
-        />
+        <Style>{css`
+          :host {
+            display: block;
+          }
+        `}</Style>
 
-        <Portal mount={document.body}>
-          <Style
-            css={css`
-              body {
-                background-color: ${() => (dark() ? "#333" : "#fff")};
-                color: ${() => (dark() ? "#fff" : "#333")};
-                transition:
-                  background-color 0.2s,
-                  color 0.2s;
-              }
-            `}
-          />
-        </Portal>
+        <Style global>{css`
+          body {
+            background-color: ${() => (dark() ? "#333" : "#fff")};
+            color: ${() => (dark() ? "#fff" : "#333")};
+          }
+        `}</Style>
+
+        <Style global>{css`
+          body {
+            transition:
+              background-color 0.2s,
+              color 0.2s;
+          }
+        `}</Style>
       </>
     );
   }

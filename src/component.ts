@@ -143,15 +143,13 @@ type EventEmitters<M> = OmitNever<
  *
  * @example
  * ```tsx
- * class App extends Component({
+ * class App extends Component("app-component", {
  *   greetingMessage: prop<string>("Hello, world!", {
  *     attribute: {
  *       name: "greeting",
  *     }
  *   }),
  * }) {
- *   static tagName = "app-component";
- *
  *   render() {
  *     return <h1>{this.props.greetingMessage}</h1>;
  *   }
@@ -309,8 +307,10 @@ export type Component<M extends Metadata = {}> = {
 
 export interface ComponentConstructor<M extends Metadata = {}> {
   /** @ignore */
-  readonly [componentSym]: true;
-  readonly tagName: string;
+  readonly [componentSym]: {
+    readonly _styleSheets: Map<string, CSSStyleSheet>;
+    readonly _tagName: string;
+  };
   readonly observedAttributes: readonly string[];
 
   new (): Component<M>;
@@ -434,8 +434,11 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
         : null;
 
   abstract class _Component extends HTMLElement {
-    static readonly [componentSym] = true;
-    static readonly tagName = tagName;
+    static readonly [componentSym]: ComponentConstructor[typeof componentSym] =
+      {
+        _tagName: tagName,
+        _styleSheets: new Map(),
+      };
     static readonly observedAttributes: readonly string[] = observedAttributes;
 
     protected props: Record<string, Signal<any>> = {};
@@ -670,6 +673,6 @@ export const defineComponents: ((
       : ["", args as ComponentConstructor[]];
 
   for (const component of components) {
-    customElements.define(prefix + component.tagName, component);
+    customElements.define(prefix + component[componentSym]._tagName, component);
   }
 };
