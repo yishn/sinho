@@ -7,7 +7,6 @@ import {
   Style,
   css,
   useContext,
-  Portal,
 } from "shingo";
 
 enum Theme {
@@ -34,7 +33,17 @@ class ThemedButton extends Component("themed-button", {
 
     return (
       <>
-        <button type="button" onclick={this.events.onButtonClick}>
+        <button
+          style={{
+            "--border-color": () => (dark() ? "#777" : "#bbb"),
+            "--background-color": () => (dark() ? "#555" : "#ddd"),
+            "--color": () => (dark() ? "#fff" : "#333"),
+            "--hover-background-color": () => (dark() ? "#666" : "#ccc"),
+            "--active-background-color": () => (dark() ? "#444" : "#bbb"),
+          }}
+          type="button"
+          onclick={this.events.onButtonClick}
+        >
           <slot></slot>
         </button>
 
@@ -44,27 +53,22 @@ class ThemedButton extends Component("themed-button", {
           }
 
           button {
+            border: 2px solid var(--border-color);
+            background-color: var(--background-color);
+            color: var(--color);
             padding: 0.2em 0.5em;
             transition:
               background-color 0.2s,
               color 0.2s,
               border-color 0.2s;
           }
-        `}</Style>
-
-        <Style>{css`
-          button {
-            border: 2px solid ${() => (dark() ? "#777" : "#bbb")};
-            background-color: ${() => (dark() ? "#555" : "#ddd")};
-            color: ${() => (dark() ? "#fff" : "#333")};
-          }
 
           button:hover {
-            background-color: ${() => (dark() ? "#666" : "#ccc")};
+            background-color: var(--hover-background-color);
           }
 
           button:active {
-            background-color: ${() => (dark() ? "#444" : "#bbb")};
+            background-color: var(--active-background-color);
           }
         `}</Style>
       </>

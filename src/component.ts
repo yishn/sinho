@@ -143,7 +143,7 @@ type EventEmitters<M> = OmitNever<
  *
  * @example
  * ```tsx
- * class App extends Component("app-component", {
+ * class App extends Component("x-app", {
  *   greetingMessage: prop<string>("Hello, world!", {
  *     attribute: {
  *       name: "greeting",
@@ -202,7 +202,7 @@ type _CustomEventContructor<T> = undefined extends T
  *
  * @example
  * ```tsx
- * class App extends Component({
+ * class App extends Component("x-app", {
  *   onSomethingHappen: event<string>(),
  *   // Event name will be `something-happen`
  * }) {
@@ -223,7 +223,7 @@ type _CustomEventContructor<T> = undefined extends T
  *
  * @example
  * ```tsx
- * class App extends Component({
+ * class App extends Component("x-app", {
  *   onSomethingClick: event(() => MouseEvent),
  * }) {
  *   render() {
@@ -308,7 +308,6 @@ export type Component<M extends Metadata = {}> = {
 export interface ComponentConstructor<M extends Metadata = {}> {
   /** @ignore */
   readonly [componentSym]: {
-    readonly _styleSheets: Map<string, CSSStyleSheet>;
     readonly _tagName: string;
   };
   readonly observedAttributes: readonly string[];
@@ -354,7 +353,7 @@ export const useMountEffect = (
  *
  * @example
  * ```tsx
- * class MyComponent extends Component({
+ * class MyComponent extends Component("my-component", {
  *   myProp: prop<string>("Hello, world!"),
  *   onMyEvent: event(),
  * }) {
@@ -437,7 +436,6 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
     static readonly [componentSym]: ComponentConstructor[typeof componentSym] =
       {
         _tagName: tagName,
-        _styleSheets: new Map(),
       };
     static readonly observedAttributes: readonly string[] = observedAttributes;
 

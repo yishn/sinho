@@ -297,7 +297,7 @@ export interface DomIntrinsicElements {
   [tagName: string]: DomProps<any> & Record<string, any>;
 }
 
-export type Style = {
+export type InlineStyles = {
   [K in Exclude<
     keyof CSSStyleDeclaration,
     | "item"
@@ -335,7 +335,7 @@ export interface DomProps<in E> {
   ref?: RefSignalSetter<E | undefined>;
   id?: MaybeSignal<string | undefined>;
   class?: MaybeSignal<string | undefined>;
-  style?: Style;
+  style?: InlineStyles;
   dangerouslySetInnerHTML?: DangerousHtml;
   children?: Children;
 }
