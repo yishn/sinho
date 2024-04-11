@@ -2,6 +2,5 @@
 api/
 build/
 dist/
-docs/
 node_modules/
 samples/package-lock.json
