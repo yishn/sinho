@@ -452,10 +452,6 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
       this[componentSym]._props = props;
 
       if (metadata.children) {
-        while (this.firstChild) {
-          this.removeChild(this.lastChild!);
-        }
-
         this.append(
           ...runWithRenderer(
             {
@@ -516,92 +512,90 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
         this[componentSym]._parentScope ?? useScope()
       )._run(
         () =>
-          useSubscope(() => {
-            this[componentSym]._scope = useScope();
+          useSubscope(() =>
+            runWithRenderer({ _component: this as any }, () => {
+              this[componentSym]._scope = useScope();
 
-            // Set default properties from attributes
-            // This is needed in case of context changes
+              // Set default properties from attributes
+              // This is needed in case of context changes
 
-            for (const attrName of attributePropMap.keys()) {
-              if (this.getAttribute(attrName) == null) {
-                this.attributeChangedCallback(attrName, null, null);
-              }
-            }
-
-            for (const name in this.props) {
-              const meta = metadata[name] as PropMeta<unknown>;
-
-              // Propagate context changes
-
-              if (isContext(meta._defaultOrContext)) {
-                const contextInfo = provideContext(meta._defaultOrContext);
-
-                useEffect(() => {
-                  contextInfo._override.set(this.props[name]());
-                });
-              }
-
-              // Make JSX props reactive
-
-              if (name in props) {
-                const maybeSignal = props[name];
-
-                useEffect(() => {
-                  this[name as keyof this] = MaybeSignal.get<any>(maybeSignal);
-                });
-              }
-
-              delete props[name];
-            }
-
-            // Render
-
-            const prevMountEffects = mountEffects;
-            mountEffects = [];
-
-            try {
-              const renderParent = getRenderParent(this);
-
-              renderParent?.append(
-                ...runWithRenderer(
-                  {
-                    _component: this as any,
-                    _nodes: renderParent.childNodes.values(),
-                  },
-                  () => this.render().build(),
-                ),
-              );
-
-              // Don't attach event handlers if already attached
-
-              if (this[componentSym]._eventsAttached) {
-                for (const name in this.events) {
-                  delete props[name];
+              for (const attrName of attributePropMap.keys()) {
+                if (this.getAttribute(attrName) == null) {
+                  this.attributeChangedCallback(attrName, null, null);
                 }
               }
 
-              const ref = props.ref;
-              delete props.ref;
+              for (const name in this.props) {
+                const meta = metadata[name] as PropMeta<unknown>;
 
-              // Set other props
+                // Propagate context changes
 
-              hydrateElement(this, props);
+                if (isContext(meta._defaultOrContext)) {
+                  provideContext(meta._defaultOrContext, this.props[name]);
+                }
 
-              // Set ref
+                // Make JSX props reactive
 
-              ref?.set(this);
+                if (name in props) {
+                  const maybeSignal = props[name];
 
-              // Run mount effects
+                  useEffect(() => {
+                    this[name as keyof this] =
+                      MaybeSignal.get<any>(maybeSignal);
+                  });
+                }
 
-              for (const [fn, opts] of mountEffects) {
-                useEffect(fn, opts);
+                delete props[name];
               }
-            } finally {
-              mountEffects = prevMountEffects;
 
-              this[componentSym]._eventsAttached = true;
-            }
-          })[1],
+              // Render
+
+              const prevMountEffects = mountEffects;
+              mountEffects = [];
+
+              try {
+                const renderParent = getRenderParent(this);
+
+                renderParent?.append(
+                  ...runWithRenderer(
+                    {
+                      _nodes: renderParent.childNodes.values(),
+                    },
+                    () => this.render().build(),
+                  ),
+                );
+
+                // Don't attach event handlers if already attached
+
+                if (this[componentSym]._eventsAttached) {
+                  for (const name in this.events) {
+                    delete props[name];
+                  }
+                }
+
+                const ref = props.ref;
+                delete props.ref;
+
+                // Set other props
+
+                hydrateElement(this, props);
+
+                // Set ref
+
+                ref?.set(this);
+
+                // Run mount effects
+
+                for (const [fn, opts] of mountEffects) {
+                  useEffect(fn, opts);
+                }
+              } finally {
+                mountEffects = prevMountEffects;
+
+                this[componentSym]._eventsAttached = true;
+              }
+            }),
+          )[1],
       );
     }
 
