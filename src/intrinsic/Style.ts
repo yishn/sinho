@@ -19,11 +19,11 @@ export const css = (
   strings: TemplateStringsArray,
   ...values: MaybeSignal<string | number>[]
 ): MaybeSignal<string> => {
-  return !values.length
-    ? strings[0]
-    : () =>
-        strings.reduce(
-          (acc, string, i) => acc + string + (MaybeSignal.get(values[i]) ?? ""),
-          "",
-        );
+  const result = () =>
+    strings.reduce(
+      (acc, string, i) => acc + string + (MaybeSignal.get(values[i]) ?? ""),
+      "",
+    );
+
+  return values.some((value) => typeof value == "function") ? result : result();
 };

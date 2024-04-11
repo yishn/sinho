@@ -21,7 +21,7 @@ interface KeyMeta {
 export const For = <T>(props: {
   each?: MaybeSignal<readonly T[]>;
   key?: (item: T, index: number) => string | number;
-  render?: (
+  children?: (
     item: Signal<T>,
     index: Signal<number>,
     arr: SignalLike<readonly T[]>,
@@ -86,7 +86,7 @@ export const For = <T>(props: {
               }
             });
 
-            _subnodes = props.render?.(item, index, items).build() ?? [];
+            _subnodes = props.children?.(item, index, items).build() ?? [];
 
             const itemAnchor = lookForAnchor(mutation._index);
             const anchorIndex = nodes.indexOf(itemAnchor);

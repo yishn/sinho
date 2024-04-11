@@ -1,6 +1,7 @@
 import {
   Component,
   defineComponents,
+  Else,
   event,
   For,
   If,
@@ -83,15 +84,14 @@ class TaskItem extends Component("task-item", {
           <button onclick={(evt) => this.events.onTaskItemDelete(evt)}>
             Delete
           </button>{" "}
-          <If
-            condition={this.props.completed}
-            then={
-              <del>
-                <slot />
-              </del>
-            }
-            else={<slot />}
-          />
+          <If condition={this.props.completed}>
+            <del>
+              <slot />
+            </del>
+          </If>
+          <Else>
+            <slot />
+          </Else>
         </label>
       </>
     );
@@ -141,10 +141,8 @@ class App extends Component("app-component", {}, { shadow: false }) {
             ]);
           }}
         >
-          <For
-            each={tasks}
-            key={(task) => task.id}
-            render={(task, i) => (
+          <For each={tasks} key={(task) => task.id}>
+            {(task, i) => (
               <li>
                 <TaskItem
                   completed={() => task().completed}
@@ -168,7 +166,7 @@ class App extends Component("app-component", {}, { shadow: false }) {
                 </TaskItem>
               </li>
             )}
-          />
+          </For>
         </TaskList>
       </>
     );

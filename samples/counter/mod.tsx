@@ -64,18 +64,15 @@ class App extends Component("app-component", {}, { shadow: false }) {
           </label>
         </p>
 
-        <If
-          condition={showCounter}
-          then={
-            <Counter
-              ref={ref}
-              id="counter"
-              count={count}
-              onIncrementClick={() => setCount((n) => n + 1)}
-              onDecrementClick={() => setCount((n) => n - 1)}
-            />
-          }
-        />
+        <If condition={showCounter}>
+          <Counter
+            ref={ref}
+            id="counter"
+            count={count}
+            onIncrementClick={() => setCount((n) => n + 1)}
+            onDecrementClick={() => setCount((n) => n - 1)}
+          />
+        </If>
       </>
     );
   }

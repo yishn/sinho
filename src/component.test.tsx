@@ -60,10 +60,9 @@ test("Component with attributes", () => {
       return (
         <>
           <h1>Hello, {this.props.name}!</h1>
-          <If
-            condition={() => this.props.age() != null}
-            then={<h2>You are {this.props.age} years old</h2>}
-          />
+          <If condition={() => this.props.age() != null}>
+            <h2>You are {this.props.age} years old</h2>
+          </If>
         </>
       );
     }

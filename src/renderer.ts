@@ -1,19 +1,23 @@
 import { Component } from "./component.js";
-import { useEffect, useScope, useSubscope } from "./scope.js";
+import { Signal, useEffect, useScope, useSubscope } from "./scope.js";
 
 interface Renderer {
   _component?: Component;
   _svg?: boolean;
   _nodes?: IterableIterator<Node>;
+  _ifConditions: Signal<boolean | undefined>[];
 
   _node<N extends Node>(fallback: () => N): N;
 }
 
-const createRenderer = (override: Partial<Renderer> = {}): Renderer => ({
-  ...override,
+type RendererOverrides = Partial<Omit<Renderer, "_node">>;
+
+const createRenderer = (override: RendererOverrides = {}): Renderer => ({
+  _ifConditions: [],
   _node<N extends Node>(fallback: () => N): N {
     return (this._nodes?.next().value as N | undefined) ?? fallback();
   },
+  ...override,
 });
 
 export const useRenderer = () => {
@@ -22,17 +26,16 @@ export const useRenderer = () => {
 };
 
 export const runWithRenderer = <T>(
-  override: Partial<Renderer>,
-  fn: (renderer: Renderer) => T,
+  override: RendererOverrides,
+  fn: () => T,
 ): T => {
   const currRenderer = useRenderer();
   const _renderer = createRenderer({
     ...currRenderer,
-    _nodes: undefined,
     ...override,
   });
 
-  const [result, destroy] = useSubscope(() => fn(_renderer), {
+  const [result, destroy] = useSubscope(fn, {
     details: { _renderer },
   });
 

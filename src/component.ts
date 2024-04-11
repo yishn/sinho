@@ -555,9 +555,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
 
                 renderParent?.append(
                   ...runWithRenderer(
-                    {
-                      _nodes: renderParent.childNodes.values(),
-                    },
+                    { _nodes: renderParent.childNodes.values() },
                     () => this.render().build(),
                   ),
                 );

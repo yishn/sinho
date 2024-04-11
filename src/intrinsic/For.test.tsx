@@ -20,11 +20,9 @@ test("For", async () => {
   document.body.append(
     ...(
       <ul ref={ulRef}>
-        <For
-          each={list}
-          key={(item) => item}
-          render={(item) => <li>{item}</li>}
-        />
+        <For each={list} key={(item) => item}>
+          {(item) => <li>{item}</li>}
+        </For>
       </ul>
     ).build(),
   );

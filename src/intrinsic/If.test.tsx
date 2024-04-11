@@ -1,7 +1,7 @@
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { afterEach, beforeEach, test } from "node:test";
 import assert from "node:assert";
-import { If,  useSignal } from "../mod.js";
+import { If, useSignal, Else } from "../mod.js";
 import { useScope } from "../scope.js";
 
 beforeEach(() => {
@@ -19,11 +19,12 @@ test("If", async () => {
 
   const el = (
     <div>
-      <If
-        condition={show}
-        then={<h1>Success!</h1>}
-        else={<h1>{failMessage}</h1>}
-      />
+      <If condition={show}>
+        <h1>Success!</h1>
+      </If>
+      <Else>
+        <h1>{failMessage}</h1>
+      </Else>
     </div>
   ).build()[0];
 
