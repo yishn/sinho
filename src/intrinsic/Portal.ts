@@ -6,11 +6,10 @@ import { Children, Fragment } from "./Fragment.js";
 
 export const Portal: FunctionalComponent<{
   mount: Node;
-  svg?: boolean;
   children?: Children;
-}> = ({ mount, svg, children }) =>
+}> = ({ mount, children }) =>
   createTemplate(() =>
-    runWithRenderer({ _isSvg: svg }, () => {
+    runWithRenderer({ _svg: false }, () => {
       const nodes = Fragment({ children }).build();
 
       useEffect(() => {

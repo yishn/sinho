@@ -454,6 +454,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
         this.append(
           ...runWithRenderer(
             {
+              _svg: false,
               _component: this as any,
               _nodes: this.childNodes.values(),
             },
@@ -512,7 +513,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
       )._run(
         () =>
           useSubscope(() =>
-            runWithRenderer({ _component: this as any }, () => {
+            runWithRenderer({ _svg: false, _component: this as any }, () => {
               this[componentSym]._scope = useScope();
 
               // Set default properties from attributes

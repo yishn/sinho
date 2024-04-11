@@ -84,7 +84,7 @@ export const TagComponent = (
       node.append(
         ...runWithRenderer(
           {
-            _isSvg: svg,
+            _svg: svg,
             _nodes: node.childNodes.values(),
           },
           () => Fragment({ children: props.children }).build(),
