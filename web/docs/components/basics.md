@@ -103,6 +103,7 @@ disable this by setting the `shadow` option on your component to `false`:
 export class SimpleGreeting extends Component(
   "simple-greeting",
   { name: prop<string>("John") },
+  // highlight-next-line
   { shadow: false },
 ) {
   // …

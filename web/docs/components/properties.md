@@ -12,6 +12,7 @@ optionally pass a default value:
 
 ```tsx
 Component("simple-greeting", {
+  // highlight-next-line
   name: prop<string>("John"),
 });
 ```
@@ -103,9 +104,11 @@ prop:
 ```tsx
 Component("simple-greeting", {
   name: prop<string>("John", {
+    // highlight-start
     attribute: {
       // …
     },
+    // highlight-end
   }),
 });
 ```
@@ -125,6 +128,7 @@ stop propagation by setting the `static` option to `true`:
 Component("simple-greeting", {
   name: prop<string>("John", {
     attribute: {
+      // highlight-next-line
       static: true,
     },
   }),
@@ -139,6 +143,7 @@ possible to specify a custom attribute name:
 Component("simple-greeting", {
   name: prop<string>("John", {
     attribute: {
+      // highlight-next-line
       name: "attr-name",
     },
   }),
@@ -164,6 +169,7 @@ string.
 Component("simple-greeting", {
   name: prop<string>("John", {
     attribute: {
+      // highlight-next-line
       transform: (value) => value.toUpperCase(),
     },
   }),
@@ -180,6 +186,7 @@ You can also use the shorthand notation:
 ```tsx
 Component("simple-greeting", {
   name: prop<string>("John", {
+    // highlight-next-line
     attribute: (value) => value.toUpperCase(),
   }),
 });
@@ -193,6 +200,7 @@ a shorthand notation:
 ```tsx
 Component("simple-greeting", {
   name: prop<string>("John", {
+    // highlight-next-line
     attribute: String,
   }),
 });
@@ -210,6 +218,7 @@ For number attributes, you can set the `attribute` option to `Number`:
 ```tsx
 Component("simple-greeting", {
   age: prop<number>(18, {
+    // highlight-next-line
     attribute: Number,
   }),
 });
@@ -228,6 +237,7 @@ For boolean attributes, it is recommended to set the default property value to
 ```tsx
 Component("simple-greeting", {
   active: prop<boolean>(false, {
+    // highlight-next-line
     attribute: () => true,
   }),
 });
