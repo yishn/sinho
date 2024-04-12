@@ -36,7 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install Dependencies
-        run: npm install
+        run: npm install && cd ../ && npm install
       - name: Build
         run: npm run build
       - name: Setup Pages
