@@ -8,8 +8,6 @@ import {
 } from "./scope.js";
 import type { DomProps } from "./dom.js";
 import { runWithRenderer } from "./renderer.js";
-import { hydrateElement } from "./intrinsic/TagComponent.js";
-import { Fragment } from "./intrinsic/Fragment.js";
 import {
   camelCaseToKebabCase,
   JsxPropNameToEventName,
@@ -104,7 +102,7 @@ export type JsxProps<M> = Partial<
       evt: HTMLElementEventMap[K],
     ) => void;
   }
-> &
+> & // Handle children
   Omit<DomProps<any>, "children"> &
   (M extends { children: true }
     ? Pick<DomProps<any>, "children" | "dangerouslySetInnerHTML">
@@ -261,7 +259,7 @@ export type Metadata = {
 };
 
 export const componentSym = Symbol("Component");
-export const jsxPropsSym = Symbol("jsxProps");
+export declare const jsxPropsSym: unique symbol;
 
 declare abstract class ComponentInner<M extends Metadata> {
   protected props: Props<M>;
@@ -442,12 +440,6 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
 
     [componentSym]: ComponentInner<any>[typeof componentSym] = {};
 
-    [jsxPropsSym]: JsxProps<
-      Record<string, any> & {
-        children: true;
-      }
-    > = {};
-
     constructor() {
       super();
 
@@ -484,8 +476,6 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
     }
 
     connectedCallback(): void {
-      const props = { ...this[jsxPropsSym] };
-
       this[componentSym]._destroy = (
         this[componentSym]._parentScope ?? useScope()
       )._run(
@@ -493,30 +483,6 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
           useSubscope(() =>
             runWithRenderer({ _svg: false, _component: this as any }, () => {
               this[componentSym]._scope = useScope();
-
-              // Set default properties from attributes
-              // This is needed in case of context changes
-
-              for (const attrName of attributePropMap.keys()) {
-                if (this.getAttribute(attrName) == null) {
-                  this.attributeChangedCallback(attrName, null, null);
-                }
-              }
-
-              for (const name in this.props) {
-                // Make JSX props reactive
-
-                if (name in props) {
-                  const maybeSignal = props[name];
-
-                  useEffect(() => {
-                    this[name as keyof this] =
-                      MaybeSignal.get<any>(maybeSignal);
-                  });
-                }
-
-                delete props[name];
-              }
 
               // Render
 
@@ -532,10 +498,6 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
                     () => this.render().build(),
                   ),
                 );
-
-                // Set other props
-
-                hydrateElement(this, false, props);
 
                 // Run mount effects
 

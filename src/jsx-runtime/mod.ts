@@ -20,7 +20,7 @@ export const jsx = (
 export namespace JSX {
   export type Element = Template;
 
-  export type ElementClass = Omit<Component, typeof jsxPropsSym>;
+  export type ElementClass = HTMLElement;
 
   export interface ElementAttributesProperty {
     [jsxPropsSym]: {};
