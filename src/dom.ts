@@ -64,7 +64,7 @@ export const setAttr = (node: any, name: string, value: unknown): void => {
     } else {
       node.removeAttribute(name);
     }
-  } else if (name != "innerHTML") {
+  } else if (!["innerHTML", "outerHTML"].includes(name)) {
     if (
       ![
         "width",
@@ -327,7 +327,7 @@ type EventProps<E> = {
   [K in keyof EventMap as `on${K}`]?: EventHandler<K, E>;
 };
 
-export type DangerousHtml = SignalLike<{
+export type DangerousHtml = MaybeSignal<{
   __html: string;
 }>;
 

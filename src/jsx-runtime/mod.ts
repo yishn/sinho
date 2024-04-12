@@ -1,7 +1,6 @@
 import { createElement } from "../create_element.js";
 import type { Template } from "../template.js";
-import type { DomIntrinsicElements } from "../dom.js";
-import type { RefSignalSetter } from "../scope.js";
+import type { DomIntrinsicElements, DomProps } from "../dom.js";
 import type { jsxPropsSym, Component } from "../component.js";
 
 /** @ignore */
@@ -33,9 +32,7 @@ export namespace JSX {
 
   export type IntrinsicElements = DomIntrinsicElements;
 
-  export interface IntrinsicClassAttributes<T> {
-    ref?: RefSignalSetter<T | undefined>;
-  }
+  export interface IntrinsicClassAttributes<T> extends DomProps<T> {}
 }
 
 export { Fragment } from "../intrinsic/Fragment.js";

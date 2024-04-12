@@ -260,16 +260,17 @@ export type Metadata = {
   [name: string]: PropMeta<any> | EventMeta<any> | boolean;
 };
 
+export const componentSym = Symbol("Component");
+export const jsxPropsSym = Symbol("jsxProps");
+
 declare abstract class ComponentInner<M extends Metadata> {
   protected props: Props<M>;
   protected events: EventEmitters<M>;
 
-  [jsxPropsSym]?: JsxProps<M>;
+  [jsxPropsSym]: JsxProps<M>;
   [componentSym]: {
     _parentScope?: ReturnType<typeof useScope>;
     _scope?: ReturnType<typeof useScope>;
-    _props?: JsxProps<Record<string, any> & { children: true }>;
-    _eventsAttached?: boolean;
     _destroy?: (() => void) | void;
   };
 
@@ -294,9 +295,6 @@ declare abstract class ComponentInner<M extends Metadata> {
 
   abstract render(): Template;
 }
-
-export const componentSym = Symbol();
-export const jsxPropsSym = Symbol();
 
 export type Component<M extends Metadata = {}> = {
   -readonly [K in keyof Props<M>]: Props<M>[K] extends Signal<infer T>
@@ -444,37 +442,11 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
 
     [componentSym]: ComponentInner<any>[typeof componentSym] = {};
 
-    get [jsxPropsSym]() {
-      return this[componentSym]._props;
-    }
-
-    set [jsxPropsSym](props) {
-      this[componentSym]._props = props;
-
-      if (metadata.children) {
-        this.append(
-          ...runWithRenderer(
-            {
-              _svg: false,
-              _component: this as any,
-              _nodes: this.childNodes.values(),
-            },
-            () => Fragment({ children: props?.children }).build(),
-          ),
-        );
+    [jsxPropsSym]: JsxProps<
+      Record<string, any> & {
+        children: true;
       }
-
-      // If component is already mounted
-
-      if (this[componentSym]._scope) {
-        this[componentSym]._destroy?.();
-        delete this[componentSym]._destroy;
-        delete this[componentSym]._scope;
-
-        this[componentSym]._eventsAttached = false;
-        this.connectedCallback();
-      }
-    }
+    > = {};
 
     constructor() {
       super();
@@ -561,24 +533,9 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
                   ),
                 );
 
-                // Don't attach event handlers if already attached
-
-                if (this[componentSym]._eventsAttached) {
-                  for (const name in this.events) {
-                    delete props[name];
-                  }
-                }
-
-                const ref = props.ref;
-                delete props.ref;
-
                 // Set other props
 
-                hydrateElement(this, props);
-
-                // Set ref
-
-                ref?.set(this);
+                hydrateElement(this, false, props);
 
                 // Run mount effects
 
@@ -587,8 +544,6 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
                 }
               } finally {
                 mountEffects = prevMountEffects;
-
-                this[componentSym]._eventsAttached = true;
               }
             }),
           )[1],
@@ -596,17 +551,9 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
     }
 
     disconnectedCallback(): void {
-      this[jsxPropsSym]?.ref?.set(undefined);
-
       this[componentSym]._destroy?.();
       delete this[componentSym]._destroy;
       delete this[componentSym]._scope;
-
-      const host = getRenderParent(this);
-
-      while (host?.firstChild) {
-        host.removeChild(host.lastChild!);
-      }
     }
 
     attributeChangedCallback(

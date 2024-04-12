@@ -7,6 +7,7 @@ import { createTemplate, Template } from "../template.js";
 
 export const hydrateElement = <E extends HTMLElement | SVGElement>(
   node: E,
+  svg: boolean,
   props: DomProps<any>,
 ): E => {
   const { ref, style, children, dangerouslySetInnerHTML, ...attrs } = props;
@@ -26,15 +27,17 @@ export const hydrateElement = <E extends HTMLElement | SVGElement>(
     if (name.startsWith("on")) {
       // Register event
 
-      const listener = value as (evt: Event) => void;
       const s = useScope();
+      const listener = (evt: Event) => {
+        s._run(() => useBatch(() => (value as (evt: Event) => void)(evt)));
+      };
 
-      node.addEventListener(
-        jsxPropNameToEventName(name as `on${string}`),
-        (evt) => {
-          s._run(() => useBatch(() => listener(evt)));
-        },
-      );
+      const eventName = jsxPropNameToEventName(name as `on${string}`);
+
+      useEffect(() => {
+        node.addEventListener(eventName, listener);
+        return () => node.removeEventListener(eventName, listener);
+      });
     } else {
       // Set attribute
 
@@ -46,7 +49,7 @@ export const hydrateElement = <E extends HTMLElement | SVGElement>(
 
   if (dangerouslySetInnerHTML) {
     useEffect(() => {
-      const html = dangerouslySetInnerHTML().__html;
+      const html = MaybeSignal.get(dangerouslySetInnerHTML).__html;
 
       if (node.innerHTML != html) {
         node.innerHTML = html;
@@ -61,6 +64,18 @@ export const hydrateElement = <E extends HTMLElement | SVGElement>(
     });
   }
 
+  if (props.children != null) {
+    node.append(
+      ...runWithRenderer(
+        {
+          _svg: svg,
+          _nodes: node.childNodes.values(),
+        },
+        () => Fragment({ children: props.children }).build(),
+      ),
+    );
+  }
+
   return node;
 };
 
@@ -69,28 +84,17 @@ export const TagComponent = (
   props: DomProps<any> = {},
 ): Template =>
   createTemplate(() => {
-    const svg = tagName == "svg";
     const renderer = useRenderer();
+    const svg = tagName == "svg" ? true : !!renderer._svg;
     const node = hydrateElement(
       renderer._node(() =>
         !svg
           ? document.createElement(tagName)
           : document.createElementNS("http://www.w3.org/2000/svg", tagName),
       ),
+      svg,
       props,
     );
-
-    if (props.children != null) {
-      node.append(
-        ...runWithRenderer(
-          {
-            _svg: svg,
-            _nodes: node.childNodes.values(),
-          },
-          () => Fragment({ children: props.children }).build(),
-        ),
-      );
-    }
 
     return [node];
   });
