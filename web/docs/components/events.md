@@ -19,6 +19,7 @@ Event names must start with `on` and follow camelCase convention.
 class TaskListItem extends Component("task-list-item", {
   text: prop<string>(""),
   completed: prop<boolean>(false),
+  // highlight-next-line
   onCompletedChange: event<{ completed: boolean }>(),
 }) {
   // …
@@ -43,7 +44,9 @@ class CompletedChangeEvent extends Event {
 }
 
 class TaskListItem extends Component("task-list-item", {
-  // …
+  text: prop<string>(""),
+  completed: prop<boolean>(false),
+  // highlight-next-line
   onCompletedChange: event(CompletedChangeEvent),
 }) {
   // …
@@ -56,7 +59,8 @@ To emit an event you can call the corresponding method in `this.events`:
 
 ```tsx
 class TaskListItem extends Component("task-list-item", {
-  // …
+  text: prop<string>(""),
+  completed: prop<boolean>(false),
   onCompletedChange: event<{ completed: boolean }>(),
 }) {
   render() {
@@ -66,11 +70,13 @@ class TaskListItem extends Component("task-list-item", {
           type="checkbox"
           checked={this.props.completed}
           onchange={(evt) => {
+            // highlight-start
             this.events.onCompletedChange({
               details: {
                 completed: !evt.currentTarget.checked,
               },
             });
+            // highlight-end
           }}
         />
         {/* … */}
@@ -95,7 +101,8 @@ class CompletedChangeEvent extends Event {
 }
 
 class TaskListItem extends Component("task-list-item", {
-  // …
+  text: prop<string>(""),
+  completed: prop<boolean>(false),
   onCompletedChange: event(CompletedChangeEvent),
 }) {
   render() {
@@ -105,6 +112,7 @@ class TaskListItem extends Component("task-list-item", {
           type="checkbox"
           checked={this.props.completed}
           onchange={(evt) => {
+            // highlight-next-line
             this.events.onCompletedChange(!evt.currentTarget.checked);
           }}
         />

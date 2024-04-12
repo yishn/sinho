@@ -36,6 +36,7 @@ const [gender, setGender] = useSignal("female");
 
 useEffect(() => {
   console.log(name(), gender());
+  // highlight-next-line
 }, [name]);
 ```
 
@@ -66,9 +67,11 @@ re-executed or destroyed:
 useEffect(() => {
   console.log("Hello ", name());
 
+  // highlight-start
   return () => {
     console.log("Goodbye ", name());
   };
+  // highlight-end
 });
 ```
 

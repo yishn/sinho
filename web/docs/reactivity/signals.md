@@ -34,6 +34,7 @@ class App extends Component("x-app") {
     const [name, setName] = useSignal("John");
 
     // This will be reactive:
+    // highlight-next-line
     return <SimpleGreeting name={name} />;
   }
 }
@@ -53,6 +54,7 @@ class App extends Component("x-app") {
     const [name, setName] = useSignal("John");
 
     // This will not be reactive:
+    // highlight-next-line
     return <SimpleGreeting name={name()} />;
   }
 }
@@ -99,6 +101,7 @@ function:
 class App extends Component("x-app") {
   render() {
     const [gender, setGender] = useSignal("nonbinary");
+    // highlight-next-line
     const name = () => (gender() == "female" ? "Jane" : "Charlie");
     // `name` is a computed signal and is of type `SignalLike<string>`
 
@@ -120,6 +123,7 @@ import { Component, useSignal, useMemo } from "shingo";
 class App extends Component("x-app") {
   render() {
     const [gender, setGender] = useSignal("nonbinary");
+    // highlight-next-line
     const name = useMemo(() => (gender() == "female" ? "Jane" : "Charlie"));
 
     // `name` will only be computed once:

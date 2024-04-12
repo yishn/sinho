@@ -108,10 +108,10 @@ Component("simple-greeting", {
     },
   }),
 });
+```
 
-// In HTML:
-
-<simple-greeting name="Jane"></simple-greeting>;
+```html title="HTML"
+<simple-greeting name="Jane"></simple-greeting>
 ```
 
 By default all attribute changes will be propagated to the properties. If the
@@ -143,10 +143,10 @@ Component("simple-greeting", {
     },
   }),
 });
+```
 
-// In HTML:
-
-<simple-greeting attr-name="Jane"></simple-greeting>;
+```html title="HTML"
+<simple-greeting attr-name="Jane"></simple-greeting>
 ```
 
 :::danger
@@ -168,11 +168,11 @@ Component("simple-greeting", {
     },
   }),
 });
+```
 
-// In HTML:
-
-<simple-greeting name="Jane"></simple-greeting>;
-// Property `name` will be "JANE"
+```html title="HTML"
+<simple-greeting name="Jane"></simple-greeting>
+<!-- Property `name` will be "JANE" -->
 ```
 
 You can also use the shorthand notation:
@@ -196,11 +196,11 @@ Component("simple-greeting", {
     attribute: String,
   }),
 });
+```
 
-// In HTML:
-
-<simple-greeting name="Jane"></simple-greeting>;
-// Property `name` will be "Jane"
+```html title="HTML"
+<simple-greeting name="Jane"></simple-greeting>
+<!-- Property `name` will be "Jane" -->
 ```
 
 ### Number Attributes
@@ -213,11 +213,11 @@ Component("simple-greeting", {
     attribute: Number,
   }),
 });
+```
 
-// In HTML:
-
+```html title="HTML"
 <simple-greeting age="21"></simple-greeting>;
-// Property `age` will be 21
+<!-- Property `age` will be 21 -->
 ```
 
 ### Boolean Attributes
@@ -231,17 +231,17 @@ Component("simple-greeting", {
     attribute: () => true,
   }),
 });
+```
 
-// In HTML:
-
-<simple-greeting></simple-greeting>;
-// Property `active` will be false
-<simple-greeting active></simple-greeting>;
-// Property `active` will be true
-<simple-greeting active=""></simple-greeting>;
-// Property `active` will be true
-<simple-greeting active="false"></simple-greeting>;
-// Property `active` will be true
+```html title="HTML"
+<simple-greeting></simple-greeting>
+<!-- Property `active` will be false -->
+<simple-greeting active></simple-greeting>
+<!-- Property `active` will be true -->
+<simple-greeting active=""></simple-greeting>
+<!-- Property `active` will be true -->
+<simple-greeting active="false"></simple-greeting>
+<!-- Property `active` will be true -->
 ```
 
 :::note
@@ -254,23 +254,14 @@ attributes of standard HTML elements.
 ## Children
 
 When using shadow DOM, you can allow light DOM children from the outside in your
-component by setting the `children` option to `true`:
+component. This allows techniques like slotting:
 
 ```tsx
-Component("simple-greeting", {
-  children: true,
-});
-```
-
-This allows techniques like slotting:
-
-```tsx
-class SimpleGreetings extends Component("simple-greetings", {
-  children: true,
-}) {
+class SimpleGreetings extends Component("simple-greetings") {
   render() {
     return (
       <>
+        {/* highlight-next-line */}
         Hello, <slot>John</slot>
       </>
     );
@@ -278,8 +269,17 @@ class SimpleGreetings extends Component("simple-greetings", {
 }
 ```
 
-The following will print "Hello, Jane":
+The following will print "Hello, Jane" where Jane is displayed in bold:
 
-```html
-<simple-greeting>Jane</simple-greeting>
+<!-- prettier-ignore -->
+```html title="HTML"
+<simple-greeting>
+  <b>Jane</b>
+</simple-greeting>
+```
+
+```tsx title="JSX"
+<SimpleGreeting>
+  <b>Jane</b>
+</SimpleGreeting>
 ```

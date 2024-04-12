@@ -57,13 +57,13 @@ defineComponents("my-", SimpleGreeting, AnotherComponent);
 
 You can specify the component in HTML via its tag name:
 
-```html
+```html title="HTML"
 <simple-greeting></simple-greeting>
 ```
 
 If a prefix (e.g. `my-`) was provided, you need to use it:
 
-```html
+```html title="HTML"
 <my-simple-greeting></my-simple-greeting>
 ```
 
@@ -80,6 +80,8 @@ You can construct the component in JavaScript like a normal class:
 ```ts
 const greeting = new SimpleGreeting();
 greeting.name = "Jane";
+
+document.body.append(greeting);
 ```
 
 ### In JSX
@@ -89,18 +91,6 @@ You can use the component directly in Shingō JSX templates:
 ```tsx
 <SimpleGreeting name="Jane" />
 ```
-
-:::warning
-
-You can only use class components in JSX templates if the component has been
-created with the same Shingō version. Otherwise, you need to use the HTML syntax
-inside the JSX:
-
-```tsx
-<simple-greeting></simple-greeting>
-```
-
-:::
 
 ## Shadow DOM
 
@@ -113,7 +103,7 @@ disable this by setting the `shadow` option on your component to `false`:
 export class SimpleGreeting extends Component(
   "simple-greeting",
   { name: prop<string>("John") },
-  { shadow: false }
+  { shadow: false },
 ) {
   // …
 }

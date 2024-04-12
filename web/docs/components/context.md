@@ -29,8 +29,8 @@ property on a component with the context object:
 
 ```ts
 class ThemedPanel extends Component("themed-panel", {
+  // highlight-next-line
   theme: prop(ThemeContext),
-  children: true,
 }) {
   render() {
     // …
@@ -69,13 +69,14 @@ console.log(el.theme);
 
 To consume the context in a component, you can use the `useContext` function:
 
-```ts
+```tsx
 import { Component, useContext } from "shingo";
 
 class ThemedButton extends Component("themed-button", {
   // …
 }) {
   render() {
+    // highlight-next-line
     const theme = useContext(ThemeContext);
     // `theme` is of type `Signal<string>`
 
