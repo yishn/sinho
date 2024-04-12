@@ -25,7 +25,6 @@ const themeProps = {
 class ThemedButton extends Component("themed-button", {
   ...themeProps,
   onButtonClick: event(MouseEvent),
-  children: true,
 }) {
   render() {
     const theme = useContext(ThemeContext);
@@ -82,7 +81,6 @@ class ThemedCheckbox extends Component("themed-checkbox", {
     attribute: (value) => value != null,
   }),
   onCheckedChange: event(),
-  children: true,
 }) {
   render() {
     return (

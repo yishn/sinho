@@ -16,7 +16,6 @@ interface Task {
 }
 
 class TaskList extends Component("task-list", {
-  children: true,
   onTaskItemAdd: event<{
     text: string;
   }>(),
@@ -64,7 +63,6 @@ class TaskItem extends Component("task-item", {
   completed: prop<boolean>(false, {
     attribute: () => true,
   }),
-  children: true,
   onTaskItemCompletedChange: event<boolean>(),
   onTaskItemDelete: event(MouseEvent),
 }) {

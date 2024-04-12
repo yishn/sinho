@@ -102,11 +102,8 @@ export type JsxProps<M> = Partial<
       evt: HTMLElementEventMap[K],
     ) => void;
   }
-> & // Handle children
-  Omit<DomProps<any>, "children"> &
-  (M extends { children: true }
-    ? Pick<DomProps<any>, "children" | "dangerouslySetInnerHTML">
-    : {}) & {
+> &
+  DomProps<any> & {
     // Allow other HTMLElement attributes
     [name: string]: any;
   };
@@ -248,14 +245,12 @@ export type Metadata = {
   [K in keyof ComponentInner<any> | "props" | "events"]?: never;
 } & {
   // Forbid all dom props
-  [K in Exclude<keyof DomProps<any>, "children">]?: never;
+  [K in keyof DomProps<any>]?: never;
 } & {
-  // Forbid all native HTMLElement events
-  [K in keyof HTMLElementEventMap as `on${Lowercase<K>}`]?: never;
+  // Forbid all HTMLElement props
+  [K in keyof HTMLElement]?: never;
 } & {
-  children?: boolean;
-} & {
-  [name: string]: PropMeta<any> | EventMeta<any> | boolean;
+  [name: string]: PropMeta<any> | EventMeta<any>;
 };
 
 export const componentSym = Symbol("Component");
@@ -424,10 +419,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
   const getRenderParent = (component: _Component) =>
     opts.shadow
       ? component.shadowRoot ?? component.attachShadow(opts.shadow)
-      : !metadata.children
-        ? component
-        : null;
-
+      : component;
   abstract class _Component extends HTMLElement {
     static readonly [componentSym]: ComponentConstructor[typeof componentSym] =
       {
@@ -446,9 +438,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
       for (const name in metadata) {
         const meta = metadata[name];
 
-        if (typeof meta == "boolean") {
-          // Do nothing
-        } else if (meta._tag == "p") {
+        if (meta._tag == "p") {
           const context = isContext(meta._defaultOrContext)
             ? meta._defaultOrContext
             : null;
