@@ -1,4 +1,4 @@
-import { MaybeSignal, useEffect } from "../scope.js";
+import { MaybeSignal, useEffect, useMemo } from "../scope.js";
 import { FunctionalComponent } from "../component.js";
 import { useRenderer } from "../renderer.js";
 import { createTemplate } from "../template.js";
@@ -13,7 +13,11 @@ export const Text: FunctionalComponent<{
     const node = renderer._node(() => document.createTextNode(""));
 
     useEffect(() => {
-      node.textContent = "" + (MaybeSignal.get(text) ?? "");
+      const textContent = "" + (MaybeSignal.get(text) ?? "");
+
+      if (node.textContent != textContent) {
+        node.textContent = textContent;
+      }
     });
 
     return anchor ? [anchor, node] : [node];

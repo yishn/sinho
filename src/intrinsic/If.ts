@@ -36,30 +36,28 @@ export const ElseIf: FunctionalComponent<{
 
   return runWithRenderer({ _ifConditions: [] }, () =>
     createTemplate(() => {
-      const renderer = useRenderer();
       const anchor = renderer._node(() => document.createComment(""));
       const nodes: Node[] = [anchor];
       const template = useMemo(() =>
         condition() ? MaybeSignal.get(props.children) : null,
       );
 
+      let subnodes: Node[] = [];
+
       useEffect(() => {
-        const [subnodes, destroy] = useSubscope(() => {
-          const subnodes = template()?.build() ?? [];
+        for (const node of subnodes) {
+          node.parentNode?.removeChild(node);
+        }
+
+        nodes.length = 1;
+
+        const [, destroy] = useSubscope(() => {
+          subnodes = template()?.build() ?? [];
           anchor.after(...subnodes);
           nodes.push(...subnodes);
-          return subnodes;
         });
 
-        return () => {
-          destroy();
-
-          for (const node of subnodes ?? []) {
-            node.parentNode?.removeChild(node);
-          }
-
-          nodes.length = 1;
-        };
+        return destroy;
       }, [template]);
 
       return nodes;

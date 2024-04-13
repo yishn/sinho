@@ -9,6 +9,7 @@ export const hydrateElement = <E extends HTMLElement | SVGElement>(
   node: E,
   svg: boolean,
   props: DomProps<any>,
+  heuristic?: boolean,
 ): E => {
   const { ref, style, children, dangerouslySetInnerHTML, ...attrs } = props;
 
@@ -42,7 +43,7 @@ export const hydrateElement = <E extends HTMLElement | SVGElement>(
       // Set attribute
 
       useEffect(() => {
-        setAttr(node, name, MaybeSignal.get(value));
+        setAttr(node, name, MaybeSignal.get(value), heuristic);
       });
     }
   }
@@ -94,6 +95,7 @@ export const TagComponent = (
       ),
       svg,
       props,
+      true,
     );
 
     return [node];

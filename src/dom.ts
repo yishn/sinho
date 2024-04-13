@@ -52,7 +52,12 @@ export const setStyle = (
   }
 };
 
-export const setAttr = (node: any, name: string, value: unknown): void => {
+export const setAttr = (
+  node: any,
+  name: string,
+  value: unknown,
+  heuristic?: boolean,
+): void => {
   const removeAttribute =
     value == null || (value === false && !name.includes("-"));
 
@@ -67,18 +72,22 @@ export const setAttr = (node: any, name: string, value: unknown): void => {
   } else if (!["innerHTML", "outerHTML"].includes(name)) {
     if (
       ![
-        "width",
-        "height",
-        "href",
-        "list",
-        "form",
         // Default value in browsers is `-1` and an empty string is
         // cast to `0` instead
         "tabIndex",
-        "download",
-        "rowSpan",
-        "colSpan",
         "role",
+        ...(heuristic
+          ? [
+              "width",
+              "height",
+              "href",
+              "list",
+              "form",
+              "download",
+              "rowSpan",
+              "colSpan",
+            ]
+          : []),
       ].includes(name) &&
       name in node
     ) {
