@@ -48,21 +48,43 @@ export class HelloWorld extends Component("hello-world") {
 }
 ```
 
-## Data Binding
+For native HTML tags, you can use a shorthand notation:
 
-You can render dynamic data by using `{}` around a signal or expression:
+```ts
+import { Component, prop, h } from "shingo";
+
+export class HelloWorld extends Component("hello-world") {
+  render() {
+    return (
+      // highlight-start
+      h.div({ class: "hello-world" }, [
+        h.h1({}, "Hello, World!"),
+        h.p({}, "This is a paragraph"),
+      ])
+      // highlight-end
+    );
+  }
+}
+```
+
+In addition to native HTML tags, you can also use a custom element class as
+nodes, even those that are not written with Shingō:
 
 ```tsx
-const [className, setClassName] = useSignal("hello-world");
-const [name, setName] = useSignal("John");
+<HelloWorld />
+<SimpleGreeting name="John" />
 
-// highlight-start
-<div class={className}>
-  <h1>Hello, {name}</h1>
-  {/* highlight-end */}
-  <p>This is a paragraph</p>
-</div>;
+// This is equivalent to:
+
+h(HelloWorld);
+h(SimpleGreeting, { name: "John" });
 ```
+
+:::warning
+
+Custom elements need to be defined first before they can be rendered.
+
+:::
 
 ## Fragments
 
@@ -85,18 +107,55 @@ export class HelloWorld extends Component("hello-world") {
 }
 ```
 
-## Custom Element Nodes
+## Data Binding
 
-In addition to native HTML tags, you can also use the custom element class as
-nodes, even those that are not written with Shingō:
+You can render dynamic data by using curly braces `{}` around a signal or
+expression:
 
 ```tsx
-<SimpleGreeting name="John" />
+const [className, setClassName] = useSignal("hello-world");
+const [name, setName] = useSignal("John");
+
+// highlight-start
+<div class={className}>
+  <h1>Hello, {name}</h1>
+  {/* highlight-end */}
+  <p>This is a paragraph</p>
+</div>;
+```
+
+This is equivalent to:
+
+```tsx
+const [className, setClassName] = useSignal("hello-world");
+const [name, setName] = useSignal("John");
+
+// highlight-start
+h.div({ class: className }, [
+  h.h1({}, ["Hello, ", name]),
+  // highlight-end
+  h.p({}, "This is a paragraph"),
+]);
 ```
 
 :::warning
 
-Custom elements need to be defined first before they can be rendered.
+If you evaluate signals in templates, it will be considered a static value. To
+make it reactive, you need to use signals directly.
+
+```tsx
+const [className, setClassName] = useSignal("hello-world");
+const [name, setName] = useSignal("John");
+
+// The following will **not** be reactive:
+
+// highlight-start
+<div class={className()}>
+  <h1>Hello, {name()}</h1>
+  {/* highlight-end */}
+  <p>This is a paragraph</p>
+</div>;
+```
 
 :::
 
@@ -104,10 +163,18 @@ Custom elements need to be defined first before they can be rendered.
 
 ### Properties vs. Attributes
 
-For HTML tags, Shingō will use a heuristic to determine if a JSX attribute is a
-property or an HTML attribute. You can force using an attribute by using the
-`attr:` prefix for the JSX attribute name, and force using a property by using
-the `prop:` prefix.
+For [functional components](../components/functional-components), JSX attributes
+will be passed as is to the function.
+
+For custom element nodes, Shingō will automatically map JSX attributes to
+properties of the element.
+
+For other HTML tags, Shingō will use a heuristic to determine if a JSX attribute
+is a property or an HTML attribute.
+
+In the last two cases, you can force using an attribute by using the `attr:`
+prefix for the JSX attribute name, and force using a property by using the
+`prop:` prefix.
 
 ```tsx
 <input
@@ -125,23 +192,47 @@ the event name in camelCase:
 
 ```tsx
 <button
-  {/* highlight-next-line */}
+  // highlight-next-line
   onclick={() => console.log("Clicked!")}
-/>
+/>;
+
+// Equivalent to:
+
+buttonEl.addEventListener("click", () => console.log("Clicked!"));
+```
+
+```tsx
+<SimpleGreeting
+  // highlight-next-line
+  onNameChange={() => console.log("Name changed!")}
+/>;
+
+// Equivalent to:
+
+simpleGreeting.addEventListener("name-change", () => console.log("Clicked!"));
 ```
 
 Shingō will convert the event name into kebab-case. Since native events usually
 do not include `-`, they will be written in lowercase. For events with unusual
-names, you can use the `on:` prefix followed by the event name:
+names, you can use the `on:` prefix followed by the verbatim event name:
 
 ```tsx
-<div
-  {/* highlight-next-line */}
-  on:DOMContentLoaded={() => console.log("Loaded")}
+<SimpleGreeting
+  // highlight-next-line
+  on:name-change={() => console.log("Name changed!")}
 />
 ```
 
-## Web Component Nodes
+```tsx
+<div
+  // highlight-next-line
+  on:DOMContentLoaded={() => console.log("Loaded")}
+/>;
+
+// Equivalent to:
+
+divEl.addEventListener("DOMContentLoaded", () => console.log("Loaded"));
+```
 
 ## Get Reference to DOM Element
 

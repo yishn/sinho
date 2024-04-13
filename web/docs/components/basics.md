@@ -7,7 +7,7 @@ sidebar_position: 1
 ## Create Components
 
 You can use `Component` to create a base class that can be extended into a web
-component.
+component a.k.a. custom HTML element.
 
 ```tsx
 import { Component, prop } from "shingo";
@@ -23,9 +23,9 @@ export class SimpleGreeting extends Component("simple-greeting", {
 
 The class needs to provide a `render` method that returns a JSX template.
 
-`SimpleGreeting` is now a custom HTML element and needs to be defined first
-before it can be used or constructed. You can use the `defineComponents`
-function to define it with the tag name given as first argument to `Component`:
+`SimpleGreeting` is now a custom element and needs to be defined first before it
+can be used or constructed. You can use the `defineComponents` function to
+define it with the tag name given as first argument to `Component`:
 
 ```tsx
 import { defineComponents } from "shingo";
@@ -57,13 +57,13 @@ defineComponents("my-", SimpleGreeting, AnotherComponent);
 
 You can specify the component in HTML via its tag name:
 
-```html title="HTML"
+```html
 <simple-greeting></simple-greeting>
 ```
 
 If a prefix (e.g. `my-`) was provided, you need to use it:
 
-```html title="HTML"
+```html
 <my-simple-greeting></my-simple-greeting>
 ```
 
