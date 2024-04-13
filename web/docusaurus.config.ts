@@ -1,6 +1,7 @@
 import { themes as prismThemes } from "prism-react-renderer";
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
+import path from "path";
 
 const logo =
   'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="50" text-anchor="middle" font-size="100" dominant-baseline="central">🚥</text></svg>';
@@ -87,6 +88,11 @@ const config: Config = {
           label: "Documentation",
         },
         {
+          to: "api",
+          label: "API",
+          position: "left",
+        },
+        {
           href: "https://github.com/yishn/shingo",
           label: "GitHub",
           position: "right",
@@ -111,17 +117,21 @@ const config: Config = {
 
   plugins: [
     [
-      "docusaurus-plugin-typedoc",
+      "docusaurus-plugin-typedoc-api",
       {
-        entryPoints: ["../src/mod.ts"],
-        tsconfig: "../tsconfig.json",
-        name: "API",
-        readme: "none",
-        visibilityFilters: {
-          "@ignore": false,
-        },
-        sidebar: {
-          position: 999,
+        projectRoot: path.join(__dirname, ".."),
+        packages: [
+          {
+            path: "./",
+            entry: "./src/mod.ts",
+          },
+        ],
+        minimal: true,
+        typedocOptions: {
+          name: "API",
+          visibilityFilters: {
+            "@ignore": false,
+          },
         },
       },
     ],
