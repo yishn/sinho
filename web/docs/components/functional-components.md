@@ -62,3 +62,6 @@ export const FunctionalGreeting: FunctionalComponent<{
   <p>This is a paragraph</p>
 </FunctionalGreeting>
 ```
+
+Unlike HTML tag nodes and custom element nodes, functional components can have
+children that are of arbitrary type, e.g. functions.
