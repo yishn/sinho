@@ -504,8 +504,6 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
 
     disconnectedCallback(): void {
       this[componentSym]._destroy?.();
-      delete this[componentSym]._destroy;
-      delete this[componentSym]._scope;
     }
 
     attributeChangedCallback(
