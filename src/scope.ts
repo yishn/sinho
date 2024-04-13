@@ -73,7 +73,7 @@ const createScope = (parent?: Scope): Scope => {
     _parent: parent,
     _effects: [],
     _subscopes: [],
-    _details: {},
+    _details: { ...parent?._details },
 
     _run<T>(fn: () => T): T {
       const prevScope = currScope;
