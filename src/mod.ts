@@ -8,7 +8,6 @@ export {
   type EventConstructor,
   type FunctionalComponent,
   isComponent,
-  type JsxProps,
   type Metadata,
   prop,
   type PropOptions,
@@ -16,7 +15,7 @@ export {
 } from "./component.js";
 export { type Context, createContext, useContext } from "./context.js";
 export { createElement, h } from "./create_element.js";
-export { DangerousHtml, InlineStyles } from "./dom.js";
+export { DangerousHtml, Styles } from "./dom.js";
 export { type Template } from "./template.js";
 export {
   type Cleanup,

@@ -127,12 +127,6 @@ const config: Config = {
           },
         ],
         minimal: true,
-        typedocOptions: {
-          name: "API",
-          visibilityFilters: {
-            "@ignore": false,
-          },
-        },
       },
     ],
   ],

@@ -1,12 +1,11 @@
 import {
-  jsxPropsSym,
   ComponentConstructor,
   FunctionalComponent,
   isComponent,
   JsxProps,
   Metadata,
 } from "./component.js";
-import { DomIntrinsicElements } from "./dom.js";
+import { DomIntrinsicElements, DomProps } from "./dom.js";
 import { Children } from "./intrinsic/Fragment.js";
 import { TagComponent } from "./intrinsic/TagComponent.js";
 import { ClassComponent } from "./intrinsic/ClassComponent.js";
@@ -29,17 +28,13 @@ export const createElement: (<K extends keyof DomIntrinsicElements & string>(
   props?: DomIntrinsicElements[K],
   children?: Children,
 ) => Template) &
-  (<M extends Metadata>(
+  (<T extends HTMLElement, M extends Metadata>(
     ...args: [
-      type: ComponentConstructor<M>,
-      ...({} extends JsxProps<M>
-        ? [props?: JsxProps<M>]
-        : [props: JsxProps<M>]),
-      ...(JsxProps<M> extends { children?: unknown }
-        ? undefined extends JsxProps<M>["children"]
-          ? [children?: JsxProps<M>["children"]]
-          : [children: JsxProps<M>["children"]]
-        : []),
+      type: new () => T,
+      ...({} extends JsxProps<T>
+        ? [props?: JsxProps<T>]
+        : [props: JsxProps<T>]),
+      children?: DomProps<T>["children"],
     ]
   ) => Template) &
   (<P extends object>(
@@ -57,7 +52,7 @@ export const createElement: (<K extends keyof DomIntrinsicElements & string>(
     | (keyof DomIntrinsicElements & string)
     | ComponentConstructor
     | FunctionalComponent,
-  props: object = {},
+  props: Record<string, unknown> = {},
   children?: Children,
 ): Template => {
   if (children != null) {

@@ -6,7 +6,7 @@ import {
   useSubscope,
   useSignal,
 } from "./scope.js";
-import type { DomProps } from "./dom.js";
+import type { DomEventProps, DomProps } from "./dom.js";
 import { runWithRenderer } from "./renderer.js";
 import {
   camelCaseToKebabCase,
@@ -90,23 +90,26 @@ type Events<M> = OmitNever<
   >
 >;
 
-export type JsxProps<M> = Partial<
+export type JsxProps<T extends HTMLElement> = typeof jsxPropsSym extends keyof T
+  ? T[typeof jsxPropsSym]
+  : DomProps<any> &
+      DomEventProps<HTMLElement> &
+      // Allow other HTMLElement attributes
+      Record<string, any>;
+
+type ComponentJsxProps<M> = Partial<
   OmitNever<{
     [K in keyof Props<M>]: Props<M>[K] extends Signal<infer T>
       ? MaybeSignal<T>
       : never;
   }> & {
     [K in keyof Events<M>]: (evt: InstanceType<Events<M>[K]>) => void;
-  } & {
-    [K in keyof HTMLElementEventMap as `on${Lowercase<K>}`]: (
-      evt: HTMLElementEventMap[K],
-    ) => void;
   }
 > &
-  DomProps<any> & {
-    // Allow other HTMLElement attributes
-    [name: string]: any;
-  };
+  DomProps<any> &
+  DomEventProps<HTMLElement> &
+  // Allow other HTMLElement attributes
+  Record<string, any>;
 
 type EventEmitters<M> = OmitNever<
   Omit<
@@ -260,9 +263,8 @@ declare abstract class ComponentInner<M extends Metadata> {
   protected props: Props<M>;
   protected events: EventEmitters<M>;
 
-  [jsxPropsSym]: JsxProps<M>;
+  [jsxPropsSym]: ComponentJsxProps<M>;
   [componentSym]: {
-    _parentScope?: ReturnType<typeof useScope>;
     _scope?: ReturnType<typeof useScope>;
     _destroy?: (() => void) | void;
   };
@@ -466,40 +468,37 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
     }
 
     connectedCallback(): void {
-      this[componentSym]._destroy = (
-        this[componentSym]._parentScope ?? useScope()
-      )._run(
-        () =>
-          useSubscope(() =>
-            runWithRenderer({ _svg: false, _component: this as any }, () => {
-              this[componentSym]._scope = useScope();
+      const renderParent = getRenderParent(this);
 
-              // Render
+      this[componentSym]._destroy = useSubscope(() =>
+        runWithRenderer(
+          {
+            _svg: false,
+            _component: this as any,
+            _nodes: renderParent.childNodes.values(),
+          },
+          () => {
+            this[componentSym]._scope = useScope();
 
-              const prevMountEffects = mountEffects;
-              mountEffects = [];
+            // Render
 
-              try {
-                const renderParent = getRenderParent(this);
+            const prevMountEffects = mountEffects;
+            mountEffects = [];
 
-                renderParent?.append(
-                  ...runWithRenderer(
-                    { _nodes: renderParent.childNodes.values() },
-                    () => this.render().build(),
-                  ),
-                );
+            try {
+              renderParent?.append(...this.render().build());
 
-                // Run mount effects
+              // Run mount effects
 
-                for (const [fn, opts] of mountEffects) {
-                  useEffect(fn, opts);
-                }
-              } finally {
-                mountEffects = prevMountEffects;
+              for (const [fn, opts] of mountEffects) {
+                useEffect(fn, opts);
               }
-            }),
-          )[1],
-      );
+            } finally {
+              mountEffects = prevMountEffects;
+            }
+          },
+        ),
+      )[1];
     }
 
     disconnectedCallback(): void {

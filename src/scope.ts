@@ -379,6 +379,9 @@ export const useRef: (<T>(value: T, opts?: SetSignalOptions) => RefSignal<T>) &
  */
 export type MaybeSignal<T> = SignalLike<T> | (T extends Function ? never : T);
 
+/**
+ * @namespace
+ */
 export const MaybeSignal = {
   /**
    * Transforms the given {@link MaybeSignal} into a {@link Signal}.

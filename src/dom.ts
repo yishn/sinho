@@ -116,197 +116,198 @@ export const setAttr = (
 
 export interface DomIntrinsicElements {
   // HTML
-  a: HtmlProps<HTMLAnchorElement> & EventProps<HTMLAnchorElement>;
-  abbr: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  address: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  area: HtmlProps<HTMLAreaElement> & EventProps<HTMLAreaElement>;
-  article: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  aside: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  audio: HtmlProps<HTMLAudioElement> & EventProps<HTMLAudioElement>;
-  b: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  base: HtmlProps<HTMLBaseElement> & EventProps<HTMLBaseElement>;
-  bdi: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  bdo: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  big: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  blockquote: HtmlProps<HTMLQuoteElement> & EventProps<HTMLQuoteElement>;
-  body: HtmlProps<HTMLBodyElement> & EventProps<HTMLBodyElement>;
-  br: HtmlProps<HTMLBRElement> & EventProps<HTMLBRElement>;
-  button: HtmlProps<HTMLButtonElement> & EventProps<HTMLButtonElement>;
-  canvas: HtmlProps<HTMLCanvasElement> & EventProps<HTMLCanvasElement>;
+  a: HtmlProps<HTMLAnchorElement> & DomEventProps<HTMLAnchorElement>;
+  abbr: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  address: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  area: HtmlProps<HTMLAreaElement> & DomEventProps<HTMLAreaElement>;
+  article: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  aside: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  audio: HtmlProps<HTMLAudioElement> & DomEventProps<HTMLAudioElement>;
+  b: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  base: HtmlProps<HTMLBaseElement> & DomEventProps<HTMLBaseElement>;
+  bdi: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  bdo: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  big: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  blockquote: HtmlProps<HTMLQuoteElement> & DomEventProps<HTMLQuoteElement>;
+  body: HtmlProps<HTMLBodyElement> & DomEventProps<HTMLBodyElement>;
+  br: HtmlProps<HTMLBRElement> & DomEventProps<HTMLBRElement>;
+  button: HtmlProps<HTMLButtonElement> & DomEventProps<HTMLButtonElement>;
+  canvas: HtmlProps<HTMLCanvasElement> & DomEventProps<HTMLCanvasElement>;
   caption: HtmlProps<HTMLTableCaptionElement> &
-    EventProps<HTMLTableCaptionElement>;
-  cite: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  code: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  col: HtmlProps<HTMLTableColElement> & EventProps<HTMLTableColElement>;
-  colgroup: HtmlProps<HTMLTableColElement> & EventProps<HTMLTableColElement>;
-  data: HtmlProps<HTMLDataElement> & EventProps<HTMLDataElement>;
-  datalist: HtmlProps<HTMLDataListElement> & EventProps<HTMLDataListElement>;
-  dd: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  del: HtmlProps<HTMLModElement> & EventProps<HTMLModElement>;
-  details: HtmlProps<HTMLDetailsElement> & EventProps<HTMLDetailsElement>;
-  dfn: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  dialog: HtmlProps<HTMLDialogElement> & EventProps<HTMLDialogElement>;
-  div: HtmlProps<HTMLDivElement> & EventProps<HTMLDivElement>;
-  dl: HtmlProps<HTMLDListElement> & EventProps<HTMLDListElement>;
-  dt: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  em: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  embed: HtmlProps<HTMLEmbedElement> & EventProps<HTMLEmbedElement>;
-  fieldset: HtmlProps<HTMLFieldSetElement> & EventProps<HTMLFieldSetElement>;
-  figcaption: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  figure: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  footer: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  form: HtmlProps<HTMLFormElement> & EventProps<HTMLFormElement>;
-  h1: HtmlProps<HTMLHeadingElement> & EventProps<HTMLHeadingElement>;
-  h2: HtmlProps<HTMLHeadingElement> & EventProps<HTMLHeadingElement>;
-  h3: HtmlProps<HTMLHeadingElement> & EventProps<HTMLHeadingElement>;
-  h4: HtmlProps<HTMLHeadingElement> & EventProps<HTMLHeadingElement>;
-  h5: HtmlProps<HTMLHeadingElement> & EventProps<HTMLHeadingElement>;
-  h6: HtmlProps<HTMLHeadingElement> & EventProps<HTMLHeadingElement>;
-  head: HtmlProps<HTMLHeadElement> & EventProps<HTMLHeadElement>;
-  header: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  hgroup: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  hr: HtmlProps<HTMLHRElement> & EventProps<HTMLHRElement>;
-  html: HtmlProps<HTMLHtmlElement> & EventProps<HTMLHtmlElement>;
-  i: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  iframe: HtmlProps<HTMLIFrameElement> & EventProps<HTMLIFrameElement>;
-  img: HtmlProps<HTMLImageElement> & EventProps<HTMLImageElement>;
-  input: HtmlProps<HTMLInputElement> & EventProps<HTMLInputElement>;
-  ins: HtmlProps<HTMLModElement> & EventProps<HTMLModElement>;
-  kbd: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  keygen: HtmlProps<HTMLUnknownElement> & EventProps<HTMLUnknownElement>;
-  label: HtmlProps<HTMLLabelElement> & EventProps<HTMLLabelElement>;
-  legend: HtmlProps<HTMLLegendElement> & EventProps<HTMLLegendElement>;
-  li: HtmlProps<HTMLLIElement> & EventProps<HTMLLIElement>;
-  link: HtmlProps<HTMLLinkElement> & EventProps<HTMLLinkElement>;
-  main: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  map: HtmlProps<HTMLMapElement> & EventProps<HTMLMapElement>;
-  mark: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  marquee: HtmlProps<HTMLMarqueeElement> & EventProps<HTMLMarqueeElement>;
-  menu: HtmlProps<HTMLMenuElement> & EventProps<HTMLMenuElement>;
-  menuitem: HtmlProps<HTMLUnknownElement> & EventProps<HTMLUnknownElement>;
-  meta: HtmlProps<HTMLMetaElement> & EventProps<HTMLMetaElement>;
-  meter: HtmlProps<HTMLMeterElement> & EventProps<HTMLMeterElement>;
-  nav: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  noscript: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  object: HtmlProps<HTMLObjectElement> & EventProps<HTMLObjectElement>;
-  ol: HtmlProps<HTMLOListElement> & EventProps<HTMLOListElement>;
-  optgroup: HtmlProps<HTMLOptGroupElement> & EventProps<HTMLOptGroupElement>;
-  option: HtmlProps<HTMLOptionElement> & EventProps<HTMLOptionElement>;
-  output: HtmlProps<HTMLOutputElement> & EventProps<HTMLOutputElement>;
-  p: HtmlProps<HTMLParagraphElement> & EventProps<HTMLParagraphElement>;
-  param: HtmlProps<HTMLParamElement> & EventProps<HTMLParamElement>;
-  picture: HtmlProps<HTMLPictureElement> & EventProps<HTMLPictureElement>;
-  pre: HtmlProps<HTMLPreElement> & EventProps<HTMLPreElement>;
-  progress: HtmlProps<HTMLProgressElement> & EventProps<HTMLProgressElement>;
-  q: HtmlProps<HTMLQuoteElement> & EventProps<HTMLQuoteElement>;
-  rp: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  rt: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  ruby: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  s: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  samp: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  script: HtmlProps<HTMLScriptElement> & EventProps<HTMLScriptElement>;
-  section: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  select: HtmlProps<HTMLSelectElement> & EventProps<HTMLSelectElement>;
-  slot: HtmlProps<HTMLSlotElement> & EventProps<HTMLSlotElement>;
-  small: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  source: HtmlProps<HTMLSourceElement> & EventProps<HTMLSourceElement>;
-  span: HtmlProps<HTMLSpanElement> & EventProps<HTMLSpanElement>;
-  strong: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  style: HtmlProps<HTMLStyleElement> & EventProps<HTMLStyleElement>;
-  sub: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  summary: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  sup: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  table: HtmlProps<HTMLTableElement> & EventProps<HTMLTableElement>;
+    DomEventProps<HTMLTableCaptionElement>;
+  cite: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  code: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  col: HtmlProps<HTMLTableColElement> & DomEventProps<HTMLTableColElement>;
+  colgroup: HtmlProps<HTMLTableColElement> & DomEventProps<HTMLTableColElement>;
+  data: HtmlProps<HTMLDataElement> & DomEventProps<HTMLDataElement>;
+  datalist: HtmlProps<HTMLDataListElement> & DomEventProps<HTMLDataListElement>;
+  dd: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  del: HtmlProps<HTMLModElement> & DomEventProps<HTMLModElement>;
+  details: HtmlProps<HTMLDetailsElement> & DomEventProps<HTMLDetailsElement>;
+  dfn: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  dialog: HtmlProps<HTMLDialogElement> & DomEventProps<HTMLDialogElement>;
+  div: HtmlProps<HTMLDivElement> & DomEventProps<HTMLDivElement>;
+  dl: HtmlProps<HTMLDListElement> & DomEventProps<HTMLDListElement>;
+  dt: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  em: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  embed: HtmlProps<HTMLEmbedElement> & DomEventProps<HTMLEmbedElement>;
+  fieldset: HtmlProps<HTMLFieldSetElement> & DomEventProps<HTMLFieldSetElement>;
+  figcaption: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  figure: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  footer: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  form: HtmlProps<HTMLFormElement> & DomEventProps<HTMLFormElement>;
+  h1: HtmlProps<HTMLHeadingElement> & DomEventProps<HTMLHeadingElement>;
+  h2: HtmlProps<HTMLHeadingElement> & DomEventProps<HTMLHeadingElement>;
+  h3: HtmlProps<HTMLHeadingElement> & DomEventProps<HTMLHeadingElement>;
+  h4: HtmlProps<HTMLHeadingElement> & DomEventProps<HTMLHeadingElement>;
+  h5: HtmlProps<HTMLHeadingElement> & DomEventProps<HTMLHeadingElement>;
+  h6: HtmlProps<HTMLHeadingElement> & DomEventProps<HTMLHeadingElement>;
+  head: HtmlProps<HTMLHeadElement> & DomEventProps<HTMLHeadElement>;
+  header: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  hgroup: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  hr: HtmlProps<HTMLHRElement> & DomEventProps<HTMLHRElement>;
+  html: HtmlProps<HTMLHtmlElement> & DomEventProps<HTMLHtmlElement>;
+  i: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  iframe: HtmlProps<HTMLIFrameElement> & DomEventProps<HTMLIFrameElement>;
+  img: HtmlProps<HTMLImageElement> & DomEventProps<HTMLImageElement>;
+  input: HtmlProps<HTMLInputElement> & DomEventProps<HTMLInputElement>;
+  ins: HtmlProps<HTMLModElement> & DomEventProps<HTMLModElement>;
+  kbd: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  keygen: HtmlProps<HTMLUnknownElement> & DomEventProps<HTMLUnknownElement>;
+  label: HtmlProps<HTMLLabelElement> & DomEventProps<HTMLLabelElement>;
+  legend: HtmlProps<HTMLLegendElement> & DomEventProps<HTMLLegendElement>;
+  li: HtmlProps<HTMLLIElement> & DomEventProps<HTMLLIElement>;
+  link: HtmlProps<HTMLLinkElement> & DomEventProps<HTMLLinkElement>;
+  main: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  map: HtmlProps<HTMLMapElement> & DomEventProps<HTMLMapElement>;
+  mark: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  marquee: HtmlProps<HTMLMarqueeElement> & DomEventProps<HTMLMarqueeElement>;
+  menu: HtmlProps<HTMLMenuElement> & DomEventProps<HTMLMenuElement>;
+  menuitem: HtmlProps<HTMLUnknownElement> & DomEventProps<HTMLUnknownElement>;
+  meta: HtmlProps<HTMLMetaElement> & DomEventProps<HTMLMetaElement>;
+  meter: HtmlProps<HTMLMeterElement> & DomEventProps<HTMLMeterElement>;
+  nav: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  noscript: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  object: HtmlProps<HTMLObjectElement> & DomEventProps<HTMLObjectElement>;
+  ol: HtmlProps<HTMLOListElement> & DomEventProps<HTMLOListElement>;
+  optgroup: HtmlProps<HTMLOptGroupElement> & DomEventProps<HTMLOptGroupElement>;
+  option: HtmlProps<HTMLOptionElement> & DomEventProps<HTMLOptionElement>;
+  output: HtmlProps<HTMLOutputElement> & DomEventProps<HTMLOutputElement>;
+  p: HtmlProps<HTMLParagraphElement> & DomEventProps<HTMLParagraphElement>;
+  param: HtmlProps<HTMLParamElement> & DomEventProps<HTMLParamElement>;
+  picture: HtmlProps<HTMLPictureElement> & DomEventProps<HTMLPictureElement>;
+  pre: HtmlProps<HTMLPreElement> & DomEventProps<HTMLPreElement>;
+  progress: HtmlProps<HTMLProgressElement> & DomEventProps<HTMLProgressElement>;
+  q: HtmlProps<HTMLQuoteElement> & DomEventProps<HTMLQuoteElement>;
+  rp: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  rt: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  ruby: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  s: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  samp: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  script: HtmlProps<HTMLScriptElement> & DomEventProps<HTMLScriptElement>;
+  section: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  select: HtmlProps<HTMLSelectElement> & DomEventProps<HTMLSelectElement>;
+  slot: HtmlProps<HTMLSlotElement> & DomEventProps<HTMLSlotElement>;
+  small: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  source: HtmlProps<HTMLSourceElement> & DomEventProps<HTMLSourceElement>;
+  span: HtmlProps<HTMLSpanElement> & DomEventProps<HTMLSpanElement>;
+  strong: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  style: HtmlProps<HTMLStyleElement> & DomEventProps<HTMLStyleElement>;
+  sub: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  summary: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  sup: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  table: HtmlProps<HTMLTableElement> & DomEventProps<HTMLTableElement>;
   tbody: HtmlProps<HTMLTableSectionElement> &
-    EventProps<HTMLTableSectionElement>;
-  td: HtmlProps<HTMLTableCellElement> & EventProps<HTMLTableCellElement>;
-  textarea: HtmlProps<HTMLTextAreaElement> & EventProps<HTMLTextAreaElement>;
+    DomEventProps<HTMLTableSectionElement>;
+  td: HtmlProps<HTMLTableCellElement> & DomEventProps<HTMLTableCellElement>;
+  textarea: HtmlProps<HTMLTextAreaElement> & DomEventProps<HTMLTextAreaElement>;
   tfoot: HtmlProps<HTMLTableSectionElement> &
-    EventProps<HTMLTableSectionElement>;
-  th: HtmlProps<HTMLTableCellElement> & EventProps<HTMLTableCellElement>;
+    DomEventProps<HTMLTableSectionElement>;
+  th: HtmlProps<HTMLTableCellElement> & DomEventProps<HTMLTableCellElement>;
   thead: HtmlProps<HTMLTableSectionElement> &
-    EventProps<HTMLTableSectionElement>;
-  time: HtmlProps<HTMLTimeElement> & EventProps<HTMLTimeElement>;
-  title: HtmlProps<HTMLTitleElement> & EventProps<HTMLTitleElement>;
-  tr: HtmlProps<HTMLTableRowElement> & EventProps<HTMLTableRowElement>;
-  track: HtmlProps<HTMLTrackElement> & EventProps<HTMLTrackElement>;
-  u: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  ul: HtmlProps<HTMLUListElement> & EventProps<HTMLUListElement>;
-  var: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
-  video: HtmlProps<HTMLVideoElement> & EventProps<HTMLVideoElement>;
-  wbr: HtmlProps<HTMLElement> & EventProps<HTMLElement>;
+    DomEventProps<HTMLTableSectionElement>;
+  time: HtmlProps<HTMLTimeElement> & DomEventProps<HTMLTimeElement>;
+  title: HtmlProps<HTMLTitleElement> & DomEventProps<HTMLTitleElement>;
+  tr: HtmlProps<HTMLTableRowElement> & DomEventProps<HTMLTableRowElement>;
+  track: HtmlProps<HTMLTrackElement> & DomEventProps<HTMLTrackElement>;
+  u: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  ul: HtmlProps<HTMLUListElement> & DomEventProps<HTMLUListElement>;
+  var: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
+  video: HtmlProps<HTMLVideoElement> & DomEventProps<HTMLVideoElement>;
+  wbr: HtmlProps<HTMLElement> & DomEventProps<HTMLElement>;
 
   //SVG
-  svg: SvgProps<SVGSVGElement> & EventProps<SVGSVGElement>;
-  animate: SvgProps<SVGAnimateElement> & EventProps<SVGAnimateElement>;
-  circle: SvgProps<SVGCircleElement> & EventProps<SVGCircleElement>;
-  animateTransform: SvgProps<SVGAnimateElement> & EventProps<SVGAnimateElement>;
-  clipPath: SvgProps<SVGClipPathElement> & EventProps<SVGClipPathElement>;
-  defs: SvgProps<SVGDefsElement> & EventProps<SVGDefsElement>;
-  desc: SvgProps<SVGDescElement> & EventProps<SVGDescElement>;
-  ellipse: SvgProps<SVGEllipseElement> & EventProps<SVGEllipseElement>;
-  feBlend: SvgProps<SVGFEBlendElement> & EventProps<SVGFEBlendElement>;
+  svg: SvgProps<SVGSVGElement> & DomEventProps<SVGSVGElement>;
+  animate: SvgProps<SVGAnimateElement> & DomEventProps<SVGAnimateElement>;
+  circle: SvgProps<SVGCircleElement> & DomEventProps<SVGCircleElement>;
+  animateTransform: SvgProps<SVGAnimateElement> &
+    DomEventProps<SVGAnimateElement>;
+  clipPath: SvgProps<SVGClipPathElement> & DomEventProps<SVGClipPathElement>;
+  defs: SvgProps<SVGDefsElement> & DomEventProps<SVGDefsElement>;
+  desc: SvgProps<SVGDescElement> & DomEventProps<SVGDescElement>;
+  ellipse: SvgProps<SVGEllipseElement> & DomEventProps<SVGEllipseElement>;
+  feBlend: SvgProps<SVGFEBlendElement> & DomEventProps<SVGFEBlendElement>;
   feColorMatrix: SvgProps<SVGFEColorMatrixElement> &
-    EventProps<SVGFEColorMatrixElement>;
+    DomEventProps<SVGFEColorMatrixElement>;
   feComponentTransfer: SvgProps<SVGFEComponentTransferElement> &
-    EventProps<SVGFEComponentTransferElement>;
+    DomEventProps<SVGFEComponentTransferElement>;
   feComposite: SvgProps<SVGFECompositeElement> &
-    EventProps<SVGFECompositeElement>;
+    DomEventProps<SVGFECompositeElement>;
   feConvolveMatrix: SvgProps<SVGFEConvolveMatrixElement> &
-    EventProps<SVGFEConvolveMatrixElement>;
+    DomEventProps<SVGFEConvolveMatrixElement>;
   feDiffuseLighting: SvgProps<SVGFEDiffuseLightingElement> &
-    EventProps<SVGFEDiffuseLightingElement>;
+    DomEventProps<SVGFEDiffuseLightingElement>;
   feDisplacementMap: SvgProps<SVGFEDisplacementMapElement> &
-    EventProps<SVGFEDisplacementMapElement>;
+    DomEventProps<SVGFEDisplacementMapElement>;
   feDropShadow: SvgProps<SVGFEDropShadowElement> &
-    EventProps<SVGFEDropShadowElement>;
-  feFlood: SvgProps<SVGFEFloodElement> & EventProps<SVGFEFloodElement>;
-  feFuncA: SvgProps<SVGFEFuncAElement> & EventProps<SVGFEFuncAElement>;
-  feFuncB: SvgProps<SVGFEFuncBElement> & EventProps<SVGFEFuncBElement>;
-  feFuncG: SvgProps<SVGFEFuncGElement> & EventProps<SVGFEFuncGElement>;
-  feFuncR: SvgProps<SVGFEFuncRElement> & EventProps<SVGFEFuncRElement>;
+    DomEventProps<SVGFEDropShadowElement>;
+  feFlood: SvgProps<SVGFEFloodElement> & DomEventProps<SVGFEFloodElement>;
+  feFuncA: SvgProps<SVGFEFuncAElement> & DomEventProps<SVGFEFuncAElement>;
+  feFuncB: SvgProps<SVGFEFuncBElement> & DomEventProps<SVGFEFuncBElement>;
+  feFuncG: SvgProps<SVGFEFuncGElement> & DomEventProps<SVGFEFuncGElement>;
+  feFuncR: SvgProps<SVGFEFuncRElement> & DomEventProps<SVGFEFuncRElement>;
   feGaussianBlur: SvgProps<SVGFEGaussianBlurElement> &
-    EventProps<SVGFEGaussianBlurElement>;
-  feImage: SvgProps<SVGFEImageElement> & EventProps<SVGFEImageElement>;
-  feMerge: SvgProps<SVGFEMergeElement> & EventProps<SVGFEMergeElement>;
+    DomEventProps<SVGFEGaussianBlurElement>;
+  feImage: SvgProps<SVGFEImageElement> & DomEventProps<SVGFEImageElement>;
+  feMerge: SvgProps<SVGFEMergeElement> & DomEventProps<SVGFEMergeElement>;
   feMergeNode: SvgProps<SVGFEMergeNodeElement> &
-    EventProps<SVGFEMergeNodeElement>;
+    DomEventProps<SVGFEMergeNodeElement>;
   feMorphology: SvgProps<SVGFEMorphologyElement> &
-    EventProps<SVGFEMorphologyElement>;
-  feOffset: SvgProps<SVGFEOffsetElement> & EventProps<SVGFEOffsetElement>;
+    DomEventProps<SVGFEMorphologyElement>;
+  feOffset: SvgProps<SVGFEOffsetElement> & DomEventProps<SVGFEOffsetElement>;
   feSpecularLighting: SvgProps<SVGFESpecularLightingElement> &
-    EventProps<SVGFESpecularLightingElement>;
-  feTile: SvgProps<SVGFETileElement> & EventProps<SVGFETileElement>;
+    DomEventProps<SVGFESpecularLightingElement>;
+  feTile: SvgProps<SVGFETileElement> & DomEventProps<SVGFETileElement>;
   feTurbulence: SvgProps<SVGFETurbulenceElement> &
-    EventProps<SVGFETurbulenceElement>;
-  filter: SvgProps<SVGFilterElement> & EventProps<SVGFilterElement>;
+    DomEventProps<SVGFETurbulenceElement>;
+  filter: SvgProps<SVGFilterElement> & DomEventProps<SVGFilterElement>;
   foreignObject: SvgProps<SVGForeignObjectElement> &
-    EventProps<SVGForeignObjectElement>;
-  g: SvgProps<SVGGElement> & EventProps<SVGGElement>;
-  image: SvgProps<SVGImageElement> & EventProps<SVGImageElement>;
-  line: SvgProps<SVGLineElement> & EventProps<SVGLineElement>;
+    DomEventProps<SVGForeignObjectElement>;
+  g: SvgProps<SVGGElement> & DomEventProps<SVGGElement>;
+  image: SvgProps<SVGImageElement> & DomEventProps<SVGImageElement>;
+  line: SvgProps<SVGLineElement> & DomEventProps<SVGLineElement>;
   linearGradient: SvgProps<SVGLinearGradientElement> &
-    EventProps<SVGLinearGradientElement>;
-  marker: SvgProps<SVGMarkerElement> & EventProps<SVGMarkerElement>;
-  mask: SvgProps<SVGMaskElement> & EventProps<SVGMaskElement>;
-  path: SvgProps<SVGPathElement> & EventProps<SVGPathElement>;
-  pattern: SvgProps<SVGPatternElement> & EventProps<SVGPatternElement>;
-  polygon: SvgProps<SVGPolygonElement> & EventProps<SVGPolygonElement>;
-  polyline: SvgProps<SVGPolylineElement> & EventProps<SVGPolylineElement>;
+    DomEventProps<SVGLinearGradientElement>;
+  marker: SvgProps<SVGMarkerElement> & DomEventProps<SVGMarkerElement>;
+  mask: SvgProps<SVGMaskElement> & DomEventProps<SVGMaskElement>;
+  path: SvgProps<SVGPathElement> & DomEventProps<SVGPathElement>;
+  pattern: SvgProps<SVGPatternElement> & DomEventProps<SVGPatternElement>;
+  polygon: SvgProps<SVGPolygonElement> & DomEventProps<SVGPolygonElement>;
+  polyline: SvgProps<SVGPolylineElement> & DomEventProps<SVGPolylineElement>;
   radialGradient: SvgProps<SVGRadialGradientElement> &
-    EventProps<SVGRadialGradientElement>;
-  rect: SvgProps<SVGRectElement> & EventProps<SVGRectElement>;
-  stop: SvgProps<SVGStopElement> & EventProps<SVGStopElement>;
-  symbol: SvgProps<SVGSymbolElement> & EventProps<SVGSymbolElement>;
-  text: SvgProps<SVGTextElement> & EventProps<SVGTextElement>;
-  textPath: SvgProps<SVGTextPathElement> & EventProps<SVGTextPathElement>;
-  tspan: SvgProps<SVGTSpanElement> & EventProps<SVGTSpanElement>;
-  use: SvgProps<SVGUseElement> & EventProps<SVGUseElement>;
+    DomEventProps<SVGRadialGradientElement>;
+  rect: SvgProps<SVGRectElement> & DomEventProps<SVGRectElement>;
+  stop: SvgProps<SVGStopElement> & DomEventProps<SVGStopElement>;
+  symbol: SvgProps<SVGSymbolElement> & DomEventProps<SVGSymbolElement>;
+  text: SvgProps<SVGTextElement> & DomEventProps<SVGTextElement>;
+  textPath: SvgProps<SVGTextPathElement> & DomEventProps<SVGTextPathElement>;
+  tspan: SvgProps<SVGTSpanElement> & DomEventProps<SVGTSpanElement>;
+  use: SvgProps<SVGUseElement> & DomEventProps<SVGUseElement>;
 
   [tagName: string]: DomProps<any> & Record<string, any>;
 }
 
-export type InlineStyles = {
+export type Styles = {
   [K in Exclude<
     keyof CSSStyleDeclaration,
     | "item"
@@ -332,7 +333,7 @@ export type EventHandler<K extends keyof EventMap, E> = (
   },
 ) => void;
 
-type EventProps<E> = {
+export type DomEventProps<E> = {
   [K in keyof EventMap as `on${K}`]?: EventHandler<K, E>;
 };
 
@@ -344,7 +345,7 @@ export interface DomProps<in E> {
   ref?: RefSignalSetter<E | undefined>;
   id?: MaybeSignal<string | undefined>;
   class?: MaybeSignal<string | undefined>;
-  style?: InlineStyles;
+  style?: Styles;
   dangerouslySetInnerHTML?: DangerousHtml;
   children?: Children;
 }
