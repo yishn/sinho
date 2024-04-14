@@ -265,7 +265,10 @@ export const useEffect = (
 
         this._clean = !cleanup
           ? null
-          : () => this._scope._run(() => useBatch(cleanup));
+          : () => {
+              this._scope._run(() => useBatch(cleanup));
+              this._clean = null;
+            };
       } finally {
         // Restore scope state
 
