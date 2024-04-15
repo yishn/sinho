@@ -30,13 +30,13 @@ They can be used in JSX like this, where attributes are passed as props:
 
 Note that functional components are not custom elements, therefore do not create
 a DOM element by themselves. Also, they do not have shadow DOM or scoped styles,
-and can only be used in JSX templates.
+and cannot be rendered by themselves. They can only be used in JSX templates.
 
 :::
 
 ## Children
 
-You can specify children in functional components by using the `children` prop:
+You can access children in functional components by using the `children` prop:
 
 ```tsx
 import { FunctionalComponent, MaybeSignal, Children } from "shingo";

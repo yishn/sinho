@@ -67,12 +67,12 @@ export class HelloWorld extends Component("hello-world") {
 }
 ```
 
-In addition to native HTML tags, you can also use a custom element class as
-nodes, even those that are not written with Shingō:
+In addition to HTML tags, you can also use a custom element class as nodes, even
+those that are not written with Shingō:
 
 ```tsx
-<HelloWorld />
-<SimpleGreeting name="John" />
+<HelloWorld />;
+<SimpleGreeting name="John" />;
 
 // This is equivalent to:
 
@@ -116,12 +116,14 @@ expression:
 const [className, setClassName] = useSignal("hello-world");
 const [name, setName] = useSignal("John");
 
-// highlight-start
-<div class={className}>
-  <h1>Hello, {name}</h1>
-  {/* highlight-end */}
-  <p>This is a paragraph</p>
-</div>;
+const template = (
+  // highlight-start
+  <div class={className}>
+    <h1>Hello, {name}</h1>
+    {/* highlight-end */}
+    <p>This is a paragraph</p>
+  </div>
+);
 ```
 
 This is equivalent to:
@@ -130,12 +132,13 @@ This is equivalent to:
 const [className, setClassName] = useSignal("hello-world");
 const [name, setName] = useSignal("John");
 
-// highlight-start
-h.div({ class: className }, [
-  h.h1({}, ["Hello, ", name]),
-  // highlight-end
-  h.p({}, "This is a paragraph"),
-]);
+const template =
+  // highlight-start
+  h.div({ class: className }, [
+    h.h1({}, ["Hello, ", name]),
+    // highlight-end
+    h.p({}, "This is a paragraph"),
+  ]);
 ```
 
 :::warning
@@ -149,12 +152,14 @@ const [name, setName] = useSignal("John");
 
 // The following will **not** be reactive:
 
-// highlight-start
-<div class={className()}>
-  <h1>Hello, {name()}</h1>
-  {/* highlight-end */}
-  <p>This is a paragraph</p>
-</div>;
+const template = (
+  // highlight-start
+  <div class={className()}>
+    <h1>Hello, {name()}</h1>
+    {/* highlight-end */}
+    <p>This is a paragraph</p>
+  </div>
+);
 ```
 
 :::
@@ -177,12 +182,14 @@ prefix for the JSX attribute name, and force using a property by using the
 `prop:` prefix.
 
 ```tsx
-<input
-  // highlight-start
-  attr:type="text"
-  prop:value={name}
-  // highlight-end
-/>
+const template = (
+  <input
+    // highlight-start
+    attr:type="text"
+    prop:value={name}
+    // highlight-end
+  />
+);
 ```
 
 ### Events
@@ -236,4 +243,62 @@ divEl.addEventListener("DOMContentLoaded", () => console.log("Loaded"));
 
 ## Get Reference to DOM Element
 
+You can get a reference to the underlying DOM element of a custom element or
+HTML tag by using `useRef` and attaching it to the `ref` attribute:
+
+```tsx
+const inputRef = useRef<HTMLInputElement>();
+
+const template = (
+  <input
+    // highlight-next-line
+    ref={inputRef}
+  />
+);
+```
+
+In this example, `inputRef` is a signal that will hold the reference to the
+`input` element or `null` if the element is not (yet) rendered. The following
+effect will focus the input element whenever it is mounted:
+
+```tsx
+useEffect(() => {
+  if (inputRef()) {
+    inputRef()!.focus();
+  }
+});
+```
+
+:::warning
+
+Functional components do not have an underlying DOM element, so you cannot use
+`ref` on them.
+
+:::
+
 ## Set HTML Content
+
+Shingō will generally render text children not as HTML but as plain text to
+prevent XSS attacks. If you want to render HTML content, you can use the
+`dangerouslySetInnerHTML` attribute:
+
+```tsx
+import { DangerousHtml } from "shingo";
+
+// highlight-next-line
+const htmlContent: DangerousHtml = { __html: "<b>This is bold</b>" };
+
+const template = (
+  <div
+    // highlight-next-line
+    dangerouslySetInnerHTML={htmlContent}
+  />
+);
+```
+
+:::danger
+
+If you use `dangerouslySetInnerHTML`, make sure that the content is safe and
+user input is sanitized. Otherwise, it can lead to XSS attacks.
+
+:::

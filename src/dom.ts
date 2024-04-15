@@ -337,16 +337,16 @@ export type DomEventProps<E> = {
   [K in keyof EventMap as `on${K}`]?: EventHandler<K, E>;
 };
 
-export type DangerousHtml = MaybeSignal<{
+export interface DangerousHtml {
   __html: string;
-}>;
+}
 
 export interface DomProps<in E> {
   ref?: RefSignalSetter<E | undefined>;
   id?: MaybeSignal<string | undefined>;
   class?: MaybeSignal<string | undefined>;
   style?: Styles;
-  dangerouslySetInnerHTML?: DangerousHtml;
+  dangerouslySetInnerHTML?: MaybeSignal<DangerousHtml>;
   children?: Children;
 }
 
