@@ -101,7 +101,7 @@ const template = (
 If the key function is not specified, `<For>` will use the index of the element
 as the key.
 
-:::danger
+:::warning
 
 The key function must be a pure function that returns a unique value for each
 element.
