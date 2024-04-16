@@ -36,6 +36,9 @@ const template = (
 );
 ```
 
+`<ElseIf>`/`<Else>` are optional and you can have as many `<ElseIf>` as you
+want. `<Else>` should be the last one if it's present.
+
 :::tip
 
 Keep `<If>`/`<ElseIf>`/`<Else>` next to each other for easier readability and
@@ -94,6 +97,9 @@ const template = (
   </ul>
 );
 ```
+
+If the key function is not specified, `<For>` will use the index of the element
+as the key.
 
 :::danger
 
