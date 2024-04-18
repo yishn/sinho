@@ -104,6 +104,6 @@ as the key.
 :::warning
 
 The key function must be a pure function that returns a unique value for each
-element.
+element, otherwise an error will be thrown.
 
 :::

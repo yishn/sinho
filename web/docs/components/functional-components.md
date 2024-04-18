@@ -26,7 +26,7 @@ They can be used in JSX like this, where attributes are passed as props:
 <FunctionalGreeting name="John" />
 ```
 
-:::warning
+:::note
 
 Note that functional components are not custom elements, therefore do not create
 a DOM element by themselves. Also, they do not have shadow DOM or scoped styles,

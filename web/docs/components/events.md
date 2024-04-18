@@ -9,7 +9,7 @@ sidebar_position: 3
 You can define events on your component next to its properties by using the
 `event` function.
 
-:::warning
+:::note
 
 Event names must start with `on` and follow camelCase convention.
 
@@ -91,12 +91,12 @@ second constructor argument:
 
 ```tsx
 class CompletedChangeEvent extends Event {
-  detail: { completed: boolean };
+  completed: boolean;
 
   constructor(name: string, completed: boolean) {
     super(name);
 
-    this.detail.completed = completed;
+    this.completed = completed;
   }
 }
 

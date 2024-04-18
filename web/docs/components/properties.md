@@ -19,7 +19,7 @@ Component("simple-greeting", {
 
 If you do not pass a default value, the property is `undefined` by default.
 
-:::warning
+:::note
 
 Property names must not start with `on` as that prefix is reserved for events.
 

@@ -269,7 +269,7 @@ useEffect(() => {
 });
 ```
 
-:::warning
+:::note
 
 Functional components do not have an underlying DOM element, so you cannot use
 `ref` on them.
