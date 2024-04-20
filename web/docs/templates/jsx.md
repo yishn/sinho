@@ -116,7 +116,7 @@ expression:
 const [className, setClassName] = useSignal("hello-world");
 const [name, setName] = useSignal("John");
 
-const template = (
+return (
   // highlight-start
   <div class={className}>
     <h1>Hello, {name}</h1>
@@ -132,13 +132,13 @@ This is equivalent to:
 const [className, setClassName] = useSignal("hello-world");
 const [name, setName] = useSignal("John");
 
-const template =
-  // highlight-start
-  h.div({ class: className }, [
-    h.h1({}, ["Hello, ", name]),
-    // highlight-end
-    h.p({}, "This is a paragraph"),
-  ]);
+return;
+// highlight-start
+h.div({ class: className }, [
+  h.h1({}, ["Hello, ", name]),
+  // highlight-end
+  h.p({}, "This is a paragraph"),
+]);
 ```
 
 :::warning
@@ -152,7 +152,7 @@ const [name, setName] = useSignal("John");
 
 // The following will **not** be reactive:
 
-const template = (
+return (
   // highlight-start
   <div class={className()}>
     <h1>Hello, {name()}</h1>
@@ -182,7 +182,7 @@ prefix for the JSX attribute name, and force using a property by using the
 `prop:` prefix.
 
 ```tsx
-const template = (
+return (
   <input
     // highlight-start
     attr:type="text"
@@ -249,7 +249,7 @@ HTML tag by using `useRef` and attaching it to the `ref` attribute:
 ```tsx
 const inputRef = useRef<HTMLInputElement>();
 
-const template = (
+return (
   <input
     // highlight-next-line
     ref={inputRef}
@@ -288,7 +288,7 @@ import { DangerousHtml } from "shingo";
 // highlight-next-line
 const htmlContent: DangerousHtml = { __html: "<b>This is bold</b>" };
 
-const template = (
+return (
   <div
     // highlight-next-line
     dangerouslySetInnerHTML={htmlContent}

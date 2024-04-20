@@ -27,7 +27,9 @@ export class Counter extends Component("counter-component", {
             onclick={(evt) => this.events.onDecrementClick(evt)}
           >
             Decrement
-          </button>{" "}
+          </button>
+
+          <> </>
           <button
             part="increment"
             onclick={(evt) => this.events.onIncrementClick(evt)}
@@ -59,7 +61,8 @@ class App extends Component("app-component", {}, { shadow: false }) {
               type="checkbox"
               checked={showCounter}
               onchange={() => setShowCounter((show) => !show)}
-            />{" "}
+            />
+            <> </>
             Show Counter
           </label>
         </p>

@@ -19,9 +19,11 @@ parts of the template:
 ```tsx
 import { useSignal, If, ElseIf, Else } from "shingo";
 
+// …
+
 const [count, setCount] = useSignal(0);
 
-const template = (
+return (
   <>
     <If condition={() => count() > 0}>
       <div>My Content</div>
@@ -54,9 +56,11 @@ for each element:
 ```tsx
 import { useSignal, For } from "shingo";
 
+// …
+
 const [colors, setColors] = useSignal(["red", "green", "blue"]);
 
-const template = (
+return (
   <ul>
     <For each={colors}>
       {(color, index) => (
@@ -80,12 +84,14 @@ across updates.
 ```tsx
 import { useSignal, For } from "shingo";
 
+// …
+
 const [tasks, setTasks] = useSignal([
   { id: 1, text: "Learn Shingō" },
   { id: 2, text: "Build an app" },
 ]);
 
-const template = (
+return (
   <ul>
     <For each={tasks} key={(task) => task.id}>
       {(task, index) => (

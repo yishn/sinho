@@ -134,14 +134,14 @@ class App extends Component("app-component", {
           }
         `}</Style>
 
-        <Style global>{css`
+        <Style light>{css`
           body {
             background-color: ${() => (dark() ? "#333" : "#fff")};
             color: ${() => (dark() ? "#fff" : "#333")};
           }
         `}</Style>
 
-        <Style global>{css`
+        <Style light>{css`
           body {
             transition:
               background-color 0.2s,

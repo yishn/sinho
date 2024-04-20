@@ -1,52 +1,79 @@
 import { createElement } from "../create_element.js";
 import { FunctionalComponent } from "../component.js";
 import { Text } from "./Text.js";
-import { MaybeSignal } from "../scope.js";
+import { MaybeSignal, useEffect } from "../scope.js";
 import { Fragment } from "./Fragment.js";
 import { useRenderer } from "../renderer.js";
 import { Portal } from "./Portal.js";
 
-const styleSheetRegistry = new Map<string, CSSStyleSheet>();
+const styleSheetRegistrySym = Symbol("styleSheetRegistry");
+
+type StyleSheetRegistry = Map<
+  string,
+  {
+    _sheet: CSSStyleSheet;
+    _refs: number;
+  }
+>;
+
+const getStyleSheetRegistry = <T>(
+  obj: T & { [styleSheetRegistrySym]?: StyleSheetRegistry },
+): StyleSheetRegistry => (obj[styleSheetRegistrySym] ??= new Map());
 
 export const Style: FunctionalComponent<{
-  global?: boolean;
+  light?: boolean;
   children?: MaybeSignal<string>;
 }> = (props) => {
-  const dynamic = typeof props.children == "function";
+  const css = props.children;
 
   // Dynamic CSS will be inserted into the DOM as a <style> element.
 
-  if (dynamic) {
+  if (typeof css == "function") {
     const styleEl = createElement(
       "style",
       {},
       Text({
-        text: props.children,
+        text: css,
         marker: false,
       }),
     );
 
-    return props.global
+    return props.light
       ? Portal({ mount: document.head, children: styleEl })
       : styleEl;
   }
 
   // Static CSS will be inserted as an adopted stylesheet and cached.
 
-  const renderer = useRenderer();
-  const css = props.children as string | undefined;
-
   if (css) {
+    const renderer = useRenderer();
+    const styleRoot = props.light
+      ? document
+      : renderer._component?.shadowRoot ?? document;
+    const styleSheetRegistry = getStyleSheetRegistry(styleRoot);
+
     if (!styleSheetRegistry.has(css)) {
       const sheet = new CSSStyleSheet();
       sheet.replaceSync(css);
-      styleSheetRegistry.set(css, sheet);
+      styleSheetRegistry.set(css, {
+        _sheet: sheet,
+        _refs: 0,
+      });
     }
 
-    (props.global
-      ? document
-      : renderer._component?.shadowRoot ?? document
-    ).adoptedStyleSheets.push(styleSheetRegistry.get(css)!);
+    const entry = styleSheetRegistry.get(css)!;
+    entry._refs++;
+
+    styleRoot.adoptedStyleSheets.push(entry._sheet);
+
+    useEffect(() => () => {
+      if (--entry._refs == 0) {
+        styleRoot.adoptedStyleSheets = styleRoot.adoptedStyleSheets.filter(
+          (sheet) => sheet != entry._sheet,
+        );
+        styleSheetRegistry.delete(css);
+      }
+    });
   }
 
   return Fragment({});
