@@ -231,33 +231,36 @@ export const useBatch = <T>(fn: () => T): T => {
  */
 export const useEffect = (
   fn: () => Cleanup,
-  deps?: Signal<unknown>[],
+  deps?: SignalLike<unknown>[],
 ): void => {
   const untracked = !!deps;
 
   const effect: Effect = {
     _scope: currScope,
-    _deps: new Set((deps as Signal<unknown>[]) ?? []),
+    _deps: new Set(),
 
     _run(): void {
       const prevEffect = currEffect;
       const prevUntracked = currUntracked;
 
       currEffect = this;
-      currUntracked = untracked;
 
       try {
-        if (!untracked) {
-          // Clean up dependencies and listeners
+        if (!deps) {
+          // For automatic dependency tracking
+          // clean up dependencies and listeners
 
-          for (const signal of this._deps) {
-            signal._effects.delete(this);
-          }
-
+          this._deps.forEach((dep) => dep._effects.delete(this));
           this._deps.clear();
+        } else if (!this._deps.size) {
+          // Track specified dependencies
+
+          deps.forEach((dep) => dep());
         }
 
         // Run effect
+
+        currUntracked = untracked;
 
         this._clean?.();
 

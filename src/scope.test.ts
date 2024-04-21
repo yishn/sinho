@@ -52,3 +52,49 @@ test("Nested effects and cleanups", () => {
     "Bye, Daniel Neugber!",
   ]);
 });
+
+test("Manually track effect dependencies", () => {
+  const logs: string[] = [];
+  const [greeting, setGreeting] = useSignal("Hello, World!");
+
+  const [, destroy] = useSubscope(() => {
+    useEffect(() => {
+      logs.push(greeting());
+    }, [greeting]);
+
+    setGreeting("Hiya!");
+    setGreeting("Greetings!");
+
+    assert.deepStrictEqual(logs, ["Hello, World!", "Hiya!", "Greetings!"]);
+  });
+
+  destroy();
+  logs.length = 0;
+
+  const [firstName, setFirstName] = useSignal("Yichuan");
+  const [lastName, setLastName] = useSignal("Shen");
+  const fullName = () => `${firstName()} ${lastName()}`;
+
+  const [, destroy2] = useSubscope(() => {
+    useEffect(() => {
+      logs.push(greeting() + " " + fullName());
+    }, [fullName]);
+
+    assert.deepStrictEqual(logs, ["Greetings! Yichuan Shen"]);
+
+    setGreeting("Good morning");
+    assert.deepStrictEqual(logs, ["Greetings! Yichuan Shen"]);
+
+    useBatch(() => {
+      setFirstName("Daniel");
+      setLastName("Neugber");
+    });
+
+    assert.deepStrictEqual(logs, [
+      "Greetings! Yichuan Shen",
+      "Good morning Daniel Neugber",
+    ]);
+  });
+
+  destroy2();
+});
