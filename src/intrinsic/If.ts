@@ -45,10 +45,7 @@ export const ElseIf: FunctionalComponent<{
       let subnodes: Node[] = [];
 
       useEffect(() => {
-        for (const node of subnodes) {
-          node.parentNode?.removeChild(node);
-        }
-
+        subnodes.forEach((node) => node.parentNode?.removeChild(node));
         nodes.length = 1;
 
         const [, destroy] = useSubscope(() => {

@@ -97,10 +97,7 @@ const createScope = (parent?: Scope): Scope => {
         const effect = this._effects[i];
         effect._clean?.();
 
-        for (const signal of effect._deps) {
-          signal._effects.delete(effect);
-        }
-
+        effect._deps.forEach((signal) => signal._effects.delete(effect));
         effect._deps.clear();
       }
 
@@ -167,9 +164,7 @@ export const useSignal: (<T>(
         }
 
         if (!innerOpts?.silent) {
-          for (const effect of signal._effects) {
-            currBatch._effects.add(effect);
-          }
+          signal._effects.forEach((effect) => currBatch!._effects.add(effect));
         }
       }
     } else {
@@ -199,23 +194,16 @@ export const useBatch = <T>(fn: () => T): T => {
       const effects = currBatch._effects;
       currBatch._effects = new Set();
 
-      for (const effect of effects) {
-        effect._clean?.();
-      }
+      effects.forEach((effect) => effect._clean?.());
 
       // Run signal updates
 
-      for (const setter of currBatch._setters) {
-        setter();
-      }
-
+      currBatch._setters.forEach((setter) => setter());
       currBatch._setters = [];
 
       // Run effects
 
-      for (const effect of effects) {
-        effect._run();
-      }
+      effects.forEach((effect) => effect._run());
     }
 
     return result;
@@ -281,10 +269,7 @@ export const useEffect = (
     },
   };
 
-  for (const signal of effect._deps) {
-    signal._effects.add(effect);
-  }
-
+  effect._deps.forEach((signal) => signal._effects.add(effect));
   currScope._effects.push(effect);
   effect._run();
 

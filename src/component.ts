@@ -490,9 +490,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
 
               // Run mount effects
 
-              for (const [fn, opts] of mountEffects) {
-                useEffect(fn, opts);
-              }
+              mountEffects.forEach(([fn, opts]) => useEffect(fn, opts));
             } finally {
               mountEffects = prevMountEffects;
             }

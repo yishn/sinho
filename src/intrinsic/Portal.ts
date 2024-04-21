@@ -13,14 +13,10 @@ export const Portal: FunctionalComponent<{
       const nodes = Fragment({ children }).build();
 
       useEffect(() => {
-        for (const node of nodes) {
-          mount.appendChild(node);
-        }
+        nodes.forEach((node) => mount.appendChild(node));
 
         return () => {
-          for (const node of nodes) {
-            node.parentNode?.removeChild(node);
-          }
+          nodes.forEach((node) => node.parentNode?.removeChild(node));
         };
       });
 

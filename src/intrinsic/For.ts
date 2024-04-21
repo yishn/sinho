@@ -60,10 +60,7 @@ export const For = <T>(props: {
             nodes.splice(index, _subnodes.length);
           }
 
-          for (const node of _subnodes) {
-            node.parentNode?.removeChild(node);
-          }
-
+          _subnodes.forEach((node) => node.parentNode?.removeChild(node));
           keyMap.delete(mutation._key);
         } else if (mutation._type == "a") {
           let _subnodes: Node[] = [];
@@ -94,9 +91,9 @@ export const For = <T>(props: {
               nodes.splice(anchorIndex + 1, 0, ..._subnodes);
             }
 
-            for (const node of _subnodes) {
-              itemAnchor.parentNode?.insertBefore(node, itemAnchor.nextSibling);
-            }
+            _subnodes.forEach((node) =>
+              itemAnchor.parentNode?.insertBefore(node, itemAnchor.nextSibling),
+            );
           });
 
           keyMap.set(mutation._key, { _subnodes, _destroy: destroy });
@@ -114,9 +111,9 @@ export const For = <T>(props: {
             nodes.splice(anchorIndex + 1, 0, ..._subnodes);
           }
 
-          for (const node of _subnodes) {
-            itemAnchor.parentNode?.insertBefore(node, itemAnchor.nextSibling);
-          }
+          _subnodes.forEach((node) =>
+            itemAnchor.parentNode?.insertBefore(node, itemAnchor.nextSibling),
+          );
         }
       }
     }, [mutationResult]);
