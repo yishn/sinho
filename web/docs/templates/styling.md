@@ -106,6 +106,13 @@ return (
 In case your component renders into the light DOM, all injected styles will be
 light by default.
 
+:::warning
+
+Light DOM styles are not scoped. Use them with caution to avoid unintended side
+effects.
+
+:::
+
 ### Dynamic Styling
 
 It is recommended to use static styles whenever possible. Static styles will

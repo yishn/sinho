@@ -6,8 +6,6 @@ import { Fragment } from "./Fragment.js";
 import { useRenderer } from "../renderer.js";
 import { Portal } from "./Portal.js";
 
-const styleSheetRegistrySym = Symbol("styleSheetRegistry");
-
 type StyleSheetRegistry = Map<
   string,
   {
@@ -16,9 +14,53 @@ type StyleSheetRegistry = Map<
   }
 >;
 
-const getStyleSheetRegistry = <T>(
+const styleSheetRegistrySym = Symbol("styleSheetRegistry");
+const globalStyleSheetRegistry: StyleSheetRegistry = new Map();
+
+const getLocalStyleSheetRegistry = <T>(
   obj: T & { [styleSheetRegistrySym]?: StyleSheetRegistry },
 ): StyleSheetRegistry => (obj[styleSheetRegistrySym] ??= new Map());
+
+const useStyleSheet = (
+  registry: StyleSheetRegistry,
+  css: string,
+  cleanup: () => void,
+): CSSStyleSheet => {
+  if (!globalStyleSheetRegistry.has(css)) {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(css);
+    globalStyleSheetRegistry.set(css, {
+      _sheet: sheet,
+      _refs: 0,
+    });
+  }
+
+  const globalEntry = globalStyleSheetRegistry.get(css)!;
+  globalEntry._refs++;
+
+  if (!registry.has(css)) {
+    registry.set(css, {
+      _sheet: globalEntry._sheet,
+      _refs: 0,
+    });
+  }
+
+  const entry = registry.get(css)!;
+  entry._refs++;
+
+  useEffect(() => () => {
+    if (!--entry._refs) {
+      registry.delete(css);
+      cleanup();
+    }
+
+    if (!--globalEntry._refs) {
+      globalStyleSheetRegistry.delete(css);
+    }
+  });
+
+  return entry._sheet;
+};
 
 export const Style: FunctionalComponent<{
   light?: boolean;
@@ -26,9 +68,9 @@ export const Style: FunctionalComponent<{
 }> = (props) => {
   const css = props.children;
 
-  // Dynamic CSS will be inserted into the DOM as a <style> element.
-
   if (typeof css == "function") {
+    // Dynamic CSS will be inserted into the DOM as a <style> element.
+
     const styleEl = createElement(
       "style",
       {},
@@ -50,30 +92,15 @@ export const Style: FunctionalComponent<{
     const styleRoot = props.light
       ? document
       : renderer._component?.shadowRoot ?? document;
-    const styleSheetRegistry = getStyleSheetRegistry(styleRoot);
+    const registry = getLocalStyleSheetRegistry(styleRoot);
 
-    if (!styleSheetRegistry.has(css)) {
-      const sheet = new CSSStyleSheet();
-      sheet.replaceSync(css);
-      styleSheetRegistry.set(css, {
-        _sheet: sheet,
-        _refs: 0,
-      });
-    }
-
-    const entry = styleSheetRegistry.get(css)!;
-    entry._refs++;
-
-    styleRoot.adoptedStyleSheets.push(entry._sheet);
-
-    useEffect(() => () => {
-      if (--entry._refs == 0) {
-        styleRoot.adoptedStyleSheets = styleRoot.adoptedStyleSheets.filter(
-          (sheet) => sheet != entry._sheet,
-        );
-        styleSheetRegistry.delete(css);
-      }
+    const sheet = useStyleSheet(registry, css, () => {
+      styleRoot.adoptedStyleSheets = styleRoot.adoptedStyleSheets.filter(
+        (s) => s != sheet,
+      );
     });
+
+    styleRoot.adoptedStyleSheets.push(sheet);
   }
 
   return Fragment({});
