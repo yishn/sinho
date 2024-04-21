@@ -50,14 +50,6 @@ useEffect(() => {
 });
 ```
 
-:::warning
-
-Computed signals are not supported as dependencies since they are just normal
-functions. You can use `useMemo` to turn a computed signal into a memoized
-signal.
-
-:::
-
 ## Clean Up Effects
 
 It is possible to return a cleanup function that will be run when the effect is
