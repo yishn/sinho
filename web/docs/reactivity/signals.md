@@ -26,7 +26,7 @@ console.log(value()); // Prints 0
 
 ### In JSX
 
-In JSX templates, you can put signals as attributes:
+In JSX templates, you can put signals into attributes:
 
 ```tsx
 class App extends Component("x-app") {

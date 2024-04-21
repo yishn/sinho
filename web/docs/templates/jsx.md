@@ -67,7 +67,7 @@ export class HelloWorld extends Component("hello-world") {
 }
 ```
 
-In addition to HTML tags, you can also use a custom element class as nodes, even
+In addition to HTML tags, you can also use a custom element class as node, even
 those that are not written with Shingō:
 
 ```tsx
@@ -82,7 +82,9 @@ h(SimpleGreeting, { name: "John" });
 
 :::warning
 
-Custom elements need to be defined first before they can be rendered.
+Custom elements need to be defined first before they can be rendered. Custom
+element classes can only be used in JSX templates if they can be constructed
+without arguments.
 
 :::
 
@@ -132,9 +134,8 @@ This is equivalent to:
 const [className, setClassName] = useSignal("hello-world");
 const [name, setName] = useSignal("John");
 
-return;
 // highlight-start
-h.div({ class: className }, [
+return h.div({ class: className }, [
   h.h1({}, ["Hello, ", name]),
   // highlight-end
   h.p({}, "This is a paragraph"),

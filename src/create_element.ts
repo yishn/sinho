@@ -28,7 +28,7 @@ export const createElement: (<K extends keyof DomIntrinsicElements & string>(
   props?: DomIntrinsicElements[K],
   children?: Children,
 ) => Template) &
-  (<T extends HTMLElement, M extends Metadata>(
+  (<T extends HTMLElement>(
     ...args: [
       type: new () => T,
       ...({} extends JsxProps<T>
