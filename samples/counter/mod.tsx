@@ -70,7 +70,6 @@ class App extends Component("app-component", {}, { shadow: false }) {
         <If condition={showCounter}>
           <Counter
             ref={ref}
-            id="counter"
             count={count}
             onIncrementClick={() => setCount((n) => n + 1)}
             onDecrementClick={() => setCount((n) => n - 1)}
@@ -82,3 +81,9 @@ class App extends Component("app-component", {}, { shadow: false }) {
 }
 
 defineComponents(Counter, App);
+
+class Foreign extends HTMLElement {
+  foreignProp: number = 0;
+}
+
+<Foreign foreignProp={0} />;

@@ -172,15 +172,11 @@ return (
 For [functional components](../components/functional-components), JSX attributes
 will be passed as is to the function.
 
-For custom element nodes, Shingō will automatically map JSX attributes to
-properties of the element.
+For native HTML tags and custom element nodes, Shingō will use a heuristic to
+determine if a JSX attribute is a property or an HTML attribute.
 
-For other HTML tags, Shingō will use a heuristic to determine if a JSX attribute
-is a property or an HTML attribute.
-
-In the last two cases, you can force using an attribute by using the `attr:`
-prefix for the JSX attribute name, and force using a property by using the
-`prop:` prefix.
+You can force using an attribute by using the `attr:` prefix for the JSX
+attribute name, and force using a property by using the `prop:` prefix.
 
 ```tsx
 return (

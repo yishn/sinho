@@ -1,7 +1,7 @@
 import { createElement } from "../create_element.js";
 import type { Template } from "../template.js";
-import type { DomIntrinsicElements, DomProps } from "../dom.js";
-import type { jsxPropsSym, Component } from "../component.js";
+import type { DomEventProps, DomIntrinsicElements, DomProps } from "../dom.js";
+import type { jsxPropsSym } from "../component.js";
 
 /** @ignore */
 export const jsx = (
@@ -20,7 +20,7 @@ export const jsx = (
 export namespace JSX {
   export type Element = Template;
 
-  export type ElementClass = HTMLElement;
+  export type ElementClass = Omit<HTMLElement, typeof jsxPropsSym>;
 
   export interface ElementAttributesProperty {
     [jsxPropsSym]: {};
@@ -32,7 +32,9 @@ export namespace JSX {
 
   export type IntrinsicElements = DomIntrinsicElements;
 
-  export interface IntrinsicClassAttributes<T> extends DomProps<T> {}
+  export interface IntrinsicClassAttributes<T>
+    extends DomProps<T>,
+      DomEventProps<T> {}
 }
 
 export { Fragment } from "../intrinsic/Fragment.js";

@@ -90,12 +90,75 @@ type Events<M> = OmitNever<
   >
 >;
 
+type GeneralJsxProps<T> = Partial<
+  OmitNever<{
+    [K in keyof T]: K extends
+      | typeof jsxPropsSym
+      | keyof DomProps<any>
+      | `on${string}`
+      // Readonly HTMLElement properties
+      | `${Uppercase<infer _>}${string}`
+      | "accessKeyLabel"
+      | "offsetHeight"
+      | "offsetLeft"
+      | "offsetParent"
+      | "offsetTop"
+      | "offsetWidth"
+      | "attributes"
+      | "classList"
+      | "clientHeight"
+      | "clientLeft"
+      | "clientTop"
+      | "clientWidth"
+      | "localName"
+      | "namespaceURI"
+      | "ownerDocument"
+      | "part"
+      | "prefix"
+      | "scrollHeight"
+      | "scrollWidth"
+      | "shadowRoot"
+      | "tagName"
+      | "baseURI"
+      | "childNodes"
+      | "firstChild"
+      | "isConnected"
+      | "lastChild"
+      | "nextSibling"
+      | "nodeName"
+      | "nodeType"
+      | "parentElement"
+      | "parentNode"
+      | "previousSibling"
+      | "nextElementSibling"
+      | "previousElementSibling"
+      | "childElementCount"
+      | "firstElementChild"
+      | "lastElementChild"
+      | "assignedSlot"
+      | "attributeStyleMap"
+      | "isContentEditable"
+      | "dataset"
+      ? never
+      : T[K] extends Function
+        ? never
+        : MaybeSignal<T[K]>;
+  }>
+> &
+  DomProps<any> &
+  DomEventProps<never> &
+  // Allow other HTMLElement attributes
+  Record<string, any>;
+
+declare global {
+  interface HTMLElement {
+    readonly [jsxPropsSym]?: GeneralJsxProps<this>;
+  }
+}
+
 export type JsxProps<T extends HTMLElement> = typeof jsxPropsSym extends keyof T
-  ? T[typeof jsxPropsSym]
-  : DomProps<any> &
-      DomEventProps<HTMLElement> &
-      // Allow other HTMLElement attributes
-      Record<string, any>;
+  ? NonNullable<T[typeof jsxPropsSym]>
+  : never;
 
 type ComponentJsxProps<M> = Partial<
   OmitNever<{
@@ -106,10 +169,7 @@ type ComponentJsxProps<M> = Partial<
     [K in keyof Events<M>]: (evt: InstanceType<Events<M>[K]>) => void;
   }
 > &
-  DomProps<any> &
-  DomEventProps<HTMLElement> &
-  // Allow other HTMLElement attributes
-  Record<string, any>;
+  GeneralJsxProps<HTMLElement>;
 
 type EventEmitters<M> = OmitNever<
   Omit<
@@ -263,8 +323,8 @@ declare abstract class ComponentInner<M extends Metadata> {
   protected props: Props<M>;
   protected events: EventEmitters<M>;
 
-  [jsxPropsSym]: ComponentJsxProps<M>;
-  [componentSym]: {
+  readonly [jsxPropsSym]?: ComponentJsxProps<M>;
+  readonly [componentSym]: {
     _scope?: ReturnType<typeof useScope>;
     _destroy?: (() => void) | void;
   };
@@ -432,7 +492,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
     protected props: Record<string, Signal<any>> = {};
     protected events: Record<string, (arg: unknown) => any> = {};
 
-    [componentSym]: ComponentInner<any>[typeof componentSym] = {};
+    readonly [componentSym]: ComponentInner<any>[typeof componentSym] = {};
 
     constructor() {
       super();

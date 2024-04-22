@@ -322,9 +322,19 @@ export type Styles = {
   [key: string]: MaybeSignal<string | number | null | undefined>;
 };
 
-type EventMap = ElementEventMap &
-  DocumentEventMap &
-  GlobalEventHandlersEventMap;
+type ExcludeNeverValues<T> = T[Exclude<
+  keyof T,
+  { [K in keyof T]: T[K] extends never ? K : never }[keyof T]
+>];
+
+type EventMap = Pick<
+  ElementEventMap & DocumentEventMap & GlobalEventHandlersEventMap,
+  ExcludeNeverValues<{
+    [K in keyof (ElementEventMap &
+      DocumentEventMap &
+      GlobalEventHandlersEventMap)]: K extends Lowercase<K> ? K : never;
+  }>
+>;
 
 export type EventHandler<K extends keyof EventMap, E> = (
   this: E,
@@ -343,7 +353,6 @@ export interface DangerousHtml {
 
 export interface DomProps<in E> {
   ref?: RefSignalSetter<E | undefined>;
-  id?: MaybeSignal<string | undefined>;
   class?: MaybeSignal<string | undefined>;
   style?: Styles;
   dangerouslySetInnerHTML?: MaybeSignal<DangerousHtml>;
