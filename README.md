@@ -11,6 +11,8 @@ API.
 - 🪶 Lightweight (~4KB minified and compressed)
 
 ```tsx
+import { Component, useSignal, defineComponents } from "shingo";
+
 class Counter extends Component("x-counter") {
   render() {
     const [value, setValue] = useSignal(0);
@@ -19,11 +21,13 @@ class Counter extends Component("x-counter") {
       <>
         <p>Counter: {value}</p>
         <p>
-          <button onclick={() => setValue((n) => n + 1)}>Increment</button>
+          <button onclick={() => setValue((n) => n + 1)}>Increment</button>{" "}
           <button onclick={() => setValue((n) => n - 1)}>Decrement</button>
         </p>
       </>
     );
   }
 }
+
+defineComponents(Counter);
 ```

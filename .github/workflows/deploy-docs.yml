@@ -38,7 +38,7 @@ jobs:
       - name: Install Dependencies
         run: npm install && cd ../ && npm install
       - name: Build
-        run: npm run build
+        run: cd ../ && npm run build && cd web && npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload Artifact
