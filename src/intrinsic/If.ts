@@ -2,13 +2,14 @@ import type { FunctionalComponent } from "../component.js";
 import { createTemplate, type Template } from "../template.js";
 import { MaybeSignal, useEffect, useMemo, useSubscope } from "../scope.js";
 import { runWithRenderer, useRenderer } from "../renderer.js";
+import { Children, Fragment } from "./Fragment.js";
 
 /**
  * `If` is a component that can be used to render conditionally.
  */
 export const If: FunctionalComponent<{
   condition?: MaybeSignal<boolean>;
-  children?: Template;
+  children?: Children;
 }> = (props) => {
   const renderer = useRenderer();
   renderer._ifConditions = [];
@@ -22,7 +23,7 @@ export const If: FunctionalComponent<{
  */
 export const ElseIf: FunctionalComponent<{
   condition?: MaybeSignal<boolean>;
-  children?: Template;
+  children?: Children;
 }> = (props) => {
   const renderer = useRenderer();
   const conditions = renderer._ifConditions;
@@ -39,7 +40,7 @@ export const ElseIf: FunctionalComponent<{
       const anchor = renderer._node(() => document.createComment(""));
       const nodes: Node[] = [anchor];
       const template = useMemo(() =>
-        condition() ? MaybeSignal.get(props.children) : null,
+        condition() ? Fragment({ children: props.children }) : null,
       );
 
       let subnodes: Node[] = [];
@@ -65,7 +66,7 @@ export const ElseIf: FunctionalComponent<{
 /**
  * `Else` indicates the `else` block for {@link If} and {@link ElseIf}.
  */
-export const Else: FunctionalComponent<{ children?: Template }> = ({
+export const Else: FunctionalComponent<{ children?: Children }> = ({
   children,
 }) => {
   return ElseIf({ condition: true, children });
