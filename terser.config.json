@@ -10,7 +10,7 @@
     "toplevel": true,
     "module": true,
     "properties": {
-      "regex": "^_"
+      "regex": "^_(?!_)"
     }
   }
 }

@@ -1,0 +1,134 @@
+---
+sidebar_position: 2
+---
+
+import { CodeSnippetComponentPlayground } from "@site/src/playground";
+
+# Control Flow
+
+## Basics
+
+Since Shingō templates are only created once for the whole lifetime of a
+component, you can't use dynamic JavaScript expressions such as ternary
+operators in the template. Instead, you can use special control flow functional
+components.
+
+## Conditionals
+
+You can use the `<If>`/`<ElseIf>`/`<Else>` components to conditionally render
+parts of the template:
+
+```tsx
+import { Component, useSignal, If, ElseIf, Else } from "shingo";
+
+class MyComponent extends Component("my-component") {
+  render() {
+    const [count, setCount] = useSignal(0);
+
+    return (
+      <>
+        <If condition={() => count() > 0}>
+          <p>My content</p>
+          <p>{count} items</p>
+        </If>
+        <ElseIf condition={() => count() < 0}>
+          <p>Error occurred!</p>
+        </ElseIf>
+        <Else>
+          <p>No content</p>
+          <p>
+            <button onclick={() => setCount(100)}>Load items</button>
+          </p>
+        </Else>
+      </>
+    );
+  }
+}
+```
+
+<CodeSnippetComponentPlayground componentName="MyComponent" />
+
+`<ElseIf>`/`<Else>` are optional and you can have as many `<ElseIf>` as you
+want. `<Else>` should be the last one if it's present.
+
+:::tip
+
+Keep `<If>`/`<ElseIf>`/`<Else>` next to each other for easier readability and
+reasonability of your code.
+
+:::
+
+## Loops
+
+You can use the `<For>` component to loop over an array and render a template
+for each element:
+
+```tsx
+import { Component, useSignal, For } from "shingo";
+
+class MyColors extends Component("my-colors") {
+  render() {
+    const [colors, setColors] = useSignal(["red", "green", "blue"]);
+
+    return (
+      <ul>
+        <For each={colors}>
+          {(color, index) => (
+            <li style={{ color }}>
+              #{index}: {color}
+            </li>
+          )}
+        </For>
+      </ul>
+    );
+  }
+}
+```
+
+<CodeSnippetComponentPlayground componentName="MyColors" />
+
+
+When `colors` updates, `<For>` will compare the new array with the old one and
+efficiently update the DOM.
+
+You can additionally specify a key function to help `<For>` identify which
+elements should be stable across updates. With a key function `<For>` can infer
+which correct operation to perform (insert, update, or remove) for each element
+across updates.
+
+```tsx
+import { Component, useSignal, For } from "shingo";
+
+class TaskList extends Component("task-list") {
+  render() {
+    const [tasks, setTasks] = useSignal([
+      { id: 1, text: "Learn Shingō" },
+      { id: 2, text: "Build an app" },
+    ]);
+
+    return (
+      <ul>
+        <For each={tasks} key={(task) => task.id}>
+          {(task, i, arr) => (
+            <li>
+              #{() => i() + 1}/{() => arr().length}: {() => task().text}
+            </li>
+          )}
+        </For>
+      </ul>
+    );
+  }
+}
+```
+
+<CodeSnippetComponentPlayground componentName="TaskList" />
+
+If the key function is not specified, `<For>` will use the index of the element
+as the key.
+
+:::warning
+
+The key function must be a pure function that returns a unique value for each
+element, otherwise an error will be thrown.
+
+:::

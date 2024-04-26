@@ -2,6 +2,8 @@
 sidebar_position: 1
 ---
 
+import { CodeSnippetComponentPlayground } from "@site/src/playground";
+
 # JSX
 
 ## Basics
@@ -10,7 +12,7 @@ JSX is a special syntax for templates which allows you to write HTML-like code.
 Each component has a `render` function that returns a JSX template.
 
 ```tsx
-import { Component, prop } from "shingo";
+import { Component } from "shingo";
 
 export class HelloWorld extends Component("hello-world") {
   render() {
@@ -26,13 +28,15 @@ export class HelloWorld extends Component("hello-world") {
 }
 ```
 
+<CodeSnippetComponentPlayground componentName="HelloWorld" />
+
 In this example, the `HelloWorld` component will render a `div` element with two
 children, an `h1` and a `p` element.
 
 JSX will be transpiled into normal JavaScript. The above code is equivalent to:
 
 ```ts
-import { Component, prop, h } from "shingo";
+import { Component, h } from "shingo";
 
 export class HelloWorld extends Component("hello-world") {
   render() {
@@ -51,7 +55,7 @@ export class HelloWorld extends Component("hello-world") {
 For native HTML tags, you can use a shorthand notation:
 
 ```ts
-import { Component, prop, h } from "shingo";
+import { Component, h } from "shingo";
 
 export class HelloWorld extends Component("hello-world") {
   render() {
@@ -93,7 +97,7 @@ without arguments.
 To render multiple elements without a parent element, you can use a fragment:
 
 ```tsx
-import { Component, prop } from "shingo";
+import { Component } from "shingo";
 
 export class HelloWorld extends Component("hello-world") {
   render() {
@@ -109,24 +113,42 @@ export class HelloWorld extends Component("hello-world") {
 }
 ```
 
+<CodeSnippetComponentPlayground componentName="HelloWorld" />
+
 ## Data Binding
 
 You can render dynamic data by using curly braces `{}` around a signal or
 expression:
 
 ```tsx
-const [className, setClassName] = useSignal("hello-world");
-const [name, setName] = useSignal("John");
+import { Component, useSignal } from "shingo";
 
-return (
-  // highlight-start
-  <div class={className}>
-    <h1>Hello, {name}</h1>
-    {/* highlight-end */}
-    <p>This is a paragraph</p>
-  </div>
-);
+export class HelloWorld extends Component("hello-world") {
+  render() {
+    const [className, setClassName] = useSignal("hello-world");
+    const [name, setName] = useSignal("John");
+
+    return (
+      // highlight-start
+      <div class={className}>
+        <h1>Hello, {name}</h1>
+        {/* highlight-end */}
+        <p>
+          <button
+            onclick={() =>
+              setName((name) => (name === "John" ? "Jane" : "John"))
+            }
+          >
+            Switch User
+          </button>
+        </p>
+      </div>
+    );
+  }
+}
 ```
+
+<CodeSnippetComponentPlayground componentName="HelloWorld" />
 
 This is equivalent to:
 
@@ -280,18 +302,24 @@ prevent XSS attacks. If you want to render HTML content, you can use the
 `dangerouslySetInnerHTML` attribute:
 
 ```tsx
-import { DangerousHtml } from "shingo";
+import { Component, DangerousHtml } from "shingo";
 
-// highlight-next-line
-const htmlContent: DangerousHtml = { __html: "<b>This is bold</b>" };
-
-return (
-  <div
+class DangerousDiv extends Component("dangerous-div") {
+  render() {
     // highlight-next-line
-    dangerouslySetInnerHTML={htmlContent}
-  />
-);
+    const htmlContent: DangerousHtml = { __html: "<p><b>This is bold</b></p>" };
+
+    return (
+      <div
+        // highlight-next-line
+        dangerouslySetInnerHTML={htmlContent}
+      />
+    );
+  }
+}
 ```
+
+<CodeSnippetComponentPlayground componentName="DangerousDiv" />
 
 :::danger
 

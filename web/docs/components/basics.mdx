@@ -2,6 +2,8 @@
 sidebar_position: 1
 ---
 
+import { CodeSnippetComponentPlayground } from "@site/src/playground";
+
 # Basics
 
 ## Create Components
@@ -12,7 +14,7 @@ component a.k.a. custom HTML element.
 ```tsx
 import { Component, prop } from "shingo";
 
-export class SimpleGreeting extends Component("simple-greeting", {
+class SimpleGreeting extends Component("simple-greeting", {
   name: prop<string>("John"),
 }) {
   render() {
@@ -21,14 +23,16 @@ export class SimpleGreeting extends Component("simple-greeting", {
 }
 ```
 
+<CodeSnippetComponentPlayground componentName="SimpleGreeting" />
+
 The class needs to provide a `render` method that returns a JSX template.
 
-`SimpleGreeting` is now a custom element and needs to be defined first before it
-can be used or constructed. You can use the `defineComponents` function to
+Since `SimpleGreeting` is a custom element it needs to be defined first before
+it can be used or constructed. You can use the `defineComponents` function to
 define it with the tag name given as first argument to `Component`:
 
 ```tsx
-import { defineComponents } from "shingo";
+import { /* … */ defineComponents } from "shingo";
 
 // …
 
