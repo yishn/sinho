@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "docusaurus start",
-    "build": "docusaurus build",
+    "start": "cpy ../dist/bundle.min.js ./static --rename=shingo.min.js && docusaurus start",
+    "build": "cpy ../dist/bundle.min.js ./static --rename=shingo.min.js && docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
