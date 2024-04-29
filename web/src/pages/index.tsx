@@ -4,7 +4,7 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import Heading from "@theme/Heading";
 
-import { CodeSnippetComponentPlayground } from "../playground";
+import { CodeSnippetComponentPlayground } from "../components/playground";
 import styles from "./index.module.css";
 import CodeBlock from "@theme/CodeBlock";
 

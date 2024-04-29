@@ -17,11 +17,11 @@ export const Playground: FC<{
     },
   };
 
-  const Playground: any = "x-playground";
-
   useEffect(() => {
     import("./playgroundComponent");
   }, []);
+
+  const Playground: any = "x-playground";
 
   return (
     <Playground

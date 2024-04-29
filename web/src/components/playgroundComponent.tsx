@@ -1,8 +1,8 @@
+/** @jsxImportSource shingo */
+
 import {
-  h,
   Component,
   prop,
-  Fragment,
   Style,
   css,
   defineComponents,
@@ -15,13 +15,19 @@ export class Playground extends Component("x-playground", {
   colorMode: prop<"light" | "dark">("light", {
     attribute: (value) => (value === "dark" ? value : "light"),
   }),
-  headerText: prop<string>("Preview", { attribute: String }),
+  headerText: prop<string>("Preview", {
+    attribute: String,
+  }),
   importMap: prop<{ imports: Record<string, string> }>(
     { imports: {} },
     { attribute: JSON.parse },
   ),
-  customCode: prop<string>("", { attribute: String }),
-  autosize: prop<boolean>(false, { attribute: () => true }),
+  customCode: prop<string>("", {
+    attribute: String,
+  }),
+  autosize: prop<boolean>(false, {
+    attribute: () => true,
+  }),
 }) {
   render() {
     const [src, setSrc] = useSignal(
@@ -70,46 +76,45 @@ export class Playground extends Component("x-playground", {
       }
     `;
 
-    const blob = () =>
+    const jsBlob = () => new Blob([src()], { type: "application/javascript" });
+
+    const htmlBlob = () =>
       new Blob(
         [
-          `<!DOCTYPE html>
-          <html>
-          <head>
-          <base href="${location.href}" />
-          <script type="importmap">
-          ${JSON.stringify(this.props.importMap())}
-          </script>
-          <style>${MaybeSignal.get(iframeCss)}</style>
-          <script type="module">${src()}</script>
-          </head>
-          <body>
-          </body>
-          </html>`,
+          `\
+<!DOCTYPE html>
+<html>
+<head>
+<base href="${location.href}" />
+<script type="importmap">${JSON.stringify(this.props.importMap())}</script>
+<style>${MaybeSignal.get(iframeCss)}</style>
+<script type="module" src="${URL.createObjectURL(jsBlob())}"></script>
+</head>
+<body>
+</body>
+</html>`,
         ],
         { type: "text/html" },
       );
 
-    return h(Fragment, {}, [
-      h.div({ class: "header" }, this.props.headerText),
+    return (
+      <>
+        <div class="header">{this.props.headerText}</div>
 
-      h.iframe({
-        src: () => URL.createObjectURL(blob()),
-        onload: (evt) => {
-          if (!this.props.autosize()) return;
+        <iframe
+          src={() => URL.createObjectURL(htmlBlob())}
+          onload={(evt) => {
+            if (!this.props.autosize()) return;
 
-          const bodySize =
-            evt.currentTarget.contentWindow!.document.body.getBoundingClientRect();
+            const bodySize =
+              evt.currentTarget.contentWindow!.document.body.getBoundingClientRect();
 
-          evt.currentTarget.width = bodySize.width + "px";
-          evt.currentTarget.height = bodySize.height + "px";
-        },
-      }),
+            evt.currentTarget.width = bodySize.width + "px";
+            evt.currentTarget.height = bodySize.height + "px";
+          }}
+        />
 
-      h(
-        Style,
-        {},
-        css`
+        <Style>{css`
           :host {
             display: block;
             position: relative;
@@ -132,9 +137,9 @@ export class Playground extends Component("x-playground", {
             border: none;
             width: 100%;
           }
-        `,
-      ),
-    ]);
+        `}</Style>
+      </>
+    );
   }
 }
 
