@@ -3,7 +3,6 @@ import {
   FunctionalComponent,
   isComponent,
   JsxProps,
-  Metadata,
 } from "./component.js";
 import { DomIntrinsicElements, DomProps } from "./dom.js";
 import { Children } from "./intrinsic/Fragment.js";

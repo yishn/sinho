@@ -150,15 +150,9 @@ type GeneralJsxProps<T> = Partial<
   // Allow other HTMLElement attributes
   Record<string, any>;
 
-declare global {
-  interface HTMLElement {
-    readonly [jsxPropsSym]?: GeneralJsxProps<this>;
-  }
-}
-
 export type JsxProps<T extends HTMLElement> = typeof jsxPropsSym extends keyof T
   ? NonNullable<T[typeof jsxPropsSym]>
-  : never;
+  : any;
 
 type ComponentJsxProps<M> = Partial<
   OmitNever<{

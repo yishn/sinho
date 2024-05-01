@@ -81,9 +81,3 @@ class App extends Component("app-component", {}, { shadow: false }) {
 }
 
 defineComponents(Counter, App);
-
-class Foreign extends HTMLElement {
-  foreignProp: number = 0;
-}
-
-<Foreign foreignProp={0} />;

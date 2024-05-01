@@ -104,9 +104,9 @@ test("Component with events", () => {
       );
     }
 
-    click(): void {
+    click = (): void => {
       this.shadowRoot!.querySelector("button")!.click();
-    }
+    };
   }
 
   defineComponents(Button);
