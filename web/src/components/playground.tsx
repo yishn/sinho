@@ -17,7 +17,7 @@ export const Playground: FC<{
   autosize?: boolean;
 }> = (props) => {
   const { colorMode } = useColorMode();
-  const shingoPath = useBaseUrl("/shingo.min.js");
+  const shingoPath = useBaseUrl("/shingo/bundle.min.js");
   const importMap = {
     imports: {
       shingo: shingoPath,

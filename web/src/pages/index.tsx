@@ -34,13 +34,8 @@ function HomepageHeader() {
 }
 
 export default function Home(): JSX.Element {
-  const { siteConfig } = useDocusaurusContext();
-
   return (
-    <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />"
-    >
+    <Layout description="A lightweight signal-based library for building web components with a React-like API.">
       <HomepageHeader />
       <main>
         <ul>

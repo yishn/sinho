@@ -1,3 +1,4 @@
+import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 import { themes as prismThemes } from "prism-react-renderer";
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
@@ -93,6 +94,11 @@ const config: Config = {
           position: "left",
         },
         {
+          to: "playground",
+          label: "Playground",
+          position: "left",
+        },
+        {
           href: "https://github.com/yishn/shingo",
           label: "GitHub",
           position: "right",
@@ -129,6 +135,16 @@ const config: Config = {
         minimal: true,
       },
     ],
+    () => ({
+      name: "monaco",
+      configureWebpack: () => ({
+        plugins: [
+          new MonacoWebpackPlugin({
+            languages: ["typescript"],
+          }),
+        ],
+      }),
+    }),
   ],
 };
 

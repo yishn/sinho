@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "cpy ../dist/bundle.min.js ./static --rename=shingo.min.js && docusaurus start",
-    "build": "cpy ../dist/bundle.min.js ./static --rename=shingo.min.js && docusaurus build",
+    "prepare-static": "copyfiles --flat ../dist/bundle.min.js ../dist/bundle.d.ts ./static/shingo",
+    "start": "npm run prepare-static && docusaurus start",
+    "build": "npm run prepare-static && docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -20,6 +21,8 @@
     "@mdx-js/react": "^3.0.0",
     "@swc/wasm-web": "^1.4.17",
     "clsx": "^2.0.0",
+    "monaco-editor": "^0.48.0",
+    "monaco-editor-webpack-plugin": "^7.1.0",
     "prism-react-renderer": "^2.3.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
@@ -31,7 +34,7 @@
     "@docusaurus/types": "3.2.1",
     "docusaurus-plugin-typedoc-api": "^4.2.0",
     "typedoc": "^0.25.13",
-    "typescript": "~5.2.2"
+    "typescript": "^5.4.3"
   },
   "browserslist": {
     "production": [
