@@ -87,33 +87,29 @@ export class Playground extends Component("x-playground", {
         [
           error() == null
             ? src()
-            : `
-                  document.body.innerHTML = '<p>Error loading preview:</p><pre id="error"></pre>';
-                  document.getElementById("error").innerText = ${JSON.stringify(
-                    error()!.message,
-                  )};
-                `,
+            : `\
+              document.body.innerHTML = '<p>Error loading preview:</p><pre id="error"></pre>';
+              document.getElementById("error").innerText = ${JSON.stringify(
+                error()!.message,
+              )};`,
         ],
-        {
-          type: "application/javascript",
-        },
+        { type: "application/javascript" },
       );
 
     const htmlBlob = () =>
       new Blob(
         [
-          `\
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <base href="${location.href}" />
-    <script type="importmap">${JSON.stringify(this.props.importMap())}</script>
-    <style>${MaybeSignal.get(iframeCss)}</style>
-    <script type="module" src="${URL.createObjectURL(jsBlob())}"></script>
-    </head>
-    <body>
-    </body>
-    </html>`,
+          `<!DOCTYPE html>
+          <html>
+          <head>
+          <base href="${location.href}" />
+          <script type="importmap">${JSON.stringify(this.props.importMap())}</script>
+          <style>${MaybeSignal.get(iframeCss)}</style>
+          <script type="module" src="${URL.createObjectURL(jsBlob())}"></script>
+          </head>
+          <body>
+          </body>
+          </html>`,
         ],
         { type: "text/html" },
       );
