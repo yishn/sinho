@@ -1,7 +1,7 @@
 import Layout from "@theme/Layout";
 import { Playground } from "../components/playground";
-import { MonacoEditor } from "../components/monacoEditor";
 import { useState } from "react";
+import BrowserOnly from "@docusaurus/BrowserOnly";
 
 export default function PlaygroundPage() {
   const [src, setSrc] = useState(`\
@@ -40,11 +40,20 @@ document.body.append(new Counter());`);
           alignItems: "stretch",
         }}
       >
-        <MonacoEditor
-          style={{ flex: 1, overflow: "hidden" }}
-          text={src}
-          onChange={(src) => setSrc(src)}
-        />
+        <BrowserOnly>
+          {() => {
+            const { MonacoEditor } =
+              require("../components/monacoEditor") as typeof import("../components/monacoEditor");
+
+            return (
+              <MonacoEditor
+                style={{ flex: 1, overflow: "hidden" }}
+                text={src}
+                onChange={(src) => setSrc(src)}
+              />
+            );
+          }}
+        </BrowserOnly>
         <Playground
           style={{ flex: 1, marginBottom: 0, overflow: "hidden" }}
           customCode={src}

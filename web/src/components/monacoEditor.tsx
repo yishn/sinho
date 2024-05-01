@@ -1,6 +1,6 @@
 import { useColorMode } from "@docusaurus/theme-common";
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import type * as monaco from "monaco-editor";
+import * as monaco from "monaco-editor";
 import { CSSProperties, FC, useEffect, useRef } from "react";
 
 export const MonacoEditor: FC<{
@@ -15,8 +15,6 @@ export const MonacoEditor: FC<{
 
   useEffect(() => {
     (async () => {
-      const monaco = await import("monaco-editor");
-
       editorRef.current = monaco.editor.create(divRef.current!, {
         model: monaco.editor.createModel(
           props.text!,
@@ -61,9 +59,7 @@ export const MonacoEditor: FC<{
   }, []);
 
   useEffect(() => {
-    import("monaco-editor").then((monaco) =>
-      monaco.editor.setTheme(colorMode == "light" ? "vs" : "vs-dark"),
-    );
+    monaco.editor.setTheme(colorMode == "light" ? "vs" : "vs-dark");
   }, [colorMode]);
 
   useEffect(() => {
