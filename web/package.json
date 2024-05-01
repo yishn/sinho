@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "prepare-static": "copyfiles --flat ../dist/bundle.min.js ../dist/bundle.d.ts ./static/shingo",
+    "prepare-static": "copyfiles --flat ../dist/bundle.min.js ../dist/bundle.d.ts ./static/dist",
     "start": "npm run prepare-static && docusaurus start",
     "build": "npm run prepare-static && docusaurus build",
     "swizzle": "docusaurus swizzle",

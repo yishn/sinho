@@ -9,7 +9,7 @@ export const MonacoEditor: FC<{
   onChange?: (text: string) => void;
 }> = (props) => {
   const divRef = useRef<HTMLDivElement>(null);
-  const typesPath = useBaseUrl("/shingo/bundle.d.ts");
+  const typesPath = useBaseUrl("/dist/bundle.d.ts");
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
   const { colorMode } = useColorMode();
 
