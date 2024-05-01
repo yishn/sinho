@@ -1,9 +1,17 @@
 import { useColorMode } from "@docusaurus/theme-common";
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import { FC, RefObject, useEffect, useRef, useState } from "react";
+import {
+  CSSProperties,
+  FC,
+  RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 export const Playground: FC<{
   innerRef?: RefObject<HTMLElement>;
+  style?: CSSProperties;
   headerText?: string;
   customCode?: string;
   autosize?: boolean;
@@ -26,6 +34,7 @@ export const Playground: FC<{
   return (
     <Playground
       ref={props.innerRef}
+      style={props.style}
       color-mode={colorMode}
       header-text={props.headerText}
       autosize={props.autosize}

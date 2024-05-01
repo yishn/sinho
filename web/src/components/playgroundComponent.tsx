@@ -9,6 +9,8 @@ import {
   useSignal,
   useEffect,
   MaybeSignal,
+  If,
+  Else,
 } from "shingo";
 
 export class Playground extends Component("x-playground", {
@@ -33,31 +35,37 @@ export class Playground extends Component("x-playground", {
     const [src, setSrc] = useSignal(
       "document.body.innerHTML = '<p>Loading…</p>';",
     );
+    const [error, setError] = useSignal<Error>();
 
     useEffect(() => {
+      setError(undefined);
       const customCode = this.props.customCode();
 
       (async () => {
-        const swc = await import("@swc/wasm-web");
-        await swc.default();
+        try {
+          const swc = await import("@swc/wasm-web");
+          await swc.default();
 
-        const { code } = swc.transformSync(customCode, {
-          jsc: {
-            target: "es2022",
-            parser: {
-              syntax: "typescript",
-              tsx: true,
-            },
-            transform: {
-              react: {
-                runtime: "automatic",
-                importSource: "shingo",
+          const { code } = swc.transformSync(customCode, {
+            jsc: {
+              target: "es2022",
+              parser: {
+                syntax: "typescript",
+                tsx: true,
+              },
+              transform: {
+                react: {
+                  runtime: "automatic",
+                  importSource: "shingo",
+                },
               },
             },
-          },
-        });
+          });
 
-        setSrc(code);
+          setSrc(code);
+        } catch (err) {
+          setError(new Error((err as string).replace(/\x1B\[.*?m/g, "")));
+        }
       })();
     });
 
@@ -76,7 +84,22 @@ export class Playground extends Component("x-playground", {
       }
     `;
 
-    const jsBlob = () => new Blob([src()], { type: "application/javascript" });
+    const jsBlob = () =>
+      new Blob(
+        [
+          error() == null
+            ? src()
+            : `
+              document.body.innerHTML = '<p>Error loading preview:</p><pre id="error"></pre>';
+              document.getElementById("error").innerText = ${JSON.stringify(
+                error()!.message,
+              )};
+            `,
+        ],
+        {
+          type: "application/javascript",
+        },
+      );
 
     const htmlBlob = () =>
       new Blob(
@@ -109,14 +132,14 @@ export class Playground extends Component("x-playground", {
             const bodySize =
               evt.currentTarget.contentWindow!.document.body.getBoundingClientRect();
 
-            evt.currentTarget.width = bodySize.width + "px";
-            evt.currentTarget.height = bodySize.height + "px";
+            evt.currentTarget.height = bodySize.height.toString();
           }}
         />
 
         <Style>{css`
           :host {
-            display: block;
+            display: flex;
+            flex-direction: column;
             position: relative;
             margin-bottom: var(--ifm-leading);
           }
@@ -133,6 +156,7 @@ export class Playground extends Component("x-playground", {
           }
 
           iframe {
+            flex: ${this.props.autosize() ? "auto" : "1"};
             display: block;
             border: none;
             width: 100%;
