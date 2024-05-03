@@ -1,7 +1,7 @@
 {
   "name": "shingo",
-  "version": "1.0.0",
-  "description": "A signal-based web component framework",
+  "version": "0.1.0",
+  "description": "A lightweight signal-based library for building web components with a React-like API.",
   "keywords": [
     "ui",
     "framework",
