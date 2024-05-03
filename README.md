@@ -6,7 +6,7 @@ API.
 - 🌌 Web standards with custom HTML elements
 - ⚛️ React-like API
 - ✒️ Declarative templating with JSX (no additional parsing)
-- 🚥 Fine-granular reactivity with signals
+- 🚥 Fine-grained reactivity with signals
 - 🛟 Type-safe components with TypeScript
 - 🪶 Lightweight (~4KB minified and compressed)
 

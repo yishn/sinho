@@ -42,7 +42,7 @@ export default function Home(): JSX.Element {
           <li>🌌 Web standards with custom HTML elements</li>
           <li>⚛️ React-like API</li>
           <li>✒️ Declarative templating with JSX (no additional parsing)</li>
-          <li>🚥 Fine-granular reactivity with signals</li>
+          <li>🚥 Fine-grained reactivity with signals</li>
           <li>🛟 Type-safe components out of the box with TypeScript</li>
           <li>🪶 Lightweight (~4KB minified and compressed)</li>
         </ul>
