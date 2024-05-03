@@ -7,7 +7,7 @@ import {
   useEffect,
   useRef,
   useSignal,
-} from "shingo";
+} from "sinho";
 
 export class Counter extends Component("counter-component", {
   count: prop<number>(0, {

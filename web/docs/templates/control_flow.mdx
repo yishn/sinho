@@ -8,7 +8,7 @@ import { CodeSnippetComponentPlayground } from "@site/src/components/playground"
 
 ## Basics
 
-Since Shingō templates are only created once for the whole lifetime of a
+Since Sinho templates are only created once for the whole lifetime of a
 component, you can't use dynamic JavaScript expressions such as ternary
 operators in the template. Instead, you can use special control flow functional
 components.
@@ -19,7 +19,7 @@ You can use the `<If>`/`<ElseIf>`/`<Else>` components to conditionally render
 parts of the template:
 
 ```tsx
-import { Component, useSignal, If, ElseIf, Else } from "shingo";
+import { Component, useSignal, If, ElseIf, Else } from "sinho";
 
 class MyComponent extends Component("my-component") {
   render() {
@@ -64,7 +64,7 @@ You can use the `<For>` component to loop over an array and render a template
 for each element:
 
 ```tsx
-import { Component, useSignal, For } from "shingo";
+import { Component, useSignal, For } from "sinho";
 
 class MyColors extends Component("my-colors") {
   render() {
@@ -97,12 +97,12 @@ which correct operation to perform (insert, update, or remove) for each element
 across updates.
 
 ```tsx
-import { Component, useSignal, For } from "shingo";
+import { Component, useSignal, For } from "sinho";
 
 class TaskList extends Component("task-list") {
   render() {
     const [tasks, setTasks] = useSignal([
-      { id: 1, text: "Learn Shingō" },
+      { id: 1, text: "Learn Sinho" },
       { id: 2, text: "Build an app" },
     ]);
 

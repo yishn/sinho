@@ -6,7 +6,7 @@ sidebar_position: 1
 
 ## Create Signals
 
-Signals are the core primitives of Shingō's reactive system. They are
+Signals are the core primitives of Sinho's reactive system. They are
 responsible for managing data and triggering effects, in particular DOM updates.
 You can use `useSignal()` to create a signal and its setter:
 
@@ -118,7 +118,7 @@ Now the `name` property will change whenever the `gender` signal changes.
 To avoid unnecessary recomputations, you can use `useMemo`:
 
 ```tsx
-import { Component, useSignal, useMemo } from "shingo";
+import { Component, useSignal, useMemo } from "sinho";
 
 class App extends Component("x-app") {
   render() {

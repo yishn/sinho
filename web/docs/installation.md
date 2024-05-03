@@ -4,13 +4,13 @@ sidebar_position: 1
 
 # Installation
 
-Use npm to install Shingō:
+Use npm to install Sinho:
 
 ```
-npm install shingo
+npm install sinho
 ```
 
-Shingō works out of the box with TypeScript. To use JSX, you can use the
+Sinho works out of the box with TypeScript. To use JSX, you can use the
 following `tsconfig.json` options:
 
 ```js
@@ -18,7 +18,7 @@ following `tsconfig.json` options:
   "compilerOptions": {
     "moduleResolution": "NodeNext",
     "jsx": "react-jsx",
-    "jsxImportSource": "shingo"
+    "jsxImportSource": "sinho"
     // …
   }
   // …
@@ -35,7 +35,7 @@ If you do not use TypeScript, you need to transform JSX, e.g. with Babel and
       "@babel/plugin-transform-react-jsx",
       {
         "runtime": "automatic",
-        "importSource": "shingo"
+        "importSource": "sinho"
       }
     ]
     // …

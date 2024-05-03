@@ -1,5 +1,5 @@
 {
-  "name": "shingo",
+  "name": "sinho",
   "version": "0.1.0",
   "description": "A lightweight signal-based library for building web components with a React-like API.",
   "keywords": [
@@ -10,15 +10,15 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yishn/shingo.git"
+    "url": "git+https://github.com/yishn/sinho.git"
   },
   "author": "Yichuan Shen",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/yishn/shingo/issues"
+    "url": "https://github.com/yishn/sinho/issues"
   },
   "type": "module",
-  "homepage": "https://github.com/yishn/shingo#readme",
+  "homepage": "https://github.com/yishn/sinho#readme",
   "exports": {
     ".": {
       "import": {

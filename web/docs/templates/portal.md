@@ -14,7 +14,7 @@ Use the `mount` prop to specify the target DOM element where the component
 should be rendered:
 
 ```tsx
-import { Portal } from "shingo";
+import { Portal } from "sinho";
 
 // …
 

@@ -28,7 +28,7 @@ class TaskListItem extends Component("task-list-item", {
 
 By default a `CustomEvent` will be created for dispatch. You can also specify a
 different event constructor, either your own or another native event
-constructor. Shingō expects the first constructor argument to be the event name
+constructor. Sinho expects the first constructor argument to be the event name
 and the second argument to be the event details that is passed to the event
 emitter:
 

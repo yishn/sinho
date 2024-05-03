@@ -12,7 +12,7 @@ JSX is a special syntax for templates which allows you to write HTML-like code.
 Each component has a `render` function that returns a JSX template.
 
 ```tsx
-import { Component } from "shingo";
+import { Component } from "sinho";
 
 export class HelloWorld extends Component("hello-world") {
   render() {
@@ -36,7 +36,7 @@ children, an `h1` and a `p` element.
 JSX will be transpiled into normal JavaScript. The above code is equivalent to:
 
 ```ts
-import { Component, h } from "shingo";
+import { Component, h } from "sinho";
 
 export class HelloWorld extends Component("hello-world") {
   render() {
@@ -55,7 +55,7 @@ export class HelloWorld extends Component("hello-world") {
 For native HTML tags, you can use a shorthand notation:
 
 ```ts
-import { Component, h } from "shingo";
+import { Component, h } from "sinho";
 
 export class HelloWorld extends Component("hello-world") {
   render() {
@@ -72,7 +72,7 @@ export class HelloWorld extends Component("hello-world") {
 ```
 
 In addition to HTML tags, you can also use a custom element class as node, even
-those that are not written with Shingō:
+those that are not written with Sinho:
 
 ```tsx
 <HelloWorld />;
@@ -97,7 +97,7 @@ without arguments.
 To render multiple elements without a parent element, you can use a fragment:
 
 ```tsx
-import { Component } from "shingo";
+import { Component } from "sinho";
 
 export class HelloWorld extends Component("hello-world") {
   render() {
@@ -121,7 +121,7 @@ You can render dynamic data by using curly braces `{}` around a signal or
 expression:
 
 ```tsx
-import { Component, useSignal } from "shingo";
+import { Component, useSignal } from "sinho";
 
 export class HelloWorld extends Component("hello-world") {
   render() {
@@ -194,7 +194,7 @@ return (
 For [functional components](../components/functional-components), JSX attributes
 will be passed as is to the function.
 
-For native HTML tags and custom element nodes, Shingō will use a heuristic to
+For native HTML tags and custom element nodes, Sinho will use a heuristic to
 determine if a JSX attribute is a property or an HTML attribute.
 
 You can force using an attribute by using the `attr:` prefix for the JSX
@@ -238,7 +238,7 @@ buttonEl.addEventListener("click", () => console.log("Clicked!"));
 simpleGreeting.addEventListener("name-change", () => console.log("Clicked!"));
 ```
 
-Shingō will convert the event name into kebab-case. Since native events usually
+Sinho will convert the event name into kebab-case. Since native events usually
 do not include `-`, they will be written in lowercase. For events with unusual
 names, you can use the `on:` prefix followed by the verbatim event name:
 
@@ -297,12 +297,12 @@ Functional components do not have an underlying DOM element, so you cannot use
 
 ## Set HTML Content
 
-Shingō will generally render text children not as HTML but as plain text to
+Sinho will generally render text children not as HTML but as plain text to
 prevent XSS attacks. If you want to render HTML content, you can use the
 `dangerouslySetInnerHTML` attribute:
 
 ```tsx
-import { Component, DangerousHtml } from "shingo";
+import { Component, DangerousHtml } from "sinho";
 
 class DangerousDiv extends Component("dangerous-div") {
   render() {

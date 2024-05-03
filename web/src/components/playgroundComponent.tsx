@@ -1,4 +1,4 @@
-/** @jsxImportSource shingo */
+/** @jsxImportSource sinho */
 
 import {
   Component,
@@ -9,7 +9,7 @@ import {
   useSignal,
   useEffect,
   MaybeSignal,
-} from "shingo";
+} from "sinho";
 
 export class Playground extends Component("x-playground", {
   colorMode: prop<"light" | "dark">("light", {
@@ -54,7 +54,7 @@ export class Playground extends Component("x-playground", {
               transform: {
                 react: {
                   runtime: "automatic",
-                  importSource: "shingo",
+                  importSource: "sinho",
                 },
               },
             },

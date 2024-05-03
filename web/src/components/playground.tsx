@@ -17,11 +17,11 @@ export const Playground: FC<{
   autosize?: boolean;
 }> = (props) => {
   const { colorMode } = useColorMode();
-  const shingoPath = useBaseUrl("/dist/bundle.min.js");
+  const sinhoPath = useBaseUrl("/dist/bundle.min.js");
   const importMap = {
     imports: {
-      shingo: shingoPath,
-      "shingo/jsx-runtime": shingoPath,
+      sinho: sinhoPath,
+      "sinho/jsx-runtime": sinhoPath,
     },
   };
 
@@ -80,7 +80,7 @@ export const CodeSnippetComponentPlayground: FC<{
       headerText={props.headerText}
       customCode={(code) =>
         `${code}
-        import { defineComponents } from "shingo";
+        import { defineComponents } from "sinho";
         defineComponents(${props.componentName});
         document.body.append(new ${props.componentName}());`
       }

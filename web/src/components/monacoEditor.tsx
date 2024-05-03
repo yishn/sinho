@@ -36,19 +36,19 @@ export const MonacoEditor: FC<{
       monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
         strict: true,
         jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
-        jsxImportSource: "shingo",
+        jsxImportSource: "sinho",
       });
 
       const types = await fetch(typesPath).then((res) => res.text());
 
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
-        `declare module "shingo" {\n${types}\n}`,
-        "ts:shingo.d.ts",
+        `declare module "sinho" {\n${types}\n}`,
+        "ts:sinho.d.ts",
       );
 
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
-        `declare module "shingo/jsx-runtime" {\n${types}\n}`,
-        "ts:shingo-jsx-runtime.d.ts",
+        `declare module "sinho/jsx-runtime" {\n${types}\n}`,
+        "ts:sinho-jsx-runtime.d.ts",
       );
     })();
 

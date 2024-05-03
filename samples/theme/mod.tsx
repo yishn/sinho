@@ -7,7 +7,7 @@ import {
   Style,
   css,
   useContext,
-} from "shingo";
+} from "sinho";
 
 enum Theme {
   Light,

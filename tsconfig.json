@@ -7,7 +7,7 @@
     "moduleResolution": "NodeNext",
     "target": "ESNext",
     "jsx": "react-jsx",
-    "jsxImportSource": "shingo",
+    "jsxImportSource": "sinho",
     "declaration": true,
     "sourceMap": true,
     "strict": true,

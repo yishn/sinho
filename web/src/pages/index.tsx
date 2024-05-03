@@ -48,7 +48,7 @@ export default function Home(): JSX.Element {
         </ul>
 
         <CodeBlock language="tsx">{`\
-import { Component, useSignal } from "shingo";
+import { Component, useSignal } from "sinho";
 
 class Counter extends Component("x-counter") {
   render() {

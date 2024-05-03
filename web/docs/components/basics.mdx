@@ -12,7 +12,7 @@ You can use `Component` to create a base class that can be extended into a web
 component a.k.a. custom HTML element.
 
 ```tsx
-import { Component, prop } from "shingo";
+import { Component, prop } from "sinho";
 
 class SimpleGreeting extends Component("simple-greeting", {
   name: prop<string>("John"),
@@ -32,7 +32,7 @@ it can be used or constructed. You can use the `defineComponents` function to
 define it with the tag name given as first argument to `Component`:
 
 ```tsx
-import { /* … */ defineComponents } from "shingo";
+import { /* … */ defineComponents } from "sinho";
 
 // …
 
@@ -90,7 +90,7 @@ document.body.append(greeting);
 
 ### In JSX
 
-You can use the component directly in Shingō JSX templates:
+You can use the component directly in Sinho JSX templates:
 
 ```tsx
 <SimpleGreeting name="Jane" />
@@ -98,7 +98,7 @@ You can use the component directly in Shingō JSX templates:
 
 ## Shadow DOM
 
-By default, Shingō renders the template returned by `render()` into the
+By default, Sinho renders the template returned by `render()` into the
 [shadow DOM](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM).
 This will provide encapsulation and slotting. If this is not desired, you can
 disable this by setting the `shadow` option on your component to `false`:

@@ -7,7 +7,7 @@ import {
   If,
   prop,
   useSignal,
-} from "shingo";
+} from "sinho";
 
 interface Task {
   id: number;

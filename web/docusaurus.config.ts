@@ -8,7 +8,7 @@ const logo =
   'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="50" text-anchor="middle" font-size="100" dominant-baseline="central">🚥</text></svg>';
 
 const config: Config = {
-  title: "Shingō",
+  title: "Sinho",
   tagline:
     "A lightweight signal-based library for building web components with a React-like API.",
   favicon: logo,
@@ -17,12 +17,12 @@ const config: Config = {
   url: "https://yishn.github.io",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: process.env.NODE_ENV === "production" ? "/shingo/" : "/",
+  baseUrl: process.env.NODE_ENV === "production" ? "/sinho/" : "/",
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: "yishn", // Usually your GitHub org/user name.
-  projectName: "shingo", // Usually your repo name.
+  projectName: "sinho", // Usually your repo name.
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -60,7 +60,7 @@ const config: Config = {
           sidebarPath: "./sidebars.ts",
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: "https://github.com/yishn/shingo/tree/docs/",
+          editUrl: "https://github.com/yishn/sinho/tree/docs/",
         },
         theme: {
           customCss: "./src/css/custom.css",
@@ -76,9 +76,9 @@ const config: Config = {
       defaultMode: "dark",
     },
     navbar: {
-      title: "Shingō",
+      title: "Sinho",
       logo: {
-        alt: "Shingō",
+        alt: "Sinho",
         src: logo,
       },
       items: [
@@ -99,7 +99,7 @@ const config: Config = {
           position: "left",
         },
         {
-          href: "https://github.com/yishn/shingo",
+          href: "https://github.com/yishn/sinho",
           label: "GitHub",
           position: "right",
         },
@@ -107,7 +107,7 @@ const config: Config = {
     },
     footer: {
       logo: {
-        alt: "Shingō",
+        alt: "Sinho",
         src: logo,
         width: 32,
         height: 32,

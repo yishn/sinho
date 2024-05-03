@@ -11,7 +11,7 @@ extend a base class. Instead, they are just functions that take an object of
 props and return a template.
 
 ```tsx
-import { FunctionalComponent, MaybeSignal } from "shingo";
+import { FunctionalComponent, MaybeSignal } from "sinho";
 
 export const FunctionalGreeting: FunctionalComponent<{
   name: MaybeSignal<string>;
@@ -39,7 +39,7 @@ and cannot be rendered by themselves. They can only be used in JSX templates.
 You can access children in functional components by using the `children` prop:
 
 ```tsx
-import { FunctionalComponent, MaybeSignal, Children } from "shingo";
+import { FunctionalComponent, MaybeSignal, Children } from "sinho";
 
 export const FunctionalGreeting: FunctionalComponent<{
   name: MaybeSignal<string>;

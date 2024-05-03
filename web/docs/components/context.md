@@ -14,7 +14,7 @@ First, you need to create a context object using `createContext` that identifies
 your context and can be accessed by the components that need it:
 
 ```ts
-import { createContext } from "shingo";
+import { createContext } from "sinho";
 
 const ThemeContext = createContext("light");
 ```
@@ -70,7 +70,7 @@ console.log(el.theme);
 To consume the context in a component, you can use the `useContext` function:
 
 ```tsx
-import { Component, useContext } from "shingo";
+import { Component, useContext } from "sinho";
 
 class ThemedButton extends Component("themed-button", {
   // …

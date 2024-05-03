@@ -57,7 +57,7 @@ You can use the `Style` component to include CSS stylesheets in your components.
 It is recommended to use the `css` template literal tag to write CSS:
 
 ```tsx
-import { Style, css } from "shingo";
+import { Style, css } from "sinho";
 
 // …
 

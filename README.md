@@ -1,4 +1,4 @@
-# 🚥 Shingō
+# 🚥 Sinho
 
 A lightweight signal-based library for building web components with a React-like
 API.
@@ -11,7 +11,7 @@ API.
 - 🪶 Lightweight (~4KB minified and compressed)
 
 ```tsx
-import { Component, useSignal, defineComponents } from "shingo";
+import { Component, useSignal, defineComponents } from "sinho";
 
 class Counter extends Component("x-counter") {
   render() {

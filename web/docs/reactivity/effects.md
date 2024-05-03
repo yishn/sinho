@@ -10,7 +10,7 @@ Effects are functions that are executed when a signal changes. You can use
 `useEffect()` to create an effect:
 
 ```ts
-import { useSignal, useEffect } from "shingo";
+import { useSignal, useEffect } from "sinho";
 
 const [value, setValue] = useSignal(0);
 
@@ -95,7 +95,7 @@ setGender("male");
 To avoid this, you can batch updates using `useBatch`:
 
 ```ts
-import { useBatch } from "shingo";
+import { useBatch } from "sinho";
 
 useBatch(() => {
   setName("John");
