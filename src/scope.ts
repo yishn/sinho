@@ -96,6 +96,7 @@ const createScope = (parent?: Scope): Scope => {
       for (let i = this._effects.length - 1; i >= 0; i--) {
         const effect = this._effects[i];
         effect._clean?.();
+        effect._run = () => {}
 
         effect._deps.forEach((signal) => signal._effects.delete(effect));
         effect._deps.clear();
@@ -234,13 +235,12 @@ export const useEffect = (
       currEffect = this;
 
       try {
-        if (!deps) {
-          // For automatic dependency tracking
-          // clean up dependencies and listeners
+        // Clean up dependencies and listeners
 
-          this._deps.forEach((dep) => dep._effects.delete(this));
-          this._deps.clear();
-        } else if (!this._deps.size) {
+        this._deps.forEach((dep) => dep._effects.delete(this));
+        this._deps.clear();
+
+        if (deps) {
           // Track specified dependencies
 
           deps.forEach((dep) => dep());

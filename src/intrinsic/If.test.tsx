@@ -1,7 +1,7 @@
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { afterEach, beforeEach, test } from "node:test";
 import assert from "node:assert";
-import { If, useSignal, Else } from "../mod.js";
+import { If, useSignal, Else, ElseIf } from "../mod.js";
 import { useScope } from "../scope.js";
 
 beforeEach(() => {
@@ -16,12 +16,16 @@ test("If", async () => {
   const s = useScope();
   const [show, setShow] = useSignal(true);
   const [failMessage, setFailMessage] = useSignal("Failure");
+  const [obj, setObj] = useSignal<{ value: string }>();
 
   const el = (
     <div>
       <If condition={show}>
         <h1>Success!</h1>
       </If>
+      <ElseIf condition={() => obj() != null}>
+        <h1>{() => obj()!.value}</h1>
+      </ElseIf>
       <Else>
         <h1>{failMessage}</h1>
       </Else>
@@ -40,6 +44,12 @@ test("If", async () => {
   setFailMessage("Unknown Failure");
   assert.strictEqual(el.textContent, "Unknown Failure");
   assert.strictEqual(el.childNodes[1], innerElement);
+
+  setObj({ value: "Object Success!" });
+  assert.strictEqual(el.textContent, "Object Success!");
+
+  setObj(undefined);
+  assert.strictEqual(el.textContent, "Unknown Failure");
 
   setShow(true);
   assert.strictEqual(el.textContent, "Success!");

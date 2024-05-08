@@ -1,11 +1,11 @@
 import { Component } from "./component.js";
-import { Signal, useEffect, useScope, useSubscope } from "./scope.js";
+import { SignalLike, useEffect, useScope, useSubscope } from "./scope.js";
 
 interface Renderer {
   _component?: Component;
   _svg?: boolean;
   _nodes?: IterableIterator<Node>;
-  _ifConditions: Signal<boolean | undefined>[];
+  _ifConditions: SignalLike<boolean | undefined>[];
 
   _node<N extends Node>(fallback: () => N): N;
 }
