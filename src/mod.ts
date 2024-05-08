@@ -31,6 +31,7 @@ export {
   useMemo,
   useSignal,
   useRef,
+  useSubscope,
 } from "./scope.js";
 
 export * from "./intrinsic/mod.js";
