@@ -25,12 +25,12 @@
  * SOFTWARE.
  */
 
-import type {
-  Children,
-  MaybeSignal,
-  RefSignalSetter,
-  SignalLike,
+import {
+  type Children,
+  type MaybeSignal,
+  type RefSignalSetter,
 } from "./mod.js";
+import { isComponent } from "./component.js";
 
 const IS_NON_DIMENSIONAL =
   /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
@@ -62,8 +62,9 @@ export const setAttr = (
     value == null || (value === false && !name.includes("-"));
 
   if (name.startsWith("prop:")) {
-    node[name] = value;
+    node[name.slice(5)] = value;
   } else if (name.startsWith("attr:")) {
+    name = name.slice(5);
     if (!removeAttribute) {
       node.setAttribute(name, value);
     } else {
@@ -92,7 +93,11 @@ export const setAttr = (
       name in node
     ) {
       try {
-        node[name] = value == null ? "" : value;
+        if (isComponent(node)) {
+          (node as any)[name] = value;
+        } else {
+          node[name] = value == null ? "" : value;
+        }
         return;
       } catch (e) {}
     }
