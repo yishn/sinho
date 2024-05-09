@@ -5,6 +5,7 @@ import {
   useEffect,
   useSubscope,
   useSignal,
+  SignalLike,
 } from "./scope.js";
 import type { DomEventProps, DomProps } from "./dom.js";
 import { runWithRenderer } from "./renderer.js";
@@ -371,7 +372,9 @@ export interface ComponentOptions {
   shadow?: ShadowRootInit | false;
 }
 
-let mountEffects: [fn: () => Cleanup, deps?: Signal<unknown>[]][] | undefined;
+let mountEffects:
+  | [fn: () => Cleanup, deps?: SignalLike<unknown>[]][]
+  | undefined;
 
 /**
  * Creates an effect which will rerun when any accessed signal changes.
@@ -384,7 +387,7 @@ let mountEffects: [fn: () => Cleanup, deps?: Signal<unknown>[]][] | undefined;
  */
 export const useMountEffect = (
   fn: () => Cleanup,
-  deps?: Signal<unknown>[],
+  deps?: SignalLike<unknown>[],
 ): void => {
   if (mountEffects) {
     mountEffects.push([fn, deps]);
