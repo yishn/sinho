@@ -243,6 +243,7 @@ export const useEffect = (
         if (deps) {
           // Track specified dependencies
 
+          currUntracked = false;
           deps.forEach((dep) => dep());
         }
 
@@ -269,7 +270,6 @@ export const useEffect = (
     },
   };
 
-  effect._deps.forEach((signal) => signal._effects.add(effect));
   currScope._effects.push(effect);
   effect._run();
 
