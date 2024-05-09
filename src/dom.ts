@@ -93,11 +93,7 @@ export const setAttr = (
       name in node
     ) {
       try {
-        if (isComponent(node)) {
-          (node as any)[name] = value;
-        } else {
-          node[name] = value == null ? "" : value;
-        }
+        node[name] = value;
         return;
       } catch (e) {}
     }
