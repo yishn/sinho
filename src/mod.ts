@@ -27,11 +27,12 @@ export {
   type SubscopeOptions,
   type RefSignal,
   type RefSignalSetter,
-  useBatch,
+  useSubscope,
   useMemo,
   useSignal,
   useRef,
-  useSubscope,
+  useBatch,
+  flushBatch,
 } from "./scope.js";
 
 export * from "./intrinsic/mod.js";

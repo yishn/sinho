@@ -112,14 +112,15 @@ performance, but also to ensure that all signals are in a consistent state when
 the effect is executed.
 
 To manually ensure the effects are executed immediately inside an effect or
-event listener, you can also use `useBatch`:
+event listener, you can also use `flushBatch`:
 
 ```ts
+import { useEffect, flushBatch } from "sinho";
+
 useEffect(() => {
-  useBatch(() => {
-    setName("Charlie");
-    setGender("nonbinary");
-  }); // When `useBatch` is called, effect executions will be triggered
+  setName("Charlie");
+  setGender("nonbinary");
+  flushBatch();
 
   console.log(name(), gender()); // Prints "Charlie nonbinary"
 });
