@@ -98,25 +98,3 @@ test("Manually track effect dependencies", () => {
 
   destroy2();
 });
-
-test("Manually track effect dependencies with useMemo", () => {
-  const [, destroy] = useSubscope(() => {
-    const [a, setA] = useSignal(1);
-    const [b, setB] = useSignal(1);
-    const bMemo = useMemo(() => b());
-    let triggerCount = 0;
-
-    useEffect(() => {
-      triggerCount++;
-    }, [bMemo, a]);
-
-    useBatch(() => {
-      setA((n) => n + 1);
-      setB((n) => n + 1);
-    });
-
-    assert.strictEqual(triggerCount, 2);
-  });
-
-  destroy();
-});

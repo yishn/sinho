@@ -113,11 +113,7 @@ let currUntracked: boolean = false;
 let currEffect: Effect | undefined;
 let currBatch:
   | {
-      _setters: [
-        signal: Signal<unknown>,
-        setter: () => void,
-        silent?: boolean,
-      ][];
+      _setters: (() => void)[];
       _effects: Set<Effect>;
     }
   | undefined;
@@ -164,13 +160,13 @@ export const useSignal: (<T>(
       if (innerOpts?.force || newValue !== signal.peek()) {
         if (innerOpts?.force) {
           value = newValue;
+        } else {
+          currBatch._setters.push(() => (value = newValue));
         }
 
-        currBatch._setters.push([
-          signal,
-          () => (value = newValue),
-          innerOpts?.silent,
-        ]);
+        if (!innerOpts?.silent) {
+          signal._effects.forEach((effect) => currBatch!._effects.add(effect));
+        }
       }
     } else {
       useBatch(() => setter(arg, innerOpts));
@@ -187,64 +183,41 @@ export const useSignal: (<T>(
  * and updated at the same time.
  */
 export const useBatch = <T>(fn: () => T): T => {
-  const createBatch = !currBatch;
-  if (createBatch) currBatch = { _setters: [], _effects: new Set() };
+  const prevBatch = currBatch;
+  currBatch = { _setters: [], _effects: new Set() };
 
-  const result = fn();
-
-  if (createBatch) {
+  try {
+    const result = fn();
     flushBatch();
-    currBatch = undefined;
+    
+    return result;
+  } finally {
+    currBatch = prevBatch;
   }
-
-  return result;
 };
 
-export function flushBatch(): void {
-  const mutatedSignals = new Set<Signal<unknown>>();
-
+export const flushBatch = (): void => {
   while (
     currBatch &&
     (currBatch._setters.length > 0 || currBatch._effects.size > 0)
   ) {
-    const settersCount = currBatch._setters.length;
+    // Clean effect subscope
+
     const effects = currBatch._effects;
     currBatch._effects = new Set();
 
-    // Collect and clean effects
-
-    for (const [signal, , silent] of currBatch._setters) {
-      if (!silent) {
-        signal._effects.forEach((effect) => {
-          effect._clean?.();
-          effects.add(effect);
-        });
-      }
-    }
+    effects.forEach((effect) => effect._clean?.());
 
     // Run signal updates
 
-    for (const [signal, setter] of currBatch._setters) {
-      setter();
-      mutatedSignals.add(signal);
-    }
-
+    currBatch._setters.forEach((setter) => setter());
     currBatch._setters = [];
 
     // Run effects
 
-    for (const effect of effects) {
-      if (
-        !settersCount ||
-        [...effect._deps].every((dep) => mutatedSignals.has(dep))
-      ) {
-        effect._run();
-      } else {
-        currBatch._effects.add(effect);
-      }
-    }
+    effects.forEach((effect) => effect._run());
   }
-}
+};
 
 /**
  * Creates an effect which will rerun when any accessed signal changes.
