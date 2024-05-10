@@ -46,9 +46,10 @@ export interface SubscopeOptions {
 }
 
 interface Effect {
+  _scope: Scope;
+  _pure: boolean;
   _clean?: Cleanup;
   _deps: Set<Signal<unknown>>;
-  _scope: Scope;
 
   _run(): void;
 }
@@ -183,41 +184,52 @@ export const useSignal: (<T>(
  * and updated at the same time.
  */
 export const useBatch = <T>(fn: () => T): T => {
-  const prevBatch = currBatch;
+  if (currBatch) return fn();
+
   currBatch = { _setters: [], _effects: new Set() };
 
   try {
     const result = fn();
     flushBatch();
-    
     return result;
   } finally {
-    currBatch = prevBatch;
+    currBatch = undefined;
   }
 };
 
 export const flushBatch = (): void => {
-  while (
+  a: while (
     currBatch &&
     (currBatch._setters.length > 0 || currBatch._effects.size > 0)
   ) {
     // Clean effect subscope
 
-    const effects = currBatch._effects;
-    currBatch._effects = new Set();
-
-    effects.forEach((effect) => effect._clean?.());
+    currBatch._effects.forEach((effect) => effect._clean?.());
 
     // Run signal updates
 
     currBatch._setters.forEach((setter) => setter());
     currBatch._setters = [];
 
-    // Run effects
+    // Run next effect
 
-    effects.forEach((effect) => effect._run());
+    for (const effect of currBatch._effects) {
+      if (effect._pure) {
+        effect._run();
+        currBatch._effects.delete(effect);
+        continue a;
+      }
+    }
+
+    for (const effect of currBatch._effects) {
+      effect._run();
+      currBatch._effects.delete(effect);
+      break;
+    }
   }
 };
+
+let pureEffectFlag: boolean = false;
 
 /**
  * Creates an effect which will rerun when any accessed signal changes.
@@ -232,6 +244,7 @@ export const useEffect = (
 
   const effect: Effect = {
     _scope: currScope,
+    _pure: pureEffectFlag,
     _deps: new Set(),
 
     _run(): void {
@@ -296,12 +309,17 @@ export const useMemo = <T>(fn: () => T, opts?: SetSignalOptions): Signal<T> => {
   const [memo, setMemo] = useSignal<T>();
 
   let firstTime = true;
+  pureEffectFlag = true;
 
-  useEffect(() => {
-    setMemo(fn, firstTime ? { ...opts, force: true } : opts);
+  try {
+    useEffect(() => {
+      setMemo(fn, firstTime ? { ...opts, force: true } : opts);
 
-    firstTime = false;
-  });
+      firstTime = false;
+    });
+  } finally {
+    pureEffectFlag = false;
+  }
 
   return memo as Signal<T>;
 };
@@ -316,24 +334,31 @@ export const useSubscope = <T>(
   fn: () => T,
   opts?: SubscopeOptions,
 ): [T, () => void] => {
+  const prevBatch = currBatch;
+  currBatch = undefined;
+
   const parent = currScope;
   const scope = createScope(parent);
   Object.assign(scope._details, opts?.details);
 
-  parent._subscopes.push(scope);
-  const result = scope._run(fn);
+  try {
+    parent._subscopes.push(scope);
+    const result = scope._run(fn);
 
-  return [
-    result,
-    () => {
-      const index = parent._subscopes.indexOf(scope);
-      if (index >= 0) {
-        parent._subscopes.splice(index, 1);
-      }
+    return [
+      result,
+      () => {
+        const index = parent._subscopes.indexOf(scope);
+        if (index >= 0) {
+          parent._subscopes.splice(index, 1);
+        }
 
-      scope._cleanup();
-    },
-  ];
+        scope._cleanup();
+      },
+    ];
+  } finally {
+    currBatch = prevBatch;
+  }
 };
 
 /**
