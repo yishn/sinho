@@ -1,7 +1,7 @@
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { afterEach, beforeEach, test } from "node:test";
 import assert from "node:assert";
-import { For, useSignal, useRef } from "../mod.js";
+import { For, useSignal, useRef, If } from "../mod.js";
 import { useScope } from "../scope.js";
 
 beforeEach(() => {
@@ -52,6 +52,46 @@ test("For", async () => {
 
   setList([]);
   assert.strictEqual(ulRef()!.children.length, 0);
+
+  assert.deepStrictEqual(
+    [s._effects.length, s._subscopes.length],
+    [effectsCount, subscopesCount],
+    "Does not leak memory",
+  );
+});
+
+test("For in If", async () => {
+  const s = useScope();
+  const [condition, setCondition] = useSignal(false);
+  const [list, setList] = useSignal<string[]>(["a"]);
+  const ulRef = useRef<HTMLUListElement>();
+
+  document.body.append(
+    ...(
+      <If condition={condition}>
+        <ul ref={ulRef}>
+          <For each={list} key={(item) => item}>
+            {(item) => <li>{item}</li>}
+          </For>
+        </ul>
+      </If>
+    ).build(),
+  );
+
+  const effectsCount = s._effects.length;
+  const subscopesCount = s._subscopes.length;
+
+  assert.strictEqual(ulRef(), undefined);
+
+  setCondition(true);
+  assert.notStrictEqual(ulRef(), undefined);
+  assert.strictEqual(ulRef()!.children.length, 1);
+  
+  setList(["a", "b", "c"]);
+  assert.strictEqual(ulRef()!.children.length, 3);
+
+  setCondition(false);
+  assert.strictEqual(ulRef(), undefined);
 
   assert.deepStrictEqual(
     [s._effects.length, s._subscopes.length],

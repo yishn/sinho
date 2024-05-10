@@ -113,7 +113,11 @@ let currUntracked: boolean = false;
 let currEffect: Effect | undefined;
 let currBatch:
   | {
-      _setters: (() => Signal<unknown>)[];
+      _setters: [
+        signal: Signal<unknown>,
+        setter: () => void,
+        silent?: boolean,
+      ][];
       _effects: Set<Effect>;
     }
   | undefined;
@@ -160,16 +164,13 @@ export const useSignal: (<T>(
       if (innerOpts?.force || newValue !== signal.peek()) {
         if (innerOpts?.force) {
           value = newValue;
-        } else {
-          currBatch._setters.push(() => {
-            value = newValue;
-            return signal;
-          });
         }
 
-        if (!innerOpts?.silent) {
-          signal._effects.forEach((effect) => currBatch!._effects.add(effect));
-        }
+        currBatch._setters.push([
+          signal,
+          () => (value = newValue),
+          innerOpts?.silent,
+        ]);
       }
     } else {
       useBatch(() => setter(arg, innerOpts));
@@ -206,19 +207,25 @@ export function flushBatch(): void {
     currBatch &&
     (currBatch._setters.length > 0 || currBatch._effects.size > 0)
   ) {
-    // Clean effect subscope
-
+    const settersCount = currBatch._setters.length;
     const effects = currBatch._effects;
     currBatch._effects = new Set();
 
-    effects.forEach((effect) => effect._clean?.());
+    // Collect and clean effects
+
+    for (const [signal, , silent] of currBatch._setters) {
+      if (!silent) {
+        signal._effects.forEach((effect) => {
+          effect._clean?.();
+          effects.add(effect);
+        });
+      }
+    }
 
     // Run signal updates
 
-    const settersCount = currBatch._setters.length;
-
-    for (const setter of currBatch._setters) {
-      const signal = setter();
+    for (const [signal, setter] of currBatch._setters) {
+      setter();
       mutatedSignals.add(signal);
     }
 
