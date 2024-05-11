@@ -21,6 +21,13 @@ export interface Signal<out T> extends SignalLike<T> {
   peek(): T;
 }
 
+export interface SignalOptions<T> extends SetSignalOptions {
+  /**
+   * A custom equality function to compare the new value with the old value.
+   */
+  equals?: (a: T, b: T) => boolean;
+}
+
 export interface SetSignalOptions {
   /**
    * Whether to force the update of the signal even if the new value has the
@@ -128,14 +135,14 @@ export const useScope = <T = {}>(): Scope<T> => currScope as Scope<T>;
  */
 export const useSignal: (<T>(
   value: T,
-  opts?: SetSignalOptions,
+  opts?: SignalOptions<T>,
 ) => readonly [Signal<T>, SignalSetter<T>]) &
   (<T>(
     value?: T,
-    opts?: SetSignalOptions,
+    opts?: SignalOptions<T | undefined>,
   ) => readonly [Signal<T | undefined>, SignalSetter<T | undefined>]) = <T>(
   value: T,
-  opts?: SetSignalOptions,
+  opts?: SignalOptions<T>,
 ): readonly [Signal<T>, SignalSetter<T>] => {
   const signal: Signal<T> = () => {
     if (!currUntracked && currEffect) {
@@ -150,7 +157,8 @@ export const useSignal: (<T>(
   signal.peek = () => value;
 
   const setter = (arg: T | ((value: T) => T), innerOpts?: SetSignalOptions) => {
-    innerOpts = { ...opts, ...innerOpts };
+    const allOpts = { ...opts, ...innerOpts };
+    allOpts.equals ??= (a, b) => a === b;
 
     if (currBatch) {
       const newValue =
@@ -158,19 +166,19 @@ export const useSignal: (<T>(
           ? (arg as (value: T) => T)(signal.peek())
           : arg;
 
-      if (innerOpts?.force || newValue !== signal.peek()) {
-        if (innerOpts?.force) {
+      if (allOpts?.force || !allOpts.equals(newValue, signal.peek())) {
+        if (allOpts?.force) {
           value = newValue;
         } else {
           currBatch._setters.push(() => (value = newValue));
         }
 
-        if (!innerOpts?.silent) {
+        if (!allOpts?.silent) {
           signal._effects.forEach((effect) => currBatch!._effects.add(effect));
         }
       }
     } else {
-      useBatch(() => setter(arg, innerOpts));
+      useBatch(() => setter(arg, allOpts));
     }
   };
 
@@ -305,15 +313,18 @@ export const useEffect = (
  *
  * @param fn The computation function.
  */
-export const useMemo = <T>(fn: () => T, opts?: SetSignalOptions): Signal<T> => {
-  const [memo, setMemo] = useSignal<T>();
+export const useMemo = <T>(fn: () => T, opts?: SignalOptions<T>): Signal<T> => {
+  const [memo, setMemo] = useSignal<T>(
+    undefined,
+    opts as SignalOptions<T | undefined>,
+  );
 
   let firstTime = true;
   pureEffectFlag = true;
 
   try {
     useEffect(() => {
-      setMemo(fn, firstTime ? { ...opts, force: true } : opts);
+      setMemo(fn, firstTime ? { force: true } : {});
 
       firstTime = false;
     });
@@ -384,15 +395,18 @@ export interface RefSignalSetter<in T> {
 /**
  * Creates a new signal with write capabilities.
  */
-export const useRef: (<T>(value: T, opts?: SetSignalOptions) => RefSignal<T>) &
-  (<T>(value?: T, opts?: SetSignalOptions) => RefSignal<T | undefined>) = <T>(
+export const useRef: (<T>(value: T, opts?: SignalOptions<T>) => RefSignal<T>) &
+  (<T>(
+    value?: T,
+    opts?: SignalOptions<T | undefined>,
+  ) => RefSignal<T | undefined>) = (<T>(
   value?: T,
-  opts?: SetSignalOptions,
+  opts?: SignalOptions<T | undefined>,
 ): RefSignal<T> & RefSignal<T | undefined> => {
   const [signal, setter] = useSignal(value, opts);
   (signal as RefSignal<T | undefined>).set = setter;
   return signal as RefSignal<T> & RefSignal<T | undefined>;
-};
+}) as any;
 
 /**
  * Represents a value that can be a signal or a constant value.
