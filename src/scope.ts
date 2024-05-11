@@ -217,7 +217,7 @@ export const useBatch = <T>(fn: () => T): T => {
 };
 
 export const flushBatch = (): void => {
-  a: while (
+  while (
     currBatch &&
     currBatch._setters.length +
       currBatch._effects.size +
@@ -235,16 +235,14 @@ export const flushBatch = (): void => {
 
     // Run next effect
 
-    for (const effect of currBatch._pureEffects) {
+    const effect: Effect | undefined =
+      currBatch._pureEffects.values().next().value ??
+      currBatch._effects.values().next().value;
+
+    if (effect) {
       effect._run();
       currBatch._pureEffects.delete(effect);
-      continue a;
-    }
-
-    for (const effect of currBatch._effects) {
-      effect._run();
       currBatch._effects.delete(effect);
-      break;
     }
   }
 };
