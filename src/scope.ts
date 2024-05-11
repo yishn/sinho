@@ -123,6 +123,7 @@ let currBatch:
   | {
       _setters: (() => void)[];
       _effects: Set<Effect>;
+      _pureEffects: Set<Effect>;
     }
   | undefined;
 
@@ -174,7 +175,13 @@ export const useSignal: (<T>(
         }
 
         if (!allOpts?.silent) {
-          signal._effects.forEach((effect) => currBatch!._effects.add(effect));
+          signal._effects.forEach((effect) => {
+            if (effect._pure) {
+              currBatch!._pureEffects.add(effect);
+            } else {
+              currBatch!._effects.add(effect);
+            }
+          });
         }
       }
     } else {
@@ -194,7 +201,11 @@ export const useSignal: (<T>(
 export const useBatch = <T>(fn: () => T): T => {
   if (currBatch) return fn();
 
-  currBatch = { _setters: [], _effects: new Set() };
+  currBatch = {
+    _setters: [],
+    _effects: new Set(),
+    _pureEffects: new Set(),
+  };
 
   try {
     const result = fn();
@@ -208,7 +219,10 @@ export const useBatch = <T>(fn: () => T): T => {
 export const flushBatch = (): void => {
   a: while (
     currBatch &&
-    (currBatch._setters.length > 0 || currBatch._effects.size > 0)
+    currBatch._setters.length +
+      currBatch._effects.size +
+      currBatch._pureEffects.size >
+      0
   ) {
     // Clean effect subscope
 
@@ -221,12 +235,10 @@ export const flushBatch = (): void => {
 
     // Run next effect
 
-    for (const effect of currBatch._effects) {
-      if (effect._pure) {
-        effect._run();
-        currBatch._effects.delete(effect);
-        continue a;
-      }
+    for (const effect of currBatch._pureEffects) {
+      effect._run();
+      currBatch._pureEffects.delete(effect);
+      continue a;
     }
 
     for (const effect of currBatch._effects) {
