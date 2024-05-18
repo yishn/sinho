@@ -1,6 +1,13 @@
 import type { FunctionalComponent } from "../component.js";
 import { createTemplate, type Template } from "../template.js";
-import { MaybeSignal, useEffect, useMemo, useSubscope } from "../scope.js";
+import {
+  MaybeSignal,
+  SignalLike,
+  useEffect,
+  useMemo,
+  useSignal,
+  useSubscope,
+} from "../scope.js";
 import { runWithRenderer, useRenderer } from "../renderer.js";
 import { Children, Fragment } from "./Fragment.js";
 
@@ -38,21 +45,22 @@ export const ElseIf: FunctionalComponent<{
   return runWithRenderer({ _ifConditions: [] }, () =>
     createTemplate(() => {
       const anchor = renderer._node(() => document.createComment(""));
-      const nodes: Node[] = [anchor];
+      const [nodes, setNodes] = useSignal<Node[]>([anchor]);
       const template = useMemo(() =>
         condition() ? Fragment({ children: props.children }) : null,
       );
 
-      let subnodes: Node[] = [];
+      let subnodes: SignalLike<Node[]> | undefined;
 
       useEffect(() => {
-        subnodes.forEach((node) => node.parentNode?.removeChild(node));
-        nodes.length = 1;
+        subnodes?.().forEach((node) => node.parentNode?.removeChild(node));
+        setNodes((nodes) => [nodes[0]]);
 
         const [, destroy] = useSubscope(() => {
-          subnodes = template()?.build() ?? [];
-          anchor.after(...subnodes);
-          nodes.push(...subnodes);
+          subnodes = template()?.build();
+          const subnodesValue = subnodes?.() ?? [];
+          anchor.after(...subnodesValue);
+          setNodes((nodes) => [...nodes, ...subnodesValue]);
         });
 
         return destroy;

@@ -20,5 +20,5 @@ export const Text: FunctionalComponent<{
       }
     });
 
-    return anchor ? [anchor, node] : [node];
+    return () => (anchor ? [anchor, node] : [node]);
   });

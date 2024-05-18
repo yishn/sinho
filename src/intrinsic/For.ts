@@ -11,7 +11,7 @@ import { useRenderer } from "../renderer.js";
 import { createTemplate, Template } from "../template.js";
 
 interface KeyMeta {
-  _subnodes: Node[];
+  _subnodes?: SignalLike<Node[]>;
   _destroy: () => void;
 }
 
@@ -32,17 +32,17 @@ export const For = <T>(props: {
     const items = MaybeSignal.upgrade(props.each ?? []);
     const anchor = renderer._node(() => document.createComment(""));
     const keyFn = props.key ?? ((_, i) => i);
-    const nodes: Node[] = [anchor];
+    const [nodes, setNodes] = useSignal<Node[]>([anchor], { force: true });
     const keyMap = new Map<unknown, KeyMeta>();
     const mutationResult = useArrayMutation(items, keyFn);
 
     const lookForAnchor = (index: number): Node => {
       for (let i = index - 1; i >= 0; i--) {
         const key = keyFn(items()[index - 1], index - 1);
-        const nodes = keyMap.get(key)?._subnodes ?? [];
+        const nodes = keyMap.get(key)?._subnodes;
 
-        if (nodes.length > 0) {
-          return nodes[nodes.length - 1];
+        if (nodes && nodes().length > 0) {
+          return nodes()[nodes().length - 1];
         }
       }
 
@@ -52,18 +52,22 @@ export const For = <T>(props: {
     useEffect(() => {
       for (const mutation of mutationResult()._mutations) {
         if (mutation._type == "r") {
-          const { _subnodes = [], _destroy } = keyMap.get(mutation._key) ?? {};
+          const { _subnodes, _destroy } = keyMap.get(mutation._key) ?? {};
           _destroy?.();
 
-          const index = nodes.indexOf(_subnodes[0]);
-          if (index > 0) {
-            nodes.splice(index, _subnodes.length);
-          }
+          setNodes((nodes) => {
+            const index = nodes.indexOf(_subnodes?.()[0]!);
+            if (index > 0) {
+              nodes.splice(index, _subnodes?.().length);
+            }
 
-          _subnodes.forEach((node) => node.parentNode?.removeChild(node));
+            return nodes;
+          });
+
+          _subnodes?.().forEach((node) => node.parentNode?.removeChild(node));
           keyMap.delete(mutation._key);
         } else if (mutation._type == "a") {
-          let _subnodes: Node[] = [];
+          let _subnodes: SignalLike<Node[]> | undefined;
 
           const [, destroy] = useSubscope(() => {
             const [index, setIndex] = useSignal(mutation._index);
@@ -83,35 +87,44 @@ export const For = <T>(props: {
               }
             });
 
-            _subnodes = props.children?.(item, index, items).build() ?? [];
+            _subnodes = props.children?.(item, index, items).build();
 
             const itemAnchor = lookForAnchor(mutation._index);
-            const anchorIndex = nodes.indexOf(itemAnchor);
-            if (anchorIndex >= 0) {
-              nodes.splice(anchorIndex + 1, 0, ..._subnodes);
-            }
 
-            _subnodes.forEach((node) =>
+            setNodes((nodes) => {
+              const anchorIndex = nodes.indexOf(itemAnchor);
+              if (anchorIndex >= 0) {
+                nodes.splice(anchorIndex + 1, 0, ...(_subnodes?.() ?? []));
+              }
+
+              return nodes;
+            });
+
+            _subnodes?.().forEach((node) =>
               itemAnchor.parentNode?.insertBefore(node, itemAnchor.nextSibling),
             );
           });
 
           keyMap.set(mutation._key, { _subnodes, _destroy: destroy });
         } else if (mutation._type == "m") {
-          const { _subnodes = [] } = keyMap.get(mutation._key) ?? {};
-
-          const index = nodes.indexOf(_subnodes[0]);
-          if (index >= 0) {
-            nodes.splice(index, _subnodes.length);
-          }
-
+          const { _subnodes } = keyMap.get(mutation._key) ?? {};
           const itemAnchor = lookForAnchor(mutation._to);
-          const anchorIndex = nodes.indexOf(itemAnchor);
-          if (anchorIndex >= 0) {
-            nodes.splice(anchorIndex + 1, 0, ..._subnodes);
-          }
 
-          _subnodes.forEach((node) =>
+          setNodes((nodes) => {
+            const index = nodes.indexOf(_subnodes?.()[0]!);
+            if (index >= 0) {
+              nodes.splice(index, _subnodes?.().length);
+            }
+
+            const anchorIndex = nodes.indexOf(itemAnchor);
+            if (anchorIndex >= 0) {
+              nodes.splice(anchorIndex + 1, 0, ...(_subnodes?.() ?? []));
+            }
+
+            return nodes;
+          });
+
+          _subnodes?.().forEach((node) =>
             itemAnchor.parentNode?.insertBefore(node, itemAnchor.nextSibling),
           );
         }

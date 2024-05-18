@@ -34,7 +34,7 @@ test("Component with reactive prop", () => {
   const [name, setName] = useSignal("World");
   const ref = useRef<Greeting>();
 
-  document.body.append(...(<Greeting ref={ref} name={name} />).build());
+  document.body.append(...(<Greeting ref={ref} name={name} />).build()());
 
   const renderRoot = ref()!.shadowRoot!;
   const h1 = renderRoot.querySelector("h1")!;
@@ -71,7 +71,7 @@ test("Component with attributes", () => {
   defineComponents(Greeting);
 
   const ref = useRef<Greeting>();
-  document.body.append(...(<Greeting ref={ref} />).build());
+  document.body.append(...(<Greeting ref={ref} />).build()());
 
   const renderRoot = ref()!.shadowRoot!;
   const h1 = renderRoot.querySelector("h1")!;
@@ -124,7 +124,7 @@ test("Component with events", () => {
           clicked = true;
         }}
       />
-    ).build(),
+    ).build()(),
   );
 
   ref()?.click();

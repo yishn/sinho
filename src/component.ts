@@ -543,7 +543,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
             mountEffects = [];
 
             try {
-              renderParent?.append(...this.render().build());
+              renderParent?.append(...this.render().build()());
 
               // Run mount effects
 

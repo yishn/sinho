@@ -13,5 +13,5 @@ export const ClassComponent = <T extends HTMLElement>(
 
     hydrateElement(node, false, props);
 
-    return [node];
+    return () => [node];
   });

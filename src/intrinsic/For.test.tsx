@@ -24,7 +24,7 @@ test("For", async () => {
           {(item) => <li>{item}</li>}
         </For>
       </ul>
-    ).build(),
+    ).build()(),
   );
 
   const effectsCount = s._effects.length;
@@ -75,7 +75,7 @@ test("For in If", async () => {
           </For>
         </ul>
       </If>
-    ).build(),
+    ).build()(),
   );
 
   const effectsCount = s._effects.length;
@@ -86,7 +86,7 @@ test("For in If", async () => {
   setCondition(true);
   assert.notStrictEqual(ulRef(), undefined);
   assert.strictEqual(ulRef()!.children.length, 1);
-  
+
   setList(["a", "b", "c"]);
   assert.strictEqual(ulRef()!.children.length, 3);
 

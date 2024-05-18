@@ -72,7 +72,7 @@ export const hydrateElement = <E extends HTMLElement | SVGElement>(
           _svg: svg,
           _nodes: node.childNodes.values(),
         },
-        () => Fragment({ children: props.children }).build(),
+        () => Fragment({ children: props.children }).build()(),
       ),
     );
   }
@@ -98,5 +98,5 @@ export const TagComponent = (
       true,
     );
 
-    return [node];
+    return () => [node];
   });

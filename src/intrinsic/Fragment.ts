@@ -1,7 +1,7 @@
 import { Text } from "./Text.js";
 import { FunctionalComponent } from "../component.js";
 import { createTemplate, Template } from "../template.js";
-import type { MaybeSignal } from "../scope.js";
+import { useMemo, type MaybeSignal } from "../scope.js";
 
 export type Children =
   | Template
@@ -28,11 +28,13 @@ export const Fragment: FunctionalComponent<{
   children?: Children;
 }> = ({ children }) =>
   createTemplate(() => {
-    return !Array.isArray(children)
-      ? children == null
-        ? []
-        : typeof children == "object"
-          ? children
-          : Text({ text: children })
-      : children.flatMap((children) => Fragment({ children }).build());
+    return useMemo(() =>
+      !Array.isArray(children)
+        ? children == null
+          ? []
+          : typeof children == "object"
+            ? children.build()()
+            : Text({ text: children }).build()()
+        : children.flatMap((children) => Fragment({ children }).build()()),
+    );
   });

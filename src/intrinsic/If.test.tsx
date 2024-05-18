@@ -30,7 +30,7 @@ test("If", async () => {
         <h1>{failMessage}</h1>
       </Else>
     </div>
-  ).build()[0];
+  ).build()()[0];
 
   const effectsCount = s._effects.length;
   const subscopesCount = s._subscopes.length;
