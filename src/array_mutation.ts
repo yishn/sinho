@@ -41,10 +41,13 @@ export const useArrayMutation = <T extends unknown>(
   array: SignalLike<readonly T[]>,
   keyFn: (entry: T, index: number) => unknown,
 ): Signal<ArrayMutationResult> => {
-  const [result, setResult] = useSignal<ArrayMutationResult>({
-    _mutations: [],
-    _map: new Map(),
-  });
+  const [result, setResult] = useSignal<ArrayMutationResult>(
+    {
+      _mutations: [],
+      _map: new Map(),
+    },
+    { force: true },
+  );
 
   let indexMap = new Map<unknown, number>();
 
