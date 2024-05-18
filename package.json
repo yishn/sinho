@@ -1,6 +1,6 @@
 {
   "name": "sinho",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "A lightweight signal-based library for building web components with a React-like API.",
   "keywords": [
     "ui",
