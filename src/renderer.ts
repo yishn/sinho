@@ -5,7 +5,7 @@ interface Renderer {
   _component?: Component;
   _svg?: boolean;
   _nodes?: IterableIterator<Node>;
-  _ifConditions: SignalLike<boolean | undefined>[];
+  _ifConditions: Readonly<SignalLike<boolean | undefined>[]>;
 
   _node<N extends Node>(fallback: () => N): N;
 }

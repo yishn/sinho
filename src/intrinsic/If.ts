@@ -1,13 +1,6 @@
 import type { FunctionalComponent } from "../component.js";
-import { TemplateNodes, createTemplate, type Template } from "../template.js";
-import {
-  MaybeSignal,
-  SignalLike,
-  useEffect,
-  useMemo,
-  useSignal,
-  useSubscope,
-} from "../scope.js";
+import { TemplateNodes, createTemplate } from "../template.js";
+import { MaybeSignal, useEffect, useMemo, useSubscope } from "../scope.js";
 import { runWithRenderer, useRenderer } from "../renderer.js";
 import { Children, Fragment } from "./Fragment.js";
 
@@ -33,21 +26,20 @@ export const ElseIf: FunctionalComponent<{
   children?: Children;
 }> = (props) => {
   const renderer = useRenderer();
-  const conditions = renderer._ifConditions;
-  const condition = useMemo(
-    () =>
-      conditions.every((condition) => !condition()) &&
-      MaybeSignal.get<boolean | undefined>(props.condition),
+  const prevConditions = renderer._ifConditions;
+  const myCondition = MaybeSignal.upgrade<boolean | undefined>(props.condition);
+  const fullCondition = useMemo(
+    () => prevConditions.every((condition) => !condition()) && myCondition(),
   );
 
-  renderer._ifConditions = [...conditions, condition];
+  renderer._ifConditions = [...prevConditions, myCondition];
 
-  return runWithRenderer({ _ifConditions: [] }, () =>
-    createTemplate(() => {
+  return createTemplate(() =>
+    runWithRenderer({ _ifConditions: [] }, () => {
       const anchor = renderer._node(() => document.createComment(""));
       const nodes: [Comment, TemplateNodes] = [anchor, []];
       const template = useMemo(() =>
-        condition() ? Fragment({ children: props.children }) : null,
+        fullCondition() ? Fragment({ children: props.children }) : null,
       );
 
       let subnodes: TemplateNodes = [];
