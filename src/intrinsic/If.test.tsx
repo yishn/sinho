@@ -26,7 +26,7 @@ test("If", async () => {
           <h1>Success!</h1>
         </If>
         <ElseIf condition={() => obj() != null}>
-          <h1>{() => obj()?.value}</h1>
+          <h1>{() => obj()!.value}</h1>
         </ElseIf>
         <Else>
           <h1>{failMessage}</h1>
