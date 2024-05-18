@@ -28,7 +28,7 @@ export const Fragment: FunctionalComponent<{
   children?: Children;
 }> = ({ children }) =>
   createTemplate(() => {
-    const arr = !Array.isArray(children)
+    return !Array.isArray(children)
       ? children == null
         ? []
         : [
@@ -37,6 +37,4 @@ export const Fragment: FunctionalComponent<{
               : Text({ text: children }).build(),
           ]
       : children.flatMap((children) => Fragment({ children }).build());
-
-    return useMemo(() => arr.flatMap((signal) => signal()));
   });

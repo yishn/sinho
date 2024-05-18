@@ -3,7 +3,7 @@ import { jsxPropNameToEventName } from "../utils.js";
 import { MaybeSignal, useBatch, useEffect, useScope } from "../scope.js";
 import { Fragment } from "./Fragment.js";
 import { runWithRenderer, useRenderer } from "../renderer.js";
-import { createTemplate, Template } from "../template.js";
+import { createTemplate, Template, TemplateNodes } from "../template.js";
 
 export const hydrateElement = <E extends HTMLElement | SVGElement>(
   node: E,
@@ -66,14 +66,15 @@ export const hydrateElement = <E extends HTMLElement | SVGElement>(
   }
 
   if (props.children != null) {
-    node.append(
-      ...runWithRenderer(
+    TemplateNodes.forEach(
+      runWithRenderer(
         {
           _svg: svg,
           _nodes: node.childNodes.values(),
         },
-        () => Fragment({ children: props.children }).build()(),
+        () => Fragment({ children: props.children }).build(),
       ),
+      (subnode) => node.append(subnode),
     );
   }
 
@@ -98,5 +99,5 @@ export const TagComponent = (
       true,
     );
 
-    return () => [node];
+    return [node];
   });

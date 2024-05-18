@@ -9,10 +9,10 @@ import {
   useSubscope,
 } from "../scope.js";
 import { useRenderer } from "../renderer.js";
-import { createTemplate, Template } from "../template.js";
+import { createTemplate, Template, TemplateNodes } from "../template.js";
 
 interface KeyMeta {
-  _subnodes?: SignalLike<Node[]>;
+  _subnodes: TemplateNodes;
   _destroy: () => void;
 }
 
@@ -33,24 +33,12 @@ export const For = <T>(props: {
     const items = MaybeSignal.upgrade(props.each ?? []);
     const anchor = renderer._node(() => document.createComment(""));
     const keyFn = props.key ?? ((_, i) => i);
-    const [nodes, setNodes] = useSignal<(SignalLike<Node[]> | undefined)[]>(
-      [],
-      { force: true },
-    );
+    const nodes: [Comment, TemplateNodes[]] = [anchor, []];
     const keyMap = new Map<unknown, KeyMeta>();
     const mutationResult = useArrayMutation(items, keyFn);
 
-    const lookForAnchor = (index: number): Node => {
-      for (let i = index - 1; i >= 0; i--) {
-        const subnodes = nodes()[i];
-
-        if (subnodes && subnodes().length > 0) {
-          return subnodes()[subnodes().length - 1];
-        }
-      }
-
-      return anchor;
-    };
+    const lookForAnchor = (index: number): Node =>
+      TemplateNodes.last(nodes[1], index - 1) ?? anchor;
 
     useEffect(() => {
       for (const mutation of mutationResult()._mutations) {
@@ -58,15 +46,14 @@ export const For = <T>(props: {
           const { _subnodes, _destroy } = keyMap.get(mutation._key) ?? {};
           _destroy?.();
 
-          setNodes((nodes) => {
-            nodes.splice(mutation._index, 1);
-            return nodes;
-          });
+          nodes[1].splice(mutation._index, 1);
 
-          _subnodes?.().forEach((node) => node.parentNode?.removeChild(node));
+          TemplateNodes.forEach(_subnodes ?? [], (node) =>
+            node.parentNode?.removeChild(node),
+          );
           keyMap.delete(mutation._key);
         } else if (mutation._type == "a") {
-          let _subnodes: SignalLike<Node[]> | undefined;
+          let _subnodes!: TemplateNodes;
 
           const [, destroy] = useSubscope(() => {
             const [index, setIndex] = useSignal(mutation._index);
@@ -86,16 +73,12 @@ export const For = <T>(props: {
               }
             });
 
-            _subnodes = props.children?.(item, index, items).build();
+            _subnodes = props.children?.(item, index, items).build() ?? [];
+            nodes[1].splice(mutation._index, 0, _subnodes);
 
             let itemAnchor = lookForAnchor(mutation._index);
 
-            setNodes((nodes) => {
-              nodes.splice(mutation._index, 0, _subnodes);
-              return nodes;
-            });
-
-            _subnodes?.().forEach((node) => {
+            TemplateNodes.forEach(_subnodes, (node) => {
               itemAnchor.parentNode?.insertBefore(node, itemAnchor.nextSibling);
               itemAnchor = node;
             });
@@ -105,15 +88,12 @@ export const For = <T>(props: {
         } else if (mutation._type == "m") {
           const { _subnodes } = keyMap.get(mutation._key) ?? {};
 
-          setNodes((nodes) => {
-            nodes.splice(mutation._from, 1);
-            nodes.splice(mutation._to, 0, _subnodes);
-            return nodes;
-          });
+          nodes[1].splice(mutation._from, 1);
+          nodes[1].splice(mutation._to, 0, _subnodes ?? []);
 
           let itemAnchor = lookForAnchor(mutation._to);
 
-          _subnodes?.().forEach((node) => {
+          TemplateNodes.forEach(_subnodes ?? [], (node) => {
             itemAnchor.parentNode?.insertBefore(node, itemAnchor.nextSibling);
             itemAnchor = node;
           });
@@ -121,7 +101,5 @@ export const For = <T>(props: {
       }
     }, [mutationResult]);
 
-    return useMemo(() =>
-      [anchor as Node].concat(nodes().flatMap((nodes) => nodes?.() ?? [])),
-    );
+    return nodes;
   });

@@ -1,7 +1,7 @@
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { afterEach, beforeEach, test } from "node:test";
 import assert from "node:assert";
-import { For, useSignal, useRef, If, ElseIf } from "../mod.js";
+import { For, useSignal, useRef, If, ElseIf, TemplateNodes } from "../mod.js";
 import { useScope } from "../scope.js";
 
 beforeEach(() => {
@@ -17,14 +17,15 @@ test("For", async () => {
   const [list, setList] = useSignal<string[]>([]);
   const ulRef = useRef<HTMLUListElement>();
 
-  document.body.append(
-    ...(
+  TemplateNodes.forEach(
+    (
       <ul ref={ulRef}>
         <For each={list} key={(item) => item}>
           {(item) => <li>{item}</li>}
         </For>
       </ul>
-    ).build()(),
+    ).build(),
+    (node) => document.body.append(node),
   );
 
   const effectsCount = s._effects.length;
@@ -66,8 +67,8 @@ test("For in If", async () => {
   const [list, setList] = useSignal<string[]>(["a"]);
   const ulRef = useRef<HTMLUListElement>();
 
-  document.body.append(
-    ...(
+  TemplateNodes.forEach(
+    (
       <If condition={condition}>
         <ul ref={ulRef}>
           <For each={list} key={(item) => item}>
@@ -75,7 +76,8 @@ test("For in If", async () => {
           </For>
         </ul>
       </If>
-    ).build()(),
+    ).build(),
+    (node) => document.body.append(node),
   );
 
   const effectsCount = s._effects.length;
@@ -105,8 +107,8 @@ test("Fragment and If in For", async () => {
   const [list, setList] = useSignal<string[]>(["a", "b", "c"]);
   const ulRef = useRef<HTMLUListElement>();
 
-  document.body.append(
-    ...(
+  TemplateNodes.forEach(
+    (
       <ul ref={ulRef}>
         <For each={list}>
           {(item) => (
@@ -121,7 +123,8 @@ test("Fragment and If in For", async () => {
           )}
         </For>
       </ul>
-    ).build()(),
+    ).build(),
+    (node) => document.body.append(node),
   );
 
   const effectsCount = s._effects.length;

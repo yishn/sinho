@@ -15,8 +15,8 @@ export {
 } from "./component.js";
 export { type Context, createContext, useContext } from "./context.js";
 export { createElement, h } from "./create_element.js";
-export { DangerousHtml, Styles } from "./dom.js";
-export { type Template } from "./template.js";
+export { type DangerousHtml, type Styles } from "./dom.js";
+export { type Template, TemplateNodes } from "./template.js";
 export {
   type Cleanup,
   MaybeSignal,

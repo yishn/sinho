@@ -11,7 +11,8 @@
     "declaration": true,
     "sourceMap": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "isolatedModules": true
   },
   "include": ["./src/**/*"],
   "exclude": []

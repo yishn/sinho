@@ -16,7 +16,7 @@ import {
 } from "./utils.js";
 import { useScope } from "./scope.js";
 import { Context, isContext, provideContext } from "./context.js";
-import { Template } from "./template.js";
+import { Template, TemplateNodes } from "./template.js";
 
 interface Tagged<in out T> {
   _tag: T;
@@ -543,7 +543,9 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
             mountEffects = [];
 
             try {
-              renderParent?.append(...this.render().build()());
+              TemplateNodes.forEach(this.render().build(), (node) => {
+                renderParent.append(node);
+              });
 
               // Run mount effects
 

@@ -1,5 +1,5 @@
 import type { FunctionalComponent } from "../component.js";
-import { createTemplate, type Template } from "../template.js";
+import { TemplateNodes, createTemplate, type Template } from "../template.js";
 import {
   MaybeSignal,
   SignalLike,
@@ -45,22 +45,28 @@ export const ElseIf: FunctionalComponent<{
   return runWithRenderer({ _ifConditions: [] }, () =>
     createTemplate(() => {
       const anchor = renderer._node(() => document.createComment(""));
-      const [nodes, setNodes] = useSignal<Node[]>([anchor], { force: true });
+      const nodes: [Comment, TemplateNodes] = [anchor, []];
       const template = useMemo(() =>
         condition() ? Fragment({ children: props.children }) : null,
       );
 
-      let subnodes: SignalLike<Node[]> | undefined;
+      let subnodes: TemplateNodes = [];
 
       useEffect(() => {
-        subnodes?.().forEach((node) => node.parentNode?.removeChild(node));
-        setNodes((nodes) => [nodes[0]]);
+        TemplateNodes.forEach(subnodes, (node) =>
+          node.parentNode?.removeChild(node),
+        );
+        nodes[1] = [];
 
         const [, destroy] = useSubscope(() => {
-          subnodes = template()?.build();
-          const subnodesValue = subnodes?.() ?? [];
-          anchor.after(...subnodesValue);
-          setNodes((nodes) => [...nodes, ...subnodesValue]);
+          subnodes = template()?.build() ?? [];
+          nodes[1] = subnodes;
+
+          let before: Node = anchor;
+          TemplateNodes.forEach(subnodes, (node) => {
+            before.parentNode?.insertBefore(node, before.nextSibling);
+            before = node;
+          });
         });
 
         return destroy;

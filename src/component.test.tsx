@@ -5,6 +5,7 @@ import {
   Component,
   If,
   Template,
+  TemplateNodes,
   defineComponents,
   event,
   prop,
@@ -34,7 +35,9 @@ test("Component with reactive prop", () => {
   const [name, setName] = useSignal("World");
   const ref = useRef<Greeting>();
 
-  document.body.append(...(<Greeting ref={ref} name={name} />).build()());
+  TemplateNodes.forEach((<Greeting ref={ref} name={name} />).build(), (node) =>
+    document.body.append(node),
+  );
 
   const renderRoot = ref()!.shadowRoot!;
   const h1 = renderRoot.querySelector("h1")!;
@@ -71,7 +74,9 @@ test("Component with attributes", () => {
   defineComponents(Greeting);
 
   const ref = useRef<Greeting>();
-  document.body.append(...(<Greeting ref={ref} />).build()());
+  TemplateNodes.forEach((<Greeting ref={ref} />).build(), (node) =>
+    document.body.append(node),
+  );
 
   const renderRoot = ref()!.shadowRoot!;
   const h1 = renderRoot.querySelector("h1")!;
@@ -114,8 +119,8 @@ test("Component with events", () => {
   const ref = useRef<Button>();
   let clicked: boolean = false;
 
-  document.body.append(
-    ...(
+  TemplateNodes.forEach(
+    (
       <Button
         ref={ref}
         text="Click me"
@@ -124,7 +129,8 @@ test("Component with events", () => {
           clicked = true;
         }}
       />
-    ).build()(),
+    ).build(),
+    (node) => document.body.append(node),
   );
 
   ref()?.click();
