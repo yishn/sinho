@@ -4,6 +4,7 @@ import {
   Signal,
   SignalLike,
   useEffect,
+  useMemo,
   useSignal,
   useSubscope,
 } from "../scope.js";
@@ -32,17 +33,19 @@ export const For = <T>(props: {
     const items = MaybeSignal.upgrade(props.each ?? []);
     const anchor = renderer._node(() => document.createComment(""));
     const keyFn = props.key ?? ((_, i) => i);
-    const [nodes, setNodes] = useSignal<Node[]>([anchor], { force: true });
+    const [nodes, setNodes] = useSignal<(SignalLike<Node[]> | undefined)[]>(
+      [],
+      { force: true },
+    );
     const keyMap = new Map<unknown, KeyMeta>();
     const mutationResult = useArrayMutation(items, keyFn);
 
     const lookForAnchor = (index: number): Node => {
       for (let i = index - 1; i >= 0; i--) {
-        const key = keyFn(items()[index - 1], index - 1);
-        const nodes = keyMap.get(key)?._subnodes;
+        const subnodes = nodes()[i];
 
-        if (nodes && nodes().length > 0) {
-          return nodes()[nodes().length - 1];
+        if (subnodes && subnodes().length > 0) {
+          return subnodes()[subnodes().length - 1];
         }
       }
 
@@ -56,11 +59,7 @@ export const For = <T>(props: {
           _destroy?.();
 
           setNodes((nodes) => {
-            const index = nodes.indexOf(_subnodes?.()[0]!);
-            if (index > 0) {
-              nodes.splice(index, _subnodes?.().length);
-            }
-
+            nodes.splice(mutation._index, 1);
             return nodes;
           });
 
@@ -89,47 +88,40 @@ export const For = <T>(props: {
 
             _subnodes = props.children?.(item, index, items).build();
 
-            const itemAnchor = lookForAnchor(mutation._index);
+            let itemAnchor = lookForAnchor(mutation._index);
 
             setNodes((nodes) => {
-              const anchorIndex = nodes.indexOf(itemAnchor);
-              if (anchorIndex >= 0) {
-                nodes.splice(anchorIndex + 1, 0, ...(_subnodes?.() ?? []));
-              }
-
+              nodes.splice(mutation._index, 0, _subnodes);
               return nodes;
             });
 
-            _subnodes?.().forEach((node) =>
-              itemAnchor.parentNode?.insertBefore(node, itemAnchor.nextSibling),
-            );
+            _subnodes?.().forEach((node) => {
+              itemAnchor.parentNode?.insertBefore(node, itemAnchor.nextSibling);
+              itemAnchor = node;
+            });
           });
 
           keyMap.set(mutation._key, { _subnodes, _destroy: destroy });
         } else if (mutation._type == "m") {
           const { _subnodes } = keyMap.get(mutation._key) ?? {};
-          const itemAnchor = lookForAnchor(mutation._to);
 
           setNodes((nodes) => {
-            const index = nodes.indexOf(_subnodes?.()[0]!);
-            if (index >= 0) {
-              nodes.splice(index, _subnodes?.().length);
-            }
-
-            const anchorIndex = nodes.indexOf(itemAnchor);
-            if (anchorIndex >= 0) {
-              nodes.splice(anchorIndex + 1, 0, ...(_subnodes?.() ?? []));
-            }
-
+            nodes.splice(mutation._from, 1);
+            nodes.splice(mutation._to, 0, _subnodes);
             return nodes;
           });
 
-          _subnodes?.().forEach((node) =>
-            itemAnchor.parentNode?.insertBefore(node, itemAnchor.nextSibling),
-          );
+          let itemAnchor = lookForAnchor(mutation._to);
+
+          _subnodes?.().forEach((node) => {
+            itemAnchor.parentNode?.insertBefore(node, itemAnchor.nextSibling);
+            itemAnchor = node;
+          });
         }
       }
     }, [mutationResult]);
 
-    return nodes;
+    return useMemo(() =>
+      [anchor as Node].concat(nodes().flatMap((nodes) => nodes?.() ?? [])),
+    );
   });

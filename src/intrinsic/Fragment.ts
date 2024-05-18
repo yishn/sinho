@@ -28,13 +28,15 @@ export const Fragment: FunctionalComponent<{
   children?: Children;
 }> = ({ children }) =>
   createTemplate(() => {
-    return useMemo(() =>
-      !Array.isArray(children)
-        ? children == null
-          ? []
-          : typeof children == "object"
-            ? children.build()()
-            : Text({ text: children }).build()()
-        : children.flatMap((children) => Fragment({ children }).build()()),
-    );
+    const arr = !Array.isArray(children)
+      ? children == null
+        ? []
+        : [
+            typeof children == "object"
+              ? children.build()
+              : Text({ text: children }).build(),
+          ]
+      : children.flatMap((children) => Fragment({ children }).build());
+
+    return useMemo(() => arr.flatMap((signal) => signal()));
   });

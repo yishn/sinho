@@ -45,7 +45,7 @@ export const ElseIf: FunctionalComponent<{
   return runWithRenderer({ _ifConditions: [] }, () =>
     createTemplate(() => {
       const anchor = renderer._node(() => document.createComment(""));
-      const [nodes, setNodes] = useSignal<Node[]>([anchor]);
+      const [nodes, setNodes] = useSignal<Node[]>([anchor], { force: true });
       const template = useMemo(() =>
         condition() ? Fragment({ children: props.children }) : null,
       );

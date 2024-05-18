@@ -1,7 +1,7 @@
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { afterEach, beforeEach, test } from "node:test";
 import assert from "node:assert";
-import { For, useSignal, useRef, If } from "../mod.js";
+import { For, useSignal, useRef, If, ElseIf } from "../mod.js";
 import { useScope } from "../scope.js";
 
 beforeEach(() => {
@@ -92,6 +92,53 @@ test("For in If", async () => {
 
   setCondition(false);
   assert.strictEqual(ulRef(), undefined);
+
+  assert.deepStrictEqual(
+    [s._effects.length, s._subscopes.length],
+    [effectsCount, subscopesCount],
+    "Does not leak memory",
+  );
+});
+
+test("Fragment and If in For", async () => {
+  const s = useScope();
+  const [list, setList] = useSignal<string[]>(["a", "b", "c"]);
+  const ulRef = useRef<HTMLUListElement>();
+
+  document.body.append(
+    ...(
+      <ul ref={ulRef}>
+        <For each={list}>
+          {(item) => (
+            <>
+              <If condition={() => item() === "b"}>
+                <li>{item}</li>
+              </If>
+              <ElseIf condition={() => item() === "d"}>
+                <li>special</li>
+              </ElseIf>
+            </>
+          )}
+        </For>
+      </ul>
+    ).build()(),
+  );
+
+  const effectsCount = s._effects.length;
+  const subscopesCount = s._subscopes.length;
+
+  assert.strictEqual(ulRef()!.children.length, 1);
+  assert.strictEqual(ulRef()!.children[0].textContent, "b");
+
+  setList(["a", "c"]);
+  assert.strictEqual(ulRef()!.children.length, 0);
+
+  setList(["b", "b", "b"]);
+  assert.strictEqual(ulRef()!.children.length, 3);
+
+  setList(["b", "b", "b", "d"]);
+  assert.strictEqual(ulRef()!.children.length, 4);
+  assert.strictEqual(ulRef()!.children[3].textContent, "special");
 
   assert.deepStrictEqual(
     [s._effects.length, s._subscopes.length],
