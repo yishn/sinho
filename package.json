@@ -32,6 +32,12 @@
         "default": "./dist/jsx-runtime/mod.js"
       }
     },
+    "./jsx-dev-runtime": {
+      "import": {
+        "types": "./dist/jsx-runtime/mod.d.ts",
+        "default": "./dist/jsx-runtime/mod.js"
+      }
+    },
     "./min": {
       "import": {
         "types": "./dist/mod.d.ts",
@@ -39,6 +45,12 @@
       }
     },
     "./min/jsx-runtime": {
+      "import": {
+        "types": "./dist/mod.d.ts",
+        "default": "./dist/bundle.min.js"
+      }
+    },
+    "./min/jsx-dev-runtime": {
       "import": {
         "types": "./dist/mod.d.ts",
         "default": "./dist/bundle.min.js"
