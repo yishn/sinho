@@ -89,11 +89,6 @@ const config: Config = {
           label: "Documentation",
         },
         {
-          to: "api",
-          label: "API",
-          position: "left",
-        },
-        {
           to: "playground",
           label: "Playground",
           position: "left",
@@ -122,19 +117,6 @@ const config: Config = {
   } satisfies Preset.ThemeConfig,
 
   plugins: [
-    [
-      "docusaurus-plugin-typedoc-api",
-      {
-        projectRoot: path.join(__dirname, ".."),
-        packages: [
-          {
-            path: "./",
-            entry: "./src/mod.ts",
-          },
-        ],
-        minimal: true,
-      },
-    ],
     () => ({
       name: "monaco",
       configureWebpack: () => ({
