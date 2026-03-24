@@ -10,7 +10,7 @@ export const MonacoEditor: FC<{
 }> = (props) => {
   const divRef = useRef<HTMLDivElement>(null);
   const typesPath = useBaseUrl("/dist/bundle.d.ts");
-  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
   const { colorMode } = useColorMode();
 
   useEffect(() => {
