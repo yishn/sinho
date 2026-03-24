@@ -69,15 +69,15 @@
     "build-samples": "tsc --project ./samples/tsconfig.json && rollup ./samples/dist/counter/mod.js --file ./samples/dist/counter/bundle.js --format es --plugin @rollup/plugin-node-resolve && rollup ./samples/dist/theme/mod.js --file ./samples/dist/theme/bundle.js --format es --plugin @rollup/plugin-node-resolve && rollup ./samples/dist/todo/mod.js --file ./samples/dist/todo/bundle.js --format es --plugin @rollup/plugin-node-resolve"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "^14.4.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@types/node": "^20.11.30",
+    "@happy-dom/global-registrator": "^20.8.7",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@types/node": "^24.12.0",
     "copyfiles": "^2.4.1",
     "prettier": "^3.2.5",
     "rollup": "^4.13.0",
     "rollup-plugin-dts": "^6.1.0",
     "serve": "^14.2.1",
     "terser": "^5.29.2",
-    "typescript": "^5.4.3"
+    "typescript": "^6.0.2"
   }
 }
