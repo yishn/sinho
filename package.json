@@ -63,7 +63,7 @@
     "build": "tsc && npm run bundle && npm run minify",
     "bundle": "rollup ./dist/mod.js --file ./dist/bundle.js --format es --plugin @rollup/plugin-node-resolve && rollup ./dist/mod.d.ts --file ./dist/bundle.d.ts --format es --plugin rollup-plugin-dts",
     "minify": "terser ./dist/bundle.js --output ./dist/bundle.min.js --config-file ./terser.config.json",
-    "test": "node --test --experimental-test-coverage",
+    "test": "node --experimental-test-coverage --test \"./dist/**/*.test.js\"",
     "build-test": "npm run build && npm test",
     "check-size": "node ./ci/check-size.js",
     "build-samples": "tsc --project ./samples/tsconfig.json && rollup ./samples/dist/counter/mod.js --file ./samples/dist/counter/bundle.js --format es --plugin @rollup/plugin-node-resolve && rollup ./samples/dist/theme/mod.js --file ./samples/dist/theme/bundle.js --format es --plugin @rollup/plugin-node-resolve && rollup ./samples/dist/todo/mod.js --file ./samples/dist/todo/bundle.js --format es --plugin @rollup/plugin-node-resolve"

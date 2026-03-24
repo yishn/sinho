@@ -5,20 +5,19 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: main
   pull_request:
-    branches: [ "main" ]
+    branches: main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v6
     - name: Use Node.js
-      uses: actions/setup-node@v3
-      with:
-        cache: 'npm'
+      uses: actions/setup-node@v6
     - run: npm ci
     - run: npm run build
     - run: npm test
