@@ -10,7 +10,7 @@ import {
 } from "react";
 
 export const Playground: FC<{
-  innerRef?: RefObject<HTMLElement>;
+  innerRef?: RefObject<HTMLElement | null>;
   style?: CSSProperties;
   headerText?: string;
   customCode?: string;

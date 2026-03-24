@@ -7,6 +7,7 @@ import Heading from "@theme/Heading";
 import { CodeSnippetComponentPlayground } from "../components/playground";
 import styles from "./index.module.css";
 import CodeBlock from "@theme/CodeBlock";
+import type { JSX } from "react";
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
