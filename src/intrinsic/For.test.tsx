@@ -28,8 +28,8 @@ test("For", async () => {
     (node) => document.body.append(node),
   );
 
-  const effectsCount = s._effects.length;
-  const subscopesCount = s._subscopes.length;
+  const effectsCount = s._effects.size;
+  const subscopesCount = s._subscopes.size;
 
   assert.strictEqual(ulRef()!.children.length, 0);
 
@@ -51,11 +51,18 @@ test("For", async () => {
   assert.notStrictEqual(d3, b2);
   assert.notStrictEqual(e3, a2);
 
+  setList(["a", "e", "b"]);
+  assert.strictEqual(ulRef()!.children.length, 3);
+  const [a4, e4, b4] = ulRef()!.children;
+  assert.strictEqual(a3, a4);
+  assert.strictEqual(e3, e4);
+  assert.strictEqual(b3, b4);
+
   setList([]);
   assert.strictEqual(ulRef()!.children.length, 0);
 
   assert.deepStrictEqual(
-    [s._effects.length, s._subscopes.length],
+    [s._effects.size, s._subscopes.size],
     [effectsCount, subscopesCount],
     "Does not leak memory",
   );
@@ -80,8 +87,8 @@ test("For in If", async () => {
     (node) => document.body.append(node),
   );
 
-  const effectsCount = s._effects.length;
-  const subscopesCount = s._subscopes.length;
+  const effectsCount = s._effects.size;
+  const subscopesCount = s._subscopes.size;
 
   assert.strictEqual(ulRef(), undefined);
 
@@ -96,7 +103,7 @@ test("For in If", async () => {
   assert.strictEqual(ulRef(), undefined);
 
   assert.deepStrictEqual(
-    [s._effects.length, s._subscopes.length],
+    [s._effects.size, s._subscopes.size],
     [effectsCount, subscopesCount],
     "Does not leak memory",
   );
@@ -127,8 +134,8 @@ test("Fragment and If in For", async () => {
     (node) => document.body.append(node),
   );
 
-  const effectsCount = s._effects.length;
-  const subscopesCount = s._subscopes.length;
+  const effectsCount = s._effects.size;
+  const subscopesCount = s._subscopes.size;
 
   assert.strictEqual(ulRef()!.children.length, 1);
   assert.strictEqual(ulRef()!.children[0].textContent, "b");
@@ -144,7 +151,7 @@ test("Fragment and If in For", async () => {
   assert.strictEqual(ulRef()!.children[3].textContent, "special");
 
   assert.deepStrictEqual(
-    [s._effects.length, s._subscopes.length],
+    [s._effects.size, s._subscopes.size],
     [effectsCount, subscopesCount],
     "Does not leak memory",
   );

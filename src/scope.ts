@@ -68,8 +68,8 @@ export type Cleanup = (() => void) | void | undefined | null;
 
 export interface Scope<out T = {}> {
   readonly _parent?: Scope;
-  _effects: Effect[];
-  _subscopes: Scope[];
+  _effects: Set<Effect>;
+  _subscopes: Set<Scope>;
   _details: T;
 
   _run<T>(fn: () => T): T;
@@ -79,8 +79,8 @@ export interface Scope<out T = {}> {
 const createScope = (parent?: Scope): Scope => {
   return {
     _parent: parent,
-    _effects: [],
-    _subscopes: [],
+    _effects: new Set(),
+    _subscopes: new Set(),
     _details: { ...parent?._details },
 
     _run<T>(fn: () => T): T {
@@ -95,22 +95,23 @@ const createScope = (parent?: Scope): Scope => {
     },
 
     _cleanup(): void {
-      for (let i = this._subscopes.length - 1; i >= 0; i--) {
-        this._subscopes[i]._cleanup();
-      }
+      [...this._subscopes].forEach((_, i, arr) => {
+        const subscope = arr[arr.length - 1 - i];
+        subscope._cleanup();
+      });
 
-      this._subscopes = [];
+      this._subscopes = new Set();
 
-      for (let i = this._effects.length - 1; i >= 0; i--) {
-        const effect = this._effects[i];
+      [...this._effects].forEach((_, i, arr) => {
+        const effect = arr[arr.length - 1 - i];
         effect._clean?.();
         effect._run = () => {};
 
         effect._deps.forEach((signal) => signal._effects.delete(effect));
         effect._deps.clear();
-      }
+      });
 
-      this._effects = [];
+      this._effects = new Set();
     },
   };
 };
@@ -307,14 +308,14 @@ export const useEffect = (
     },
   };
 
-  currScope._effects.push(effect);
+  currScope._effects.add(effect);
   effect._run();
 
   if (!effect._deps.size && !effect._clean) {
     // Optimization: Destroy effect since there's no cleanup and this effect
     // won't be called again
 
-    currScope._effects.pop();
+    currScope._effects.delete(effect);
   }
 };
 
@@ -363,17 +364,13 @@ export const useSubscope = <T>(
   Object.assign(scope._details, opts?.details);
 
   try {
-    parent._subscopes.push(scope);
+    parent._subscopes.add(scope);
     const result = scope._run(fn);
 
     return [
       result,
       () => {
-        const index = parent._subscopes.indexOf(scope);
-        if (index >= 0) {
-          parent._subscopes.splice(index, 1);
-        }
-
+        parent._subscopes.delete(scope);
         scope._cleanup();
       },
     ];

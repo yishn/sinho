@@ -36,8 +36,8 @@ test("If", async () => {
     (node) => document.body.append(node),
   );
 
-  const effectsCount = s._effects.length;
-  const subscopesCount = s._subscopes.length;
+  const effectsCount = s._effects.size;
+  const subscopesCount = s._subscopes.size;
 
   assert.strictEqual(elRef()!.textContent, "Success!");
 
@@ -59,7 +59,7 @@ test("If", async () => {
   assert.strictEqual(elRef()!.textContent, "Success!");
 
   assert.deepStrictEqual(
-    [s._effects.length, s._subscopes.length],
+    [s._effects.size, s._subscopes.size],
     [effectsCount, subscopesCount],
     "Does not leak memory",
   );

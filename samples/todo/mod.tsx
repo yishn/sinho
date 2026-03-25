@@ -46,9 +46,7 @@ class TaskList extends Component("task-list", {
               oninput={(evt) => {
                 setNewTaskText(evt.currentTarget.value);
               }}
-            />
-
-            <> </>
+            />{" "}
             <button type="submit">Add</button>
           </form>
         </p>
@@ -80,14 +78,10 @@ class TaskItem extends Component("task-item", {
                 detail: !this.props.completed(),
               });
             }}
-          />
-
-          <> </>
+          />{" "}
           <button onclick={(evt) => this.events.onTaskItemDelete(evt)}>
             Delete
-          </button>
-
-          <> </>
+          </button>{" "}
           <If condition={this.props.completed}>
             <del>
               <slot />
@@ -121,9 +115,7 @@ class App extends Component("app-component", {}, { shadow: false }) {
             }}
           >
             Delete Completed
-          </button>
-
-          <> </>
+          </button>{" "}
           <button
             onclick={() => {
               setTasks((tasks) =>
