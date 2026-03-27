@@ -94,7 +94,7 @@ export const TagComponent = (
           ? document.createElement(tagName)
           : document.createElementNS("http://www.w3.org/2000/svg", tagName),
       ),
-      svg,
+      svg && tagName === "foreignObject" ? false : svg,
       props,
       true,
     );
