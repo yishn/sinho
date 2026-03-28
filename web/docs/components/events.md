@@ -16,7 +16,7 @@ Event names must start with `on` and follow camelCase convention.
 :::
 
 ```ts
-class TaskListItem extends Component("task-list-item", {
+class TaskListItem extends Component({
   text: prop<string>(""),
   completed: prop<boolean>(false),
   // highlight-next-line
@@ -43,7 +43,7 @@ class CompletedChangeEvent extends Event {
   }
 }
 
-class TaskListItem extends Component("task-list-item", {
+class TaskListItem extends Component({
   text: prop<string>(""),
   completed: prop<boolean>(false),
   // highlight-next-line
@@ -58,7 +58,7 @@ class TaskListItem extends Component("task-list-item", {
 To emit an event you can call the corresponding method in `this.events`:
 
 ```tsx
-class TaskListItem extends Component("task-list-item", {
+class TaskListItem extends Component({
   text: prop<string>(""),
   completed: prop<boolean>(false),
   onCompletedChange: event<{ completed: boolean }>(),
@@ -100,7 +100,7 @@ class CompletedChangeEvent extends Event {
   }
 }
 
-class TaskListItem extends Component("task-list-item", {
+class TaskListItem extends Component({
   text: prop<string>(""),
   completed: prop<boolean>(false),
   onCompletedChange: event(CompletedChangeEvent),

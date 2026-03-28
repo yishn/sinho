@@ -267,7 +267,7 @@ When using shadow DOM, you can allow light DOM children from the outside in your
 component. This allows techniques like slotting:
 
 ```tsx
-class SimpleGreetings extends Component("simple-greetings") {
+class SimpleGreetings extends Component() {
   render() {
     return (
       <>

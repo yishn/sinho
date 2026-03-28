@@ -28,7 +28,7 @@ To provide the context to the children of a component, you need to define a
 property on a component with the context object:
 
 ```ts
-class ThemedPanel extends Component("themed-panel", {
+class ThemedPanel extends Component({
   // highlight-next-line
   theme: prop(ThemeContext),
 }) {
@@ -72,7 +72,7 @@ To consume the context in a component, you can use the `useContext` function:
 ```tsx
 import { Component, useContext } from "sinho";
 
-class ThemedButton extends Component("themed-button", {
+class ThemedButton extends Component({
   // …
 }) {
   render() {

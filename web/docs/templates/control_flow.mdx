@@ -21,7 +21,7 @@ parts of the template:
 ```tsx
 import { Component, useSignal, If, ElseIf, Else } from "sinho";
 
-class MyComponent extends Component("my-component") {
+class MyComponent extends Component() {
   render() {
     const [count, setCount] = useSignal(0);
 
@@ -66,7 +66,7 @@ for each element:
 ```tsx
 import { Component, useSignal, For } from "sinho";
 
-class MyColors extends Component("my-colors") {
+class MyColors extends Component() {
   render() {
     const [colors, setColors] = useSignal(["red", "green", "blue"]);
 
@@ -87,7 +87,6 @@ class MyColors extends Component("my-colors") {
 
 <CodeSnippetComponentPlayground componentName="MyColors" />
 
-
 When `colors` updates, `<For>` will compare the new array with the old one and
 efficiently update the DOM.
 
@@ -99,7 +98,7 @@ across updates.
 ```tsx
 import { Component, useSignal, For } from "sinho";
 
-class TaskList extends Component("task-list") {
+class TaskList extends Component() {
   render() {
     const [tasks, setTasks] = useSignal([
       { id: 1, text: "Learn Sinho" },

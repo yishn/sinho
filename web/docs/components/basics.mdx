@@ -14,7 +14,7 @@ component a.k.a. custom HTML element.
 ```tsx
 import { Component, prop } from "sinho";
 
-class SimpleGreeting extends Component("simple-greeting", {
+class SimpleGreeting extends Component({
   name: prop<string>("John"),
 }) {
   render() {
@@ -36,7 +36,23 @@ import { /* … */ defineComponents } from "sinho";
 
 // …
 
-defineComponents(SimpleGreeting);
+defineComponents(SimpleGreeting); // Component will be registered as <simple-greeting>
+```
+
+By default, the kebab-case version of the class name will be used as tag name.
+You can also specify an explicit tag name for your component:
+
+```tsx
+// highlight-next-line
+class SimpleGreeting extends Component("x-greeting", {
+  name: prop<string>("John"),
+}) {
+  render() {
+    return <h1>Hello, {this.props.name}!</h1>;
+  }
+}
+
+defineComponents(SimpleGreeting); // Component will be registered as <x-greeting>
 ```
 
 Optionally, you can provide a prefix:
@@ -105,7 +121,6 @@ disable this by setting the `shadow` option on your component to `false`:
 
 ```tsx
 export class SimpleGreeting extends Component(
-  "simple-greeting",
   { name: prop<string>("John") },
   // highlight-next-line
   { shadow: false },

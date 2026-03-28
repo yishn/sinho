@@ -22,7 +22,7 @@ const themeProps = {
   }),
 };
 
-class ThemedButton extends Component("themed-button", {
+class ThemedButton extends Component({
   ...themeProps,
   onButtonClick: event(MouseEvent),
 }) {
@@ -75,7 +75,7 @@ class ThemedButton extends Component("themed-button", {
   }
 }
 
-class ThemedCheckbox extends Component("themed-checkbox", {
+class ThemedCheckbox extends Component({
   ...themeProps,
   checked: prop<boolean>(false, {
     attribute: (value) => value != null,

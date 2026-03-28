@@ -15,7 +15,7 @@ interface Task {
   completed: boolean;
 }
 
-class TaskList extends Component("task-list", {
+class TaskList extends Component({
   onTaskItemAdd: event<{
     text: string;
   }>(),
@@ -59,7 +59,7 @@ class TaskList extends Component("task-list", {
   }
 }
 
-class TaskItem extends Component("task-item", {
+class TaskItem extends Component({
   completed: prop<boolean>(false, {
     attribute: () => true,
   }),

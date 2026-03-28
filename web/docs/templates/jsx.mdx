@@ -14,7 +14,7 @@ Each component has a `render` function that returns a JSX template.
 ```tsx
 import { Component } from "sinho";
 
-export class HelloWorld extends Component("hello-world") {
+export class HelloWorld extends Component() {
   render() {
     return (
       // highlight-start
@@ -38,7 +38,7 @@ JSX will be transpiled into normal JavaScript. The above code is equivalent to:
 ```ts
 import { Component, h } from "sinho";
 
-export class HelloWorld extends Component("hello-world") {
+export class HelloWorld extends Component() {
   render() {
     return (
       // highlight-start
@@ -57,7 +57,7 @@ For native HTML tags, you can use a shorthand notation:
 ```ts
 import { Component, h } from "sinho";
 
-export class HelloWorld extends Component("hello-world") {
+export class HelloWorld extends Component() {
   render() {
     return (
       // highlight-start
@@ -99,7 +99,7 @@ To render multiple elements without a parent element, you can use a fragment:
 ```tsx
 import { Component } from "sinho";
 
-export class HelloWorld extends Component("hello-world") {
+export class HelloWorld extends Component() {
   render() {
     return (
       // highlight-next-line
@@ -123,7 +123,7 @@ expression:
 ```tsx
 import { Component, useSignal } from "sinho";
 
-export class HelloWorld extends Component("hello-world") {
+export class HelloWorld extends Component() {
   render() {
     const [className, setClassName] = useSignal("hello-world");
     const [name, setName] = useSignal("John");
@@ -304,7 +304,7 @@ prevent XSS attacks. If you want to render HTML content, you can use the
 ```tsx
 import { Component, DangerousHtml } from "sinho";
 
-class DangerousDiv extends Component("dangerous-div") {
+class DangerousDiv extends Component() {
   render() {
     // highlight-next-line
     const htmlContent: DangerousHtml = { __html: "<p><b>This is bold</b></p>" };
