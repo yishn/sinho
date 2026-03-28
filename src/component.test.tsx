@@ -49,7 +49,7 @@ test("Component with reactive prop", () => {
 });
 
 test("Component with attributes", () => {
-  class Greeting extends Component("x-greeting", {
+  class MyGreeting extends Component({
     name: prop<string>("World", {
       attribute: String,
     }),
@@ -71,10 +71,10 @@ test("Component with attributes", () => {
     }
   }
 
-  defineComponents(Greeting);
+  defineComponents(MyGreeting);
 
-  const ref = useRef<Greeting>();
-  TemplateNodes.forEach((<Greeting ref={ref} />).build(), (node) =>
+  const ref = useRef<MyGreeting>();
+  TemplateNodes.forEach((<MyGreeting ref={ref} />).build(), (node) =>
     document.body.append(node),
   );
 

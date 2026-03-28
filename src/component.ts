@@ -356,7 +356,7 @@ export type Component<M extends Metadata = {}> = {
 export interface ComponentConstructor<M extends Metadata = {}> {
   /** @ignore */
   readonly [componentSym]: {
-    readonly _tagName: string;
+    readonly _tagName: string | null;
   };
   readonly observedAttributes: readonly string[];
 
@@ -403,7 +403,7 @@ export const useMountEffect = (
  *
  * @example
  * ```tsx
- * class MyComponent extends Component("my-component", {
+ * class MyComponent extends Component({
  *   myProp: prop<string>("Hello, world!"),
  *   onMyEvent: event(),
  * }) {
@@ -417,19 +417,34 @@ export const useMountEffect = (
  *   },
  * }
  *
- * customElements.define("my-component", MyComponent);
+ * defineComponents(MyComponent);
  * ```
  */
-export const Component: ((tagName: string) => ComponentConstructor<{}>) &
+export const Component: ((tagName?: string) => ComponentConstructor<{}>) &
   (<const M extends Metadata>(
     tagName: string,
     metadata: M,
     opts?: ComponentOptions,
+  ) => ComponentConstructor<M>) &
+  (<const M extends Metadata>(
+    metadata: M,
+    opts?: ComponentOptions,
   ) => ComponentConstructor<M>) = ((
-  tagName: string,
-  metadata: Metadata = {},
-  opts: ComponentOptions = {},
+  tagNameOrMetadata?: string | Metadata,
+  metadataOrOpts?: Metadata | ComponentOptions,
+  optsParam?: ComponentOptions,
 ): ComponentConstructor => {
+  const tagName =
+    typeof tagNameOrMetadata === "string" ? tagNameOrMetadata : null;
+  const metadata =
+    typeof tagNameOrMetadata === "string"
+      ? (metadataOrOpts as Metadata)
+      : tagNameOrMetadata;
+  const opts =
+    (typeof tagNameOrMetadata === "string"
+      ? optsParam
+      : (metadataOrOpts as ComponentOptions)) ?? {};
+
   // Extract attribute information
 
   const observedAttributes: string[] = [];
@@ -477,7 +492,7 @@ export const Component: ((tagName: string) => ComponentConstructor<{}>) &
 
   const getRenderParent = (component: _Component) =>
     opts.shadow
-      ? component.shadowRoot ?? component.attachShadow(opts.shadow)
+      ? (component.shadowRoot ?? component.attachShadow(opts.shadow))
       : component;
   abstract class _Component extends HTMLElement {
     static readonly [componentSym]: ComponentConstructor[typeof componentSym] =
@@ -624,6 +639,11 @@ export const defineComponents: ((
       : ["", args as ComponentConstructor[]];
 
   for (const component of components) {
-    customElements.define(prefix + component[componentSym]._tagName, component);
+    customElements.define(
+      prefix +
+        (component[componentSym]._tagName ??
+          camelCaseToKebabCase(component.name)),
+      component,
+    );
   }
 };
