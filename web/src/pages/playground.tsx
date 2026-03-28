@@ -7,7 +7,7 @@ export default function PlaygroundPage() {
   const [src, setSrc] = useState(`\
 import { Component, useSignal, defineComponents } from "sinho";
 
-class Counter extends Component("x-counter") {
+class MyCounter extends Component() {
   render() {
     const [value, setValue] = useSignal(0);
 
@@ -23,8 +23,8 @@ class Counter extends Component("x-counter") {
   }
 }
 
-defineComponents(Counter);
-document.body.append(new Counter());`);
+defineComponents(MyCounter);
+document.body.append(new MyCounter());`);
 
   return (
     <Layout

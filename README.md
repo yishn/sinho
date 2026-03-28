@@ -13,7 +13,7 @@ API.
 ```tsx
 import { Component, useSignal, defineComponents } from "sinho";
 
-class Counter extends Component("x-counter") {
+class MyCounter extends Component() {
   render() {
     const [value, setValue] = useSignal(0);
 
@@ -29,5 +29,5 @@ class Counter extends Component("x-counter") {
   }
 }
 
-defineComponents(Counter);
+defineComponents(MyCounter);
 ```
