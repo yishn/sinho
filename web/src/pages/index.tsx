@@ -54,7 +54,7 @@ export default function Home(): JSX.Element {
         <CodeBlock language="tsx">{`\
 import { Component, useSignal } from "sinho";
 
-class Counter extends Component("x-counter") {
+class MyCounter extends Component() {
   render() {
     const [value, setValue] = useSignal(0);
 
@@ -70,7 +70,7 @@ class Counter extends Component("x-counter") {
   }
 }`}</CodeBlock>
 
-        <CodeSnippetComponentPlayground componentName="Counter" />
+        <CodeSnippetComponentPlayground componentName="MyCounter" />
       </main>
     </Layout>
   );
