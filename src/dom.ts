@@ -30,7 +30,6 @@ import {
   type MaybeSignal,
   type RefSignalSetter,
 } from "./mod.js";
-import { isComponent } from "./component.js";
 
 const IS_NON_DIMENSIONAL =
   /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
@@ -555,10 +554,10 @@ interface HtmlProps<in E> extends DomProps<E> {
 }
 
 interface SvgProps<in E> extends HtmlProps<E> {
-  accentHeight?: MaybeSignal<number | string | undefined>;
+  "accent-height"?: MaybeSignal<number | string | undefined>;
   accumulate?: MaybeSignal<"none" | "sum" | undefined>;
   additive?: MaybeSignal<"replace" | "sum" | undefined>;
-  alignmentBaseline?: MaybeSignal<
+  "alignment-baseline"?: MaybeSignal<
     | "auto"
     | "baseline"
     | "before-edge"
@@ -574,36 +573,35 @@ interface SvgProps<in E> extends HtmlProps<E> {
     | "inherit"
     | undefined
   >;
-  allowReorder?: MaybeSignal<"no" | "yes" | undefined>;
+  "allow-reorder"?: MaybeSignal<"no" | "yes" | undefined>;
   alphabetic?: MaybeSignal<number | string | undefined>;
   amplitude?: MaybeSignal<number | string | undefined>;
-  arabicForm?: MaybeSignal<
+  "arabic-form"?: MaybeSignal<
     "initial" | "medial" | "terminal" | "isolated" | undefined
   >;
   ascent?: MaybeSignal<number | string | undefined>;
   attributeName?: MaybeSignal<string | undefined>;
   attributeType?: MaybeSignal<string | undefined>;
-  autoReverse?: MaybeSignal<number | string | undefined>;
   azimuth?: MaybeSignal<number | string | undefined>;
   baseFrequency?: MaybeSignal<number | string | undefined>;
-  baselineShift?: MaybeSignal<number | string | undefined>;
+  "baseline-shift"?: MaybeSignal<number | string | undefined>;
   baseProfile?: MaybeSignal<number | string | undefined>;
   bbox?: MaybeSignal<number | string | undefined>;
   begin?: MaybeSignal<number | string | undefined>;
   bias?: MaybeSignal<number | string | undefined>;
   by?: MaybeSignal<number | string | undefined>;
   calcMode?: MaybeSignal<number | string | undefined>;
-  capHeight?: MaybeSignal<number | string | undefined>;
+  "cap-height"?: MaybeSignal<number | string | undefined>;
   clip?: MaybeSignal<number | string | undefined>;
-  clipPath?: MaybeSignal<string | undefined>;
+  "clip-path"?: MaybeSignal<string | undefined>;
   clipPathUnits?: MaybeSignal<number | string | undefined>;
-  clipRule?: MaybeSignal<number | string | undefined>;
-  colorInterpolation?: MaybeSignal<number | string | undefined>;
-  colorInterpolationFilters?: MaybeSignal<
+  "clip-rule"?: MaybeSignal<number | string | undefined>;
+  "color-interpolation"?: MaybeSignal<number | string | undefined>;
+  "color-interpolation-filters"?: MaybeSignal<
     "auto" | "sRGB" | "linearRGB" | "inherit" | undefined
   >;
-  colorProfile?: MaybeSignal<number | string | undefined>;
-  colorRendering?: MaybeSignal<number | string | undefined>;
+  "color-profile"?: MaybeSignal<number | string | undefined>;
+  "color-rendering"?: MaybeSignal<number | string | undefined>;
   contentScriptType?: MaybeSignal<number | string | undefined>;
   contentStyleType?: MaybeSignal<number | string | undefined>;
   cursor?: MaybeSignal<number | string | undefined>;
@@ -616,49 +614,49 @@ interface SvgProps<in E> extends HtmlProps<E> {
   direction?: MaybeSignal<number | string | undefined>;
   display?: MaybeSignal<number | string | undefined>;
   divisor?: MaybeSignal<number | string | undefined>;
-  dominantBaseline?: MaybeSignal<number | string | undefined>;
+  "dominant-baseline"?: MaybeSignal<number | string | undefined>;
   dur?: MaybeSignal<number | string | undefined>;
   dx?: MaybeSignal<number | string | undefined>;
   dy?: MaybeSignal<number | string | undefined>;
   edgeMode?: MaybeSignal<number | string | undefined>;
   elevation?: MaybeSignal<number | string | undefined>;
-  enableBackground?: MaybeSignal<number | string | undefined>;
+  "enable-background"?: MaybeSignal<number | string | undefined>;
   end?: MaybeSignal<number | string | undefined>;
   exponent?: MaybeSignal<number | string | undefined>;
   externalResourcesRequired?: MaybeSignal<number | string | undefined>;
   fill?: MaybeSignal<string | undefined>;
-  fillOpacity?: MaybeSignal<number | string | undefined>;
-  fillRule?: MaybeSignal<"nonzero" | "evenodd" | "inherit" | undefined>;
+  "fill-opacity"?: MaybeSignal<number | string | undefined>;
+  "fill-rule"?: MaybeSignal<"nonzero" | "evenodd" | "inherit" | undefined>;
   filter?: MaybeSignal<string | undefined>;
   filterRes?: MaybeSignal<number | string | undefined>;
   filterUnits?: MaybeSignal<number | string | undefined>;
-  floodColor?: MaybeSignal<number | string | undefined>;
-  floodOpacity?: MaybeSignal<number | string | undefined>;
+  "flood-color"?: MaybeSignal<number | string | undefined>;
+  "flood-opacity"?: MaybeSignal<number | string | undefined>;
   focusable?: MaybeSignal<number | string | undefined>;
-  fontFamily?: MaybeSignal<string | undefined>;
-  fontSize?: MaybeSignal<number | string | undefined>;
-  fontSizeAdjust?: MaybeSignal<number | string | undefined>;
-  fontStretch?: MaybeSignal<number | string | undefined>;
-  fontStyle?: MaybeSignal<number | string | undefined>;
-  fontVariant?: MaybeSignal<number | string | undefined>;
-  fontWeight?: MaybeSignal<number | string | undefined>;
+  "font-family"?: MaybeSignal<string | undefined>;
+  "font-size"?: MaybeSignal<number | string | undefined>;
+  "font-size-adjust"?: MaybeSignal<number | string | undefined>;
+  "font-stretch"?: MaybeSignal<number | string | undefined>;
+  "font-style"?: MaybeSignal<number | string | undefined>;
+  "font-variant"?: MaybeSignal<number | string | undefined>;
+  "font-weight"?: MaybeSignal<number | string | undefined>;
   format?: MaybeSignal<number | string | undefined>;
   from?: MaybeSignal<number | string | undefined>;
   fx?: MaybeSignal<number | string | undefined>;
   fy?: MaybeSignal<number | string | undefined>;
   g1?: MaybeSignal<number | string | undefined>;
   g2?: MaybeSignal<number | string | undefined>;
-  glyphName?: MaybeSignal<number | string | undefined>;
-  glyphOrientationHorizontal?: MaybeSignal<number | string | undefined>;
-  glyphOrientationVertical?: MaybeSignal<number | string | undefined>;
+  "glyph-name"?: MaybeSignal<number | string | undefined>;
+  "glyph-orientation-horizontal"?: MaybeSignal<number | string | undefined>;
+  "glyph-orientation-vertical"?: MaybeSignal<number | string | undefined>;
   glyphRef?: MaybeSignal<number | string | undefined>;
   gradientTransform?: MaybeSignal<string | undefined>;
   gradientUnits?: MaybeSignal<string | undefined>;
   hanging?: MaybeSignal<number | string | undefined>;
-  horizAdvX?: MaybeSignal<number | string | undefined>;
-  horizOriginX?: MaybeSignal<number | string | undefined>;
+  "horiz-adv-x"?: MaybeSignal<number | string | undefined>;
+  "horiz-origin-x"?: MaybeSignal<number | string | undefined>;
   ideographic?: MaybeSignal<number | string | undefined>;
-  imageRendering?: MaybeSignal<number | string | undefined>;
+  "image-rendering"?: MaybeSignal<number | string | undefined>;
   in2?: MaybeSignal<number | string | undefined>;
   in?: MaybeSignal<string | undefined>;
   intercept?: MaybeSignal<number | string | undefined>;
@@ -674,14 +672,14 @@ interface SvgProps<in E> extends HtmlProps<E> {
   keySplines?: MaybeSignal<number | string | undefined>;
   keyTimes?: MaybeSignal<number | string | undefined>;
   lengthAdjust?: MaybeSignal<number | string | undefined>;
-  letterSpacing?: MaybeSignal<number | string | undefined>;
-  lightingColor?: MaybeSignal<number | string | undefined>;
+  "letter-spacing"?: MaybeSignal<number | string | undefined>;
+  "lighting-color"?: MaybeSignal<number | string | undefined>;
   limitingConeAngle?: MaybeSignal<number | string | undefined>;
   local?: MaybeSignal<number | string | undefined>;
-  markerEnd?: MaybeSignal<string | undefined>;
+  "marker-end"?: MaybeSignal<string | undefined>;
   markerHeight?: MaybeSignal<number | string | undefined>;
-  markerMid?: MaybeSignal<string | undefined>;
-  markerStart?: MaybeSignal<string | undefined>;
+  "marker-mid"?: MaybeSignal<string | undefined>;
+  "marker-start"?: MaybeSignal<string | undefined>;
   markerUnits?: MaybeSignal<number | string | undefined>;
   markerWidth?: MaybeSignal<number | string | undefined>;
   mask?: MaybeSignal<string | undefined>;
@@ -698,15 +696,15 @@ interface SvgProps<in E> extends HtmlProps<E> {
   orientation?: MaybeSignal<number | string | undefined>;
   origin?: MaybeSignal<number | string | undefined>;
   overflow?: MaybeSignal<number | string | undefined>;
-  overlinePosition?: MaybeSignal<number | string | undefined>;
-  overlineThickness?: MaybeSignal<number | string | undefined>;
-  paintOrder?: MaybeSignal<number | string | undefined>;
-  panose1?: MaybeSignal<number | string | undefined>;
+  "overline-position"?: MaybeSignal<number | string | undefined>;
+  "overline-thickness"?: MaybeSignal<number | string | undefined>;
+  "paint-order"?: MaybeSignal<number | string | undefined>;
+  "panose-1"?: MaybeSignal<number | string | undefined>;
   pathLength?: MaybeSignal<number | string | undefined>;
   patternContentUnits?: MaybeSignal<string | undefined>;
   patternTransform?: MaybeSignal<number | string | undefined>;
   patternUnits?: MaybeSignal<string | undefined>;
-  pointerEvents?: MaybeSignal<number | string | undefined>;
+  "pointer-events"?: MaybeSignal<number | string | undefined>;
   points?: MaybeSignal<string | undefined>;
   pointsAtX?: MaybeSignal<number | string | undefined>;
   pointsAtY?: MaybeSignal<number | string | undefined>;
@@ -718,7 +716,7 @@ interface SvgProps<in E> extends HtmlProps<E> {
   radius?: MaybeSignal<number | string | undefined>;
   refX?: MaybeSignal<number | string | undefined>;
   refY?: MaybeSignal<number | string | undefined>;
-  renderingIntent?: MaybeSignal<number | string | undefined>;
+  "rendering-intent"?: MaybeSignal<number | string | undefined>;
   repeatCount?: MaybeSignal<number | string | undefined>;
   repeatDur?: MaybeSignal<number | string | undefined>;
   requiredExtensions?: MaybeSignal<number | string | undefined>;
@@ -730,7 +728,7 @@ interface SvgProps<in E> extends HtmlProps<E> {
   ry?: MaybeSignal<number | string | undefined>;
   scale?: MaybeSignal<number | string | undefined>;
   seed?: MaybeSignal<number | string | undefined>;
-  shapeRendering?: MaybeSignal<number | string | undefined>;
+  "shape-rendering"?: MaybeSignal<number | string | undefined>;
   slope?: MaybeSignal<number | string | undefined>;
   spacing?: MaybeSignal<number | string | undefined>;
   specularConstant?: MaybeSignal<number | string | undefined>;
@@ -742,23 +740,23 @@ interface SvgProps<in E> extends HtmlProps<E> {
   stemh?: MaybeSignal<number | string | undefined>;
   stemv?: MaybeSignal<number | string | undefined>;
   stitchTiles?: MaybeSignal<number | string | undefined>;
-  stopColor?: MaybeSignal<string | undefined>;
-  stopOpacity?: MaybeSignal<number | string | undefined>;
-  strikethroughPosition?: MaybeSignal<number | string | undefined>;
-  strikethroughThickness?: MaybeSignal<number | string | undefined>;
+  "stop-color"?: MaybeSignal<string | undefined>;
+  "stop-opacity"?: MaybeSignal<number | string | undefined>;
+  "strikethrough-position"?: MaybeSignal<number | string | undefined>;
+  "strikethrough-thickness"?: MaybeSignal<number | string | undefined>;
   string?: MaybeSignal<number | string | undefined>;
   stroke?: MaybeSignal<string | undefined>;
-  strokeDasharray?: MaybeSignal<number | string | undefined>;
-  strokeDashoffset?: MaybeSignal<number | string | undefined>;
-  strokeLinecap?: MaybeSignal<
+  "stroke-dasharray"?: MaybeSignal<number | string | undefined>;
+  "stroke-dashoffset"?: MaybeSignal<number | string | undefined>;
+  "stroke-linecap"?: MaybeSignal<
     "butt" | "round" | "square" | "inherit" | undefined
   >;
-  strokeLinejoin?: MaybeSignal<
+  "stroke-linejoin"?: MaybeSignal<
     "miter" | "round" | "bevel" | "inherit" | undefined
   >;
-  strokeMiterlimit?: MaybeSignal<number | string | undefined>;
-  strokeOpacity?: MaybeSignal<number | string | undefined>;
-  strokeWidth?: MaybeSignal<number | string | undefined>;
+  "stroke-miterlimit"?: MaybeSignal<number | string | undefined>;
+  "stroke-opacity"?: MaybeSignal<number | string | undefined>;
+  "stroke-width"?: MaybeSignal<number | string | undefined>;
   surfaceScale?: MaybeSignal<number | string | undefined>;
   systemLanguage?: MaybeSignal<number | string | undefined>;
   tableValues?: MaybeSignal<number | string | undefined>;
@@ -770,47 +768,36 @@ interface SvgProps<in E> extends HtmlProps<E> {
   textRendering?: MaybeSignal<number | string | undefined>;
   to?: MaybeSignal<number | string | undefined>;
   transform?: MaybeSignal<string | undefined>;
+  "transform-origin"?: MaybeSignal<string | undefined>;
   u1?: MaybeSignal<number | string | undefined>;
   u2?: MaybeSignal<number | string | undefined>;
-  underlinePosition?: MaybeSignal<number | string | undefined>;
-  underlineThickness?: MaybeSignal<number | string | undefined>;
+  "underline-position"?: MaybeSignal<number | string | undefined>;
+  "underline-thickness"?: MaybeSignal<number | string | undefined>;
   unicode?: MaybeSignal<number | string | undefined>;
-  unicodeBidi?: MaybeSignal<number | string | undefined>;
-  unicodeRange?: MaybeSignal<number | string | undefined>;
-  unitsPerEm?: MaybeSignal<number | string | undefined>;
-  vAlphabetic?: MaybeSignal<number | string | undefined>;
+  "unicode-bidi"?: MaybeSignal<number | string | undefined>;
+  "unicode-range"?: MaybeSignal<number | string | undefined>;
+  "units-per-em"?: MaybeSignal<number | string | undefined>;
+  "v-alphabetic"?: MaybeSignal<number | string | undefined>;
   values?: MaybeSignal<string | undefined>;
   vectorEffect?: MaybeSignal<number | string | undefined>;
   version?: MaybeSignal<string | undefined>;
-  vertAdvY?: MaybeSignal<number | string | undefined>;
-  vertOriginX?: MaybeSignal<number | string | undefined>;
-  vertOriginY?: MaybeSignal<number | string | undefined>;
-  vHanging?: MaybeSignal<number | string | undefined>;
-  vIdeographic?: MaybeSignal<number | string | undefined>;
+  "vert-adv-y"?: MaybeSignal<number | string | undefined>;
+  "vert-origin-x"?: MaybeSignal<number | string | undefined>;
+  "vert-origin-y"?: MaybeSignal<number | string | undefined>;
+  "v-hanging"?: MaybeSignal<number | string | undefined>;
+  "v-ideographic"?: MaybeSignal<number | string | undefined>;
   viewBox?: MaybeSignal<string | undefined>;
   viewTarget?: MaybeSignal<number | string | undefined>;
   visibility?: MaybeSignal<number | string | undefined>;
-  vMathematical?: MaybeSignal<number | string | undefined>;
+  "v-mathematical"?: MaybeSignal<number | string | undefined>;
   widths?: MaybeSignal<number | string | undefined>;
-  wordSpacing?: MaybeSignal<number | string | undefined>;
+  "word-spacing"?: MaybeSignal<number | string | undefined>;
   writingMode?: MaybeSignal<number | string | undefined>;
   x1?: MaybeSignal<number | string | undefined>;
   x2?: MaybeSignal<number | string | undefined>;
   x?: MaybeSignal<number | string | undefined>;
   xChannelSelector?: MaybeSignal<string | undefined>;
-  xHeight?: MaybeSignal<number | string | undefined>;
-  xlinkActuate?: MaybeSignal<string | undefined>;
-  xlinkArcrole?: MaybeSignal<string | undefined>;
-  xlinkHref?: MaybeSignal<string | undefined>;
-  xlinkRole?: MaybeSignal<string | undefined>;
-  xlinkShow?: MaybeSignal<string | undefined>;
-  xlinkTitle?: MaybeSignal<string | undefined>;
-  xlinkType?: MaybeSignal<string | undefined>;
-  xmlBase?: MaybeSignal<string | undefined>;
-  xmlLang?: MaybeSignal<string | undefined>;
-  xmlns?: MaybeSignal<string | undefined>;
-  xmlnsXlink?: MaybeSignal<string | undefined>;
-  xmlSpace?: MaybeSignal<string | undefined>;
+  "x-height"?: MaybeSignal<number | string | undefined>;
   y1?: MaybeSignal<number | string | undefined>;
   y2?: MaybeSignal<number | string | undefined>;
   y?: MaybeSignal<number | string | undefined>;
