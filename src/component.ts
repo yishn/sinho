@@ -348,7 +348,7 @@ declare abstract class ComponentInner<M extends Metadata> {
 
 export type Component<M extends Metadata = {}> = {
   -readonly [K in keyof Props<M>]: Props<M>[K] extends Signal<infer T>
-    ? T
+    ? T | undefined
     : never;
 } & ComponentInner<M> &
   HTMLElement;
@@ -528,7 +528,14 @@ export const Component: ((tagName?: string) => ComponentConstructor<{}>) &
 
           Object.defineProperty(this, name, {
             get: getter.peek,
-            set: (value) => setter(() => value, { force: true }),
+            set: (value) =>
+              setter(
+                () =>
+                  !context && value === undefined
+                    ? meta._defaultOrContext
+                    : value,
+                { force: true },
+              ),
           });
         } else if (meta._tag == "e" && name.startsWith("on")) {
           const eventName = jsxPropNameToEventName(name as `on${string}`);
@@ -588,9 +595,7 @@ export const Component: ((tagName?: string) => ComponentConstructor<{}>) &
         this[prop.name as keyof this] =
           value != null
             ? prop.meta.attribute.transform.call(this, value)
-            : isContext(prop.meta._defaultOrContext)
-              ? undefined
-              : prop.meta._defaultOrContext;
+            : undefined;
       }
     }
 

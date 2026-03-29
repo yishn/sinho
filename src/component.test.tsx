@@ -46,6 +46,9 @@ test("Component with reactive prop", () => {
 
   setName("John");
   assert.strictEqual(h1.textContent, "Hello, John!");
+
+  ref()!.name = undefined;
+  assert.strictEqual(h1.textContent, "Hello, World!");
 });
 
 test("Component with attributes", () => {
