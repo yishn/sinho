@@ -58,6 +58,7 @@
     }
   },
   "scripts": {
+    "prepublishOnly": "npm run build",
     "format": "prettier --write .",
     "format-check": "prettier --check .",
     "build": "tsc && npm run bundle && npm run minify",
