@@ -342,8 +342,10 @@ declare abstract class ComponentInner<M extends Metadata> {
     ) => void,
     options?: boolean | AddEventListenerOptions,
   ): void;
-  removeEventListener<K extends keyof Events<M> & string>(
-    type: JsxPropNameToEventName<K>,
+  removeEventListener<
+    K extends JsxPropNameToEventName<keyof Events<M> & string>,
+  >(
+    type: K,
     listener: (
       event: InstanceType<
         Events<M>[Extract<EventNameToJsxProp<K>, keyof Events<M>>]
