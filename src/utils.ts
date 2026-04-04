@@ -9,6 +9,11 @@ export type CamelCaseToKebabCase<S extends string> =
       : `-${Lowercase<F>}${CamelCaseToKebabCase<R>}`
     : Lowercase<S>;
 
+export type KebabCaseToCamelCase<S extends string> =
+  S extends `${infer F}-${infer R}`
+    ? `${F}${Capitalize<KebabCaseToCamelCase<R>>}`
+    : Capitalize<S>;
+
 export const camelCaseToKebabCase = (value: string): string => {
   return (
     (value[0] ?? "").toLowerCase() +
@@ -27,3 +32,6 @@ export const jsxPropNameToEventName = (value: `on${string}`): string => {
     return camelCaseToKebabCase(value.slice(2));
   }
 };
+
+export type EventNameToJsxProp<S extends string> =
+  `on${Capitalize<KebabCaseToCamelCase<S>>}`;

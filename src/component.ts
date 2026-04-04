@@ -11,6 +11,7 @@ import type { DomEventProps, DomProps } from "./dom.js";
 import { runWithRenderer } from "./renderer.js";
 import {
   camelCaseToKebabCase,
+  EventNameToJsxProp,
   JsxPropNameToEventName,
   jsxPropNameToEventName,
 } from "./utils.js";
@@ -332,14 +333,22 @@ declare abstract class ComponentInner<M extends Metadata> {
     value: string | null,
   ): void;
 
-  addEventListener<K extends keyof Events<M> & string>(
-    type: JsxPropNameToEventName<K>,
-    listener: (event: InstanceType<Events<M>[K]>) => void,
+  addEventListener<K extends JsxPropNameToEventName<keyof Events<M> & string>>(
+    type: K,
+    listener: (
+      event: InstanceType<
+        Events<M>[Extract<EventNameToJsxProp<K>, keyof Events<M>>]
+      >,
+    ) => void,
     options?: boolean | AddEventListenerOptions,
   ): void;
   removeEventListener<K extends keyof Events<M> & string>(
     type: JsxPropNameToEventName<K>,
-    listener: (event: InstanceType<Events<M>[K]>) => void,
+    listener: (
+      event: InstanceType<
+        Events<M>[Extract<EventNameToJsxProp<K>, keyof Events<M>>]
+      >,
+    ) => void,
     options?: boolean | EventListenerOptions,
   ): void;
 
@@ -494,6 +503,7 @@ export const Component: ((tagName?: string) => ComponentConstructor<{}>) &
     opts.shadow
       ? (component.shadowRoot ?? component.attachShadow(opts.shadow))
       : component;
+
   abstract class _Component extends HTMLElement {
     static readonly [componentSym]: ComponentConstructor[typeof componentSym] =
       {
