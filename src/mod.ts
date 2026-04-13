@@ -1,17 +1,20 @@
 export {
-  type AttributeOptions,
   Component,
-  type ComponentConstructor,
-  type ComponentOptions,
   defineComponents,
   event,
-  type EventConstructor,
-  type FunctionalComponent,
   isComponent,
-  type Metadata,
   prop,
-  type PropOptions,
   useMountEffect as useEffect,
+  type AttributeOptions,
+  type Metadata,
+  type PropOptions,
+  type PropMeta,
+  type EventMeta,
+  type ComponentConstructor,
+  type _ComponentInner,
+  type ComponentOptions,
+  type FunctionalComponent,
+  type EventConstructor,
 } from "./component.js";
 export { type Context, createContext, useContext } from "./context.js";
 export { createElement, h } from "./create_element.js";

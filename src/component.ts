@@ -301,7 +301,7 @@ export const event: (() => EventMeta<_CustomEventContructor<undefined>>) &
 
 export type Metadata = {
   // Forbid all library properties
-  [K in keyof ComponentInner<any> | "props" | "events"]?: never;
+  [K in keyof _ComponentInner<any> | "props" | "events"]?: never;
 } & {
   // Forbid all dom props
   [K in keyof DomProps<any>]?: never;
@@ -315,7 +315,7 @@ export type Metadata = {
 export const componentSym = Symbol("Component");
 export declare const jsxPropsSym: unique symbol;
 
-declare abstract class ComponentInner<M extends Metadata> {
+export declare abstract class _ComponentInner<M extends Metadata> {
   protected props: Props<M>;
   protected events: EventEmitters<M>;
 
@@ -361,7 +361,7 @@ export type Component<M extends Metadata = {}> = {
   -readonly [K in keyof Props<M>]: Props<M>[K] extends Signal<infer T>
     ? T | undefined
     : never;
-} & ComponentInner<M> &
+} & _ComponentInner<M> &
   HTMLElement;
 
 export interface ComponentConstructor<M extends Metadata = {}> {
@@ -516,7 +516,7 @@ export const Component: ((tagName?: string) => ComponentConstructor<{}>) &
     protected props: Record<string, Signal<any>> = {};
     protected events: Record<string, (arg: unknown) => any> = {};
 
-    readonly [componentSym]: ComponentInner<any>[typeof componentSym] = {};
+    readonly [componentSym]: _ComponentInner<any>[typeof componentSym] = {};
 
     constructor() {
       super();
