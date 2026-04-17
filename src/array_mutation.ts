@@ -3,20 +3,45 @@ import { Signal, SignalLike, useEffect, useSignal } from "./scope.js";
 const getIndexMap = <T>(
   array: readonly T[],
   keyFn: (entry: T, index: number) => unknown,
-): Map<unknown, number> => {
-  const keyMap = new Map<unknown, number>();
+  oldIndexMap: Map<unknown, number>,
+): {
+  _indexMap: Map<unknown, number>;
+  _removedFromOld: Array<{
+    _key: unknown;
+    _oldIndex: number;
+    _removedBefore: number;
+  }>;
+} => {
+  const _indexMap = new Map<unknown, number>();
 
   for (let i = 0; i < array.length; i++) {
     const key = keyFn(array[i], i);
 
-    if (keyMap.has(key)) {
+    if (_indexMap.has(key)) {
       throw new Error(`Duplicate key '${key}'`);
     }
 
-    keyMap.set(key, i);
+    _indexMap.set(key, i);
   }
 
-  return keyMap;
+  const _removedFromOld: Array<{
+    _key: unknown;
+    _oldIndex: number;
+    _removedBefore: number;
+  }> = [];
+  let removedBefore = 0;
+
+  for (const [key, i] of oldIndexMap) {
+    if (!_indexMap.has(key)) {
+      _removedFromOld.push({
+        _key: key,
+        _oldIndex: i,
+        _removedBefore: removedBefore++,
+      });
+    }
+  }
+
+  return { _indexMap, _removedFromOld };
 };
 
 export type ArrayMutation =
@@ -41,54 +66,59 @@ export const useArrayMutation = <T extends unknown>(
   array: SignalLike<readonly T[]>,
   keyFn: (entry: T, index: number) => unknown,
 ): Signal<ArrayMutationResult> => {
-  const [result, setResult] = useSignal<ArrayMutationResult>(
-    {
-      _mutations: [],
-      _map: new Map(),
-    },
-    { force: true },
-  );
+  const [result, setResult] = useSignal<ArrayMutationResult>({
+    _mutations: [],
+    _map: new Map(),
+  });
 
   let indexMap = new Map<unknown, number>();
 
   useEffect(() => {
     const mutations: ArrayMutation[] = [];
     const oldIndexMap = indexMap;
-    const newIndexMap = getIndexMap(array(), keyFn);
+    const { _indexMap: newIndexMap, _removedFromOld } = getIndexMap(
+      array(),
+      keyFn,
+      oldIndexMap,
+    );
 
-    const transformToOldIndex = (i: number = NaN) =>
-      mutations
-        .map((mutation): ((i: number) => number) =>
-          mutation._type == "r"
-            ? (j) =>
-                j < mutation._index ? j : j == mutation._index ? NaN : j - 1
-            : mutation._type == "a"
-              ? (j) => (j < mutation._index ? j : j + 1)
-              : mutation._type == "m"
-                ? (j) =>
-                    mutation._to <= j && j < mutation._from
-                      ? j + 1
-                      : j == mutation._from
-                        ? mutation._to
-                        : j
-                : (j) => j,
-        )
-        .reduce((i, fn) => fn(i), i);
+    const transformToOldIndex = (i: number = NaN) => {
+      let index = i;
 
-    for (const key of oldIndexMap.keys()) {
-      const i = transformToOldIndex(oldIndexMap.get(key));
+      for (const mutation of mutations) {
+        if (isNaN(index)) break;
 
-      if (!newIndexMap.has(key)) {
-        mutations.push({
-          _type: "r",
-          _key: key,
-          _index: i,
-        });
+        if (mutation._type == "r") {
+          index =
+            index < mutation._index
+              ? index
+              : index == mutation._index
+                ? NaN
+                : index - 1;
+        } else if (mutation._type == "a") {
+          index = index < mutation._index ? index : index + 1;
+        } else if (mutation._type == "m") {
+          index =
+            mutation._to <= index && index < mutation._from
+              ? index + 1
+              : index == mutation._from
+                ? mutation._to
+                : index;
+        }
       }
+
+      return index;
+    };
+
+    for (const entry of _removedFromOld) {
+      mutations.push({
+        _type: "r",
+        _key: entry._key,
+        _index: entry._oldIndex - entry._removedBefore,
+      });
     }
 
-    for (let i = 0; i < array().length; i++) {
-      const key = keyFn(array()[i], i);
+    for (const [key, i] of newIndexMap) {
       const oldIndex = transformToOldIndex(oldIndexMap.get(key));
 
       if (isNaN(oldIndex)) {

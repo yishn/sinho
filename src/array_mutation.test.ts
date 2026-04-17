@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { performance } from "node:perf_hooks";
 import { test } from "node:test";
 import { ArrayMutation, useArrayMutation } from "./array_mutation.js";
 import { useEffect, useSignal } from "./mod.js";
@@ -92,4 +93,41 @@ test("Basic usage of useArrayMutation", () => {
     { _type: "m", _key: "Book 1", _from: 2, _to: 0 },
     { _type: "m", _key: "Book 5", _from: 3, _to: 2 },
   ]);
+});
+
+test("Benchmark useArrayMutation for repeated list updates", () => {
+  const size = 200;
+  const iterations = 400;
+  const base = Array.from({ length: size }, (_, i) => ({ id: i }));
+  const [array, setArray] = useSignal(base);
+
+  let totalMutations = 0;
+  const mutationResult = useArrayMutation(array, (entry) => entry.id);
+
+  useEffect(() => {
+    totalMutations += mutationResult()._mutations.length;
+  });
+
+  const start = performance.now();
+
+  for (let i = 0; i < iterations; i++) {
+    const shift = i % size;
+
+    setArray((arr) => {
+      const next = arr.slice();
+      const head = next.splice(0, shift);
+
+      next.push(...head);
+      return next;
+    });
+  }
+
+  const durationMs = performance.now() - start;
+
+  // Keep this as a benchmark smoke test: assert useful work happened.
+  assert.ok(totalMutations > 0);
+
+  console.info(
+    `[benchmark] useArrayMutation: ${iterations} updates on ${size} items in ${durationMs.toFixed(2)}ms`,
+  );
 });
